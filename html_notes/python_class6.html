@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 6 — Modules, Errors & OOP</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --card:#22263a; --card2:#1e2235;
+    --accent:#f472b6; --accent2:#ff6b6b; --accent3:#43e97b;
+    --accent4:#f7971e; --accent5:#38bdf8; --accent6:#a78bfa;
+    --text:#e8eaf6; --muted:#8892b0; --border:#2e3350;
+    --success:#43e97b; --fail:#ff6b6b; --code-bg:#12151f;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;line-height:1.7;min-height:100vh;}
+
+  /* ── HEADER ── */
+  .site-header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px;}
+  .logo{font-size:1.3rem;font-weight:900;white-space:nowrap;}.logo span{color:var(--accent);}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .nav-btn{padding:6px 14px;border:1px solid var(--border);border-radius:99px;background:var(--surface);color:var(--muted);font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .progress-bar-wrap{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--muted);}
+  .progress-track{width:140px;height:8px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent6));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%;}
+  #progress-label{font-weight:700;color:var(--accent);min-width:36px;}
+
+  /* ── HERO ── */
+  .hero{text-align:center;padding:72px 24px 48px;background:radial-gradient(ellipse 80% 50% at 50% 0%,#f472b618,transparent);}
+  .hero-emoji{font-size:4rem;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1.15;margin-bottom:16px;}
+  .hero h1 em{font-style:normal;color:var(--accent);}
+  .hero p{color:var(--muted);max-width:560px;margin:0 auto 32px;font-size:1.05rem;}
+  .class-badge{display:inline-block;background:var(--accent);color:#0f1117;font-size:.8rem;font-weight:800;padding:4px 14px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;}
+  .grad-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f472b633,#a78bfa33);border:1px solid #f472b644;border-radius:99px;padding:8px 20px;font-size:.9rem;font-weight:700;color:var(--accent);margin-top:8px;}
+
+  /* ── RECAP ── */
+  .recap-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 24px 40px;}
+  .recap-chip{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;color:var(--muted);}
+  .recap-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);}
+
+  /* ── NAV ── */
+  .lesson-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 24px 48px;}
+  .nav-pill{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;transition:all .2s;}
+  .nav-pill:hover{border-color:var(--accent);color:var(--text);}
+  .nav-pill.active{background:var(--accent);border-color:var(--accent);color:#0f1117;}
+  .nav-pill.done{border-color:var(--success);color:var(--success);}
+  .nav-pill.done::after{content:' ✓';}
+
+  /* ── MAIN ── */
+  .main{max-width:860px;margin:0 auto;padding:0 24px 80px;}
+  .lesson-section{margin-bottom:56px;scroll-margin-top:80px;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+  .section-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+  .icon-pink{background:#f472b622;} .icon-blue{background:#38bdf822;}
+  .icon-green{background:#43e97b22;} .icon-orange{background:#f7971e22;}
+  .icon-purple{background:#a78bfa22;} .icon-red{background:#ff6b6b22;}
+  .section-title{font-size:1.5rem;font-weight:900;}
+  .section-sub{color:var(--muted);font-size:.9rem;margin-top:2px;}
+
+  /* ── CARD ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+  .card h3{font-size:1.05rem;font-weight:800;margin-bottom:10px;}
+  .card p{color:var(--muted);font-size:.95rem;line-height:1.7;}
+  .card p+p{margin-top:10px;}
+  code{font-family:'Fira Code',monospace;background:var(--card2);padding:1px 6px;border-radius:4px;font-size:.88em;color:var(--accent);}
+
+  .analogy-box{background:#f472b612;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .analogy-box strong{color:var(--accent);}
+  .tip-box{background:#43e97b12;border-left:3px solid var(--accent3);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .tip-box strong{color:var(--accent3);}
+  .warn-box{background:#ff6b6b12;border-left:3px solid var(--fail);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .warn-box strong{color:var(--fail);}
+  .info-box{background:#a78bfa12;border-left:3px solid var(--accent6);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .info-box strong{color:var(--accent6);}
+
+  /* ── CODE ── */
+  .code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:16px 0;}
+  .code-topbar{background:#1a1d27;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .code-dots{display:flex;gap:6px;}.code-dots span{width:12px;height:12px;border-radius:50%;}
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label{font-size:.78rem;color:var(--muted);font-family:'Fira Code',monospace;}
+  .code-copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;}
+  .code-copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+  pre{padding:20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.8;}
+  .kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#546e7a;font-style:italic}.var{color:#ffcb6b}.op{color:#89ddff}.cls{color:#f472b6}.dec{color:#a78bfa}
+
+  /* ── OUTPUT ── */
+  .output-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-family:'Nunito',sans-serif;font-weight:700;}
+  .output-box{background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 20px;font-family:'Fira Code',monospace;font-size:.88rem;color:var(--accent3);white-space:pre;}
+
+  /* ── INTERACTIVE CODE ── */
+  .interactive-code{background:var(--code-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:16px 0;}
+  .interactive-topbar{background:#1a1d27;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .ic-label{font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.06em;}
+  .ic-textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'Fira Code',monospace;font-size:.9rem;padding:20px;resize:vertical;min-height:120px;line-height:1.8;}
+  .ic-run-btn{display:flex;align-items:center;gap:6px;background:var(--accent3);color:#0f1117;border:none;padding:10px 22px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:opacity .2s;margin:0 16px 16px;}
+  .ic-run-btn:hover{opacity:.85;}
+  .ic-output{margin:0 16px 16px;background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;min-height:44px;color:var(--accent3);display:none;white-space:pre-wrap;}
+  .ic-output.visible{display:block;} .ic-error{color:var(--fail);}
+
+  /* ── MODULE CARDS ── */
+  .module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0;}
+  .module-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px;transition:transform .2s,border-color .2s;cursor:default;}
+  .module-card:hover{transform:translateY(-3px);}
+  .module-card.mc-pink  {border-top:3px solid var(--accent);}
+  .module-card.mc-blue  {border-top:3px solid var(--accent5);}
+  .module-card.mc-green {border-top:3px solid var(--accent3);}
+  .module-icon{font-size:1.8rem;margin-bottom:8px;}
+  .module-name{font-family:'Fira Code',monospace;font-weight:700;font-size:.95rem;margin-bottom:4px;}
+  .module-desc{font-size:.8rem;color:var(--muted);}
+
+  /* ── TRY/EXCEPT FLOW ── */
+  .flow-viz{display:flex;flex-direction:column;align-items:center;gap:0;margin:20px 0;}
+  .flow-box{padding:12px 28px;border-radius:12px;font-weight:700;font-size:.9rem;text-align:center;max-width:280px;}
+  .flow-try{background:#38bdf822;border:2px solid var(--accent5);color:var(--accent5);}
+  .flow-q{background:#f7971e22;border:2px solid var(--accent4);color:var(--accent4);}
+  .flow-ok{background:#43e97b22;border:2px solid var(--success);color:var(--success);}
+  .flow-err{background:#ff6b6b22;border:2px solid var(--fail);color:var(--fail);}
+  .flow-arrow{width:2px;height:20px;background:var(--border);margin:0 auto;position:relative;}
+  .flow-arrow::after{content:'▼';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);color:var(--muted);font-size:.7rem;}
+  .flow-branches{display:flex;gap:40px;align-items:flex-start;justify-content:center;margin:4px 0;}
+  .flow-branch{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .flow-blabel{font-size:.75rem;font-weight:800;padding:2px 10px;border-radius:99px;margin-bottom:6px;}
+  .fbl-ok {background:#43e97b22;color:var(--success);border:1px solid #43e97b44;}
+  .fbl-err{background:#ff6b6b22;color:var(--fail);border:1px solid #ff6b6b44;}
+
+  /* ── OOP DIAGRAM ── */
+  .oop-diagram{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  .oop-box{background:var(--card2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .oop-box-header{padding:10px 16px;font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:8px;}
+  .oop-class{border-top:3px solid var(--accent);}
+  .oop-class .oop-box-header{background:#f472b622;color:var(--accent);}
+  .oop-object{border-top:3px solid var(--accent6);}
+  .oop-object .oop-box-header{background:#a78bfa22;color:var(--accent6);}
+  .oop-body{padding:12px 16px;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.9;}
+  .oop-attr{color:var(--accent3);}
+  .oop-method{color:#82aaff;}
+  @media(max-width:560px){.oop-diagram{grid-template-columns:1fr;}}
+
+  /* ── MODULE SIMULATOR ── */
+  .mod-sim{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;}
+  .mod-sim h3{font-size:.95rem;font-weight:800;margin-bottom:14px;color:var(--accent5);}
+  .mod-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .mod-btn{padding:8px 16px;border-radius:8px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:opacity .2s;}
+  .mod-btn:hover{opacity:.85;}
+  .mbt-math{background:#38bdf8;color:#0f1117;}
+  .mbt-rand{background:#a78bfa;color:#fff;}
+  .mbt-date{background:#f472b6;color:#0f1117;}
+  .mod-output{background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent3);min-height:44px;white-space:pre-wrap;}
+
+  /* ── ERROR SIMULATOR ── */
+  .err-sim{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;}
+  .err-sim h3{font-size:.95rem;font-weight:800;margin-bottom:14px;color:var(--accent2);}
+  .err-sim-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+  .err-sim-row label{color:var(--muted);font-weight:700;font-size:.88rem;min-width:100px;}
+  .err-inp{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Fira Code',monospace;font-size:.88rem;outline:none;flex:1;min-width:100px;transition:border-color .2s;}
+  .err-inp:focus{border-color:var(--accent);}
+  .err-run-btn{background:var(--accent);color:#0f1117;border:none;padding:10px 22px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+  .err-run-btn:hover{opacity:.85;}
+  .err-output{margin-top:12px;background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent3);display:none;white-space:pre;}
+  .err-output.visible{display:block;}
+
+  /* ── OOP BUILDER ── */
+  .oop-builder{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;}
+  .oop-builder h3{font-size:.95rem;font-weight:800;margin-bottom:14px;color:var(--accent);}
+  .ob-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+  .ob-label{color:var(--muted);font-weight:700;font-size:.88rem;min-width:80px;}
+  .ob-input{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Fira Code',monospace;font-size:.88rem;outline:none;flex:1;min-width:100px;transition:border-color .2s;}
+  .ob-input:focus{border-color:var(--accent);}
+  .ob-btn{background:var(--accent);color:#0f1117;border:none;padding:10px 22px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+  .ob-btn:hover{opacity:.85;}
+  .ob-output{margin-top:14px;display:none;}
+  .ob-output.visible{display:block;}
+  .ob-card{background:var(--card2);border:1px solid var(--accent);border-radius:12px;padding:16px;font-family:'Fira Code',monospace;font-size:.85rem;line-height:1.9;}
+  .ob-card-header{color:var(--accent);font-weight:700;margin-bottom:8px;font-family:'Nunito',sans-serif;font-size:.9rem;}
+
+  /* ── ROADMAP ── */
+  .roadmap{display:flex;flex-direction:column;gap:0;margin:20px 0;position:relative;}
+  .roadmap::before{content:'';position:absolute;left:22px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),var(--accent6));border-radius:2px;}
+  .rm-item{display:flex;align-items:flex-start;gap:16px;padding:12px 0;}
+  .rm-dot{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;z-index:1;border:3px solid var(--bg);}
+  .rm-text strong{color:var(--text);display:block;font-size:.95rem;}
+  .rm-text span{color:var(--muted);font-size:.83rem;}
+
+  /* ── QUIZ ── */
+  .quiz-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;}
+  .quiz-header{background:var(--card2);padding:16px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .quiz-num{background:var(--accent);color:#0f1117;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0;}
+  .quiz-q{font-weight:700;font-size:.98rem;}
+  .quiz-body{padding:20px 24px;}
+  .quiz-code-snip{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{display:flex;align-items:center;gap:12px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;font-size:.92rem;font-weight:600;user-select:none;}
+  .quiz-option:hover{border-color:var(--accent);background:#f472b610;}
+  .quiz-option.correct{border-color:var(--success);background:#43e97b12;color:var(--success);}
+  .quiz-option.wrong{border-color:var(--fail);background:#ff6b6b12;color:var(--fail);}
+  .quiz-option.disabled{pointer-events:none;}
+  .opt-indicator{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;}
+  .quiz-option.correct .opt-indicator{background:var(--success);border-color:var(--success);color:#0f1117;}
+  .quiz-option.wrong .opt-indicator{background:var(--fail);border-color:var(--fail);color:#fff;}
+  .quiz-feedback{margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.9rem;font-weight:600;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.fb-correct{background:#43e97b12;color:var(--success);border:1px solid #43e97b33;}
+  .quiz-feedback.fb-wrong{background:#ff6b6b12;color:#ff9a9a;border:1px solid #ff6b6b33;}
+
+  /* FIB */
+  .fib-wrap{font-family:'Fira Code',monospace;font-size:.9rem;line-height:2.6;}
+  .fib-input{background:var(--code-bg);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;color:var(--accent3);font-family:'Fira Code',monospace;font-size:.9rem;width:140px;outline:none;transition:border-color .2s;}
+  .fib-input.correct{border-color:var(--success);color:var(--success);}
+  .fib-input.wrong{border-color:var(--fail);color:var(--fail);}
+  .fib-btn{background:var(--accent);color:#0f1117;border:none;padding:8px 20px;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;margin-top:12px;transition:opacity .2s;display:block;}
+  .fib-btn:hover{opacity:.85;}
+
+  /* ── SCORE ── */
+  .score-card{background:linear-gradient(135deg,#f472b622,#a78bfa11);border:1px solid var(--accent);border-radius:20px;padding:32px;text-align:center;margin-top:40px;}
+  .score-emoji{font-size:3.5rem;display:block;margin-bottom:12px;}
+  .score-main{font-size:3rem;font-weight:900;color:var(--accent3);margin-bottom:8px;}
+  .score-sub{color:var(--muted);margin-bottom:20px;}
+  .score-bar-wrap{max-width:300px;margin:0 auto 20px;}
+  .score-bar-bg{background:var(--border);border-radius:99px;height:12px;overflow:hidden;}
+  .score-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent6));border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1) .3s;}
+  .restart-btn{background:var(--accent);color:#0f1117;border:none;padding:12px 32px;border-radius:99px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+  .restart-btn:hover{opacity:.85;}
+
+  /* GRAD */
+  .grad-section{background:linear-gradient(135deg,#f472b622,#a78bfa22);border:1px solid #f472b644;border-radius:20px;padding:40px 32px;text-align:center;margin-top:40px;}
+  .grad-section h2{font-size:1.8rem;font-weight:900;margin-bottom:12px;}
+  .grad-section p{color:var(--muted);font-size:.95rem;max-width:480px;margin:0 auto 24px;}
+
+  /* MISC */
+  .confetti-piece{position:fixed;width:10px;height:10px;pointer-events:none;animation:confetti-fall 2s ease-out forwards;z-index:9999;border-radius:2px;}
+  @keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+  .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:48px 0;}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .5s,transform .5s;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .checkpoint{display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:16px 0;}
+  .checkpoint-icon{font-size:1.8rem;}
+  .checkpoint-text{font-size:.9rem;color:var(--muted);}
+  .checkpoint-text strong{color:var(--text);display:block;margin-bottom:2px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:.78rem;} .flow-branches{gap:16px;}}
+  .cmp-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .cmp-box h4{font-size:.88rem;font-weight:800;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="header-right">
+    <span class="nav-btn">← Class 5</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Class 6 — Final Class 🎓</span>
+  <span class="hero-emoji">🚀</span>
+  <h1>Modules, Errors & <em>Your First Class!</em></h1>
+  <p>The grand finale! Today we use Python's built-in powers, handle errors like a pro, and learn Object-Oriented Programming — the foundation of modern software.</p>
+  <div class="grad-badge">🎓 Complete all 7 sections to earn your Python Beginner Certificate!</div>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Class 5 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>Dictionaries — key:value</div>
+  <div class="recap-chip"><span class="dot"></span>Tuples — immutable lists</div>
+  <div class="recap-chip"><span class="dot"></span>File read &amp; write</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="gotoSec('sec1')">1. Modules</button>
+  <button class="nav-pill" onclick="gotoSec('sec2')">2. try / except</button>
+  <button class="nav-pill" onclick="gotoSec('sec3')">3. What is OOP?</button>
+  <button class="nav-pill" onclick="gotoSec('sec4')">4. Classes &amp; Objects</button>
+  <button class="nav-pill" onclick="gotoSec('sec5')">5. Methods &amp; self</button>
+  <button class="nav-pill" onclick="gotoSec('sec6')">6. Mini Project</button>
+  <button class="nav-pill" onclick="gotoSec('sec7')">7. Final Quiz!</button>
+</nav>
+
+<main class="main">
+
+<!-- ── SEC 1: MODULES ── -->
+<section class="lesson-section reveal" id="sec1">
+  <div class="section-header">
+    <div class="section-icon icon-blue">📦</div>
+    <div><div class="section-title">Modules — Python's Toolboxes</div>
+    <div class="section-sub">Using pre-built code to save time</div></div>
+  </div>
+
+  <div class="card">
+    <h3>What is a Module?</h3>
+    <p>A module is a file full of ready-made functions that someone else already wrote. Instead of building everything from scratch, you <strong>import</strong> a module and use its tools instantly. Python ships with hundreds of modules built in!</p>
+    <div class="analogy-box">
+      <strong>🧰 Analogy:</strong> Imagine a hardware store. You do not manufacture your own screwdriver — you buy one. Python modules are your hardware store. Need maths? Import <code>math</code>. Need random numbers? Import <code>random</code>. Already built, tested, and ready!
+    </div>
+  </div>
+
+  <div class="module-grid">
+    <div class="module-card mc-blue">
+      <div class="module-icon">🔢</div>
+      <div class="module-name">math</div>
+      <div class="module-desc">Square roots, powers, pi, floor, ceiling and more maths functions</div>
+    </div>
+    <div class="module-card mc-pink">
+      <div class="module-icon">🎲</div>
+      <div class="module-name">random</div>
+      <div class="module-desc">Random numbers, shuffle lists, pick random items — great for games</div>
+    </div>
+    <div class="module-card mc-green">
+      <div class="module-icon">📅</div>
+      <div class="module-name">datetime</div>
+      <div class="module-desc">Get today's date and time, calculate time differences, format dates</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Importing and using modules</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">modules.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Import the entire module</span>
+<span class="kw">import</span> math
+<span class="fn">print</span>(math.<span class="fn">sqrt</span>(<span class="num">16</span>))      <span class="cmt"># 4.0 — square root</span>
+<span class="fn">print</span>(math.<span class="fn">floor</span>(<span class="num">4.9</span>))    <span class="cmt"># 4   — round down</span>
+<span class="fn">print</span>(math.<span class="fn">ceil</span>(<span class="num">4.1</span>))     <span class="cmt"># 5   — round up</span>
+<span class="fn">print</span>(math.pi)            <span class="cmt"># 3.14159...</span>
+
+<span class="cmt"># Import specific functions only</span>
+<span class="kw">from</span> random <span class="kw">import</span> randint, choice, shuffle
+
+<span class="fn">print</span>(<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">6</span>))      <span class="cmt"># random number 1-6 (dice roll!)</span>
+<span class="fn">print</span>(<span class="fn">choice</span>([<span class="str">"rock"</span>, <span class="str">"paper"</span>, <span class="str">"scissors"</span>]))
+
+<span class="cmt"># datetime — get today's date</span>
+<span class="kw">from</span> datetime <span class="kw">import</span> date
+<span class="var">today</span> <span class="op">=</span> date.<span class="fn">today</span>()
+<span class="fn">print</span>(<span class="str">f"Today is: {today}"</span>)</pre>
+    </div>
+  </div>
+
+  <!-- MODULE SIMULATOR -->
+  <div class="mod-sim">
+    <h3>🎮 Module Simulator — Click to run each module live!</h3>
+    <div class="mod-btns">
+      <button class="mod-btn mbt-math" onclick="runMath()">🔢 Run math module</button>
+      <button class="mod-btn mbt-rand" onclick="runRandom()">🎲 Run random module</button>
+      <button class="mod-btn mbt-date" onclick="runDate()">📅 Run datetime module</button>
+    </div>
+    <div class="mod-output" id="modOutput">Click a button above to see output...</div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Use math module</span></div>
+    <textarea class="ic-textarea" id="try1" spellcheck="false">import math
+
+number = 144
+print("Square root of", number, "=", math.sqrt(number))
+print("Pi =", math.pi)
+print("Floor of 7.8 =", math.floor(7.8))
+print("Ceil  of 7.2 =", math.ceil(7.2))
+print("2 to power 8 =", math.pow(2, 8))</textarea>
+    <button class="ic-run-btn" onclick="runCode('try1','out1')">▶ Run Code</button>
+    <div class="ic-output" id="out1"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 2: TRY / EXCEPT ── -->
+<section class="lesson-section reveal" id="sec2">
+  <div class="section-header">
+    <div class="section-icon icon-red">🛡️</div>
+    <div><div class="section-title">try / except — Handling Errors Gracefully</div>
+    <div class="section-sub">Stop your program from crashing on bad input</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Why do we need error handling?</h3>
+    <p>Real programs deal with unpredictable users. What if someone types "hello" when you ask for a number? Without error handling, Python crashes. With <code>try/except</code>, you catch the error and respond gracefully!</p>
+    <div class="analogy-box">
+      <strong>🏥 Analogy:</strong> A good hospital has an emergency plan. If something goes wrong, they do not shut down — they handle it calmly. <code>try/except</code> is your program's emergency plan. Try the risky thing, and if it fails, handle it calmly instead of crashing!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How try / except works</h3>
+    <div class="flow-viz">
+      <div class="flow-box flow-try">try: run this code</div>
+      <div class="flow-arrow"></div>
+      <div class="flow-box flow-q">Did an error occur?</div>
+      <div class="flow-branches">
+        <div class="flow-branch">
+          <span class="flow-blabel fbl-ok">NO — all good</span>
+          <div class="flow-arrow" style="height:16px"></div>
+          <div class="flow-box flow-ok">Continue normally</div>
+        </div>
+        <div class="flow-branch">
+          <span class="flow-blabel fbl-err">YES — error!</span>
+          <div class="flow-arrow" style="height:16px"></div>
+          <div class="flow-box flow-err">except: handle it</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>try / except in code</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">error_handling.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Without try/except — this crashes if user types text!</span>
+<span class="cmt"># age = int(input("Enter age: "))</span>
+
+<span class="cmt"># WITH try/except — handles it gracefully</span>
+<span class="kw">try</span>:
+    <span class="var">age</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter your age: "</span>))
+    <span class="fn">print</span>(<span class="str">f"Next year you will be {age + 1}"</span>)
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="str">"That is not a valid number! Please enter digits only."</span>)
+
+<span class="cmt"># Multiple except blocks for different errors</span>
+<span class="kw">try</span>:
+    <span class="var">result</span> <span class="op">=</span> <span class="num">10</span> <span class="op">/</span> <span class="num">0</span>
+<span class="kw">except</span> ZeroDivisionError:
+    <span class="fn">print</span>(<span class="str">"Cannot divide by zero!"</span>)
+
+<span class="cmt"># finally — always runs, error or not</span>
+<span class="kw">try</span>:
+    <span class="var">x</span> <span class="op">=</span> <span class="fn">int</span>(<span class="str">"hello"</span>)
+<span class="kw">except</span> ValueError:
+    <span class="fn">print</span>(<span class="str">"Caught the error!"</span>)
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="str">"This always runs."</span>)</pre>
+    </div>
+    <div class="output-label">▶ Output</div>
+    <div class="output-box">Cannot divide by zero!
+Caught the error!
+This always runs.</div>
+
+    <div class="tip-box">
+      <strong>📌 Common error types:</strong><br>
+      <code>ValueError</code> — wrong type (e.g. int("hello"))<br>
+      <code>ZeroDivisionError</code> — dividing by zero<br>
+      <code>IndexError</code> — list index out of range<br>
+      <code>KeyError</code> — dictionary key not found<br>
+      <code>Exception</code> — catches ANY error (use as last resort)
+    </div>
+  </div>
+
+  <!-- ERROR SIMULATOR -->
+  <div class="err-sim">
+    <h3>🎮 Error Handler Simulator — Type a number (or something wrong!) and see what happens</h3>
+    <div class="err-sim-row">
+      <label>Enter a number:</label>
+      <input class="err-inp" id="errInp" placeholder="e.g. 25 or try: hello">
+    </div>
+    <div class="err-sim-row">
+      <label>Divide by:</label>
+      <input class="err-inp" id="errDiv" placeholder="e.g. 5 or try: 0">
+    </div>
+    <button class="err-run-btn" onclick="runErrorSim()">▶ Run with try/except</button>
+    <div class="err-output" id="errOutput"></div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Safe division function</span></div>
+    <textarea class="ic-textarea" id="try2" spellcheck="false">def safe_divide(a, b):
+    try:
+        result = a / b
+        return result
+    except ZeroDivisionError:
+        return "Error: Cannot divide by zero!"
+
+print(safe_divide(10, 2))
+print(safe_divide(10, 0))
+print(safe_divide(99, 3))</textarea>
+    <button class="ic-run-btn" onclick="runCode('try2','out2')">▶ Run Code</button>
+    <div class="ic-output" id="out2"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 3: WHAT IS OOP ── -->
+<section class="lesson-section reveal" id="sec3">
+  <div class="section-header">
+    <div class="section-icon icon-pink">🏗️</div>
+    <div><div class="section-title">What is OOP?</div>
+    <div class="section-sub">Object-Oriented Programming — modelling the real world in code</div></div>
+  </div>
+
+  <div class="card">
+    <h3>The Big Idea</h3>
+    <p>Everything in the real world is an <strong>object</strong> — a car, a student, a bank account. Each object has <strong>properties</strong> (name, age, balance) and can <strong>do things</strong> (drive, study, deposit money).</p>
+    <p>OOP lets you model real-world things directly in code. You create a <strong>class</strong> (the blueprint) and then make <strong>objects</strong> (actual instances) from it.</p>
+    <div class="analogy-box">
+      <strong>🏠 Analogy:</strong> A class is like an architect's blueprint for a house. The blueprint defines what every house will have (rooms, doors, windows). Each actual house built from that blueprint is an object. You can build many houses from one blueprint — each a bit different but following the same design!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Class vs Object — the key distinction</h3>
+    <div class="oop-diagram">
+      <div class="oop-box oop-class">
+        <div class="oop-box-header">📋 Class (blueprint)</div>
+        <div class="oop-body">
+          <span class="kw" style="color:#c792ea">class</span> <span class="cls">Student</span>:<br>
+          &nbsp;&nbsp;<span class="oop-attr">name</span> = ???<br>
+          &nbsp;&nbsp;<span class="oop-attr">age</span> = ???<br>
+          &nbsp;&nbsp;<span class="oop-attr">marks</span> = ???<br>
+          &nbsp;&nbsp;<span class="oop-method">study()</span><br>
+          &nbsp;&nbsp;<span class="oop-method">get_grade()</span>
+        </div>
+      </div>
+      <div class="oop-box oop-object">
+        <div class="oop-box-header">🧍 Object (real instance)</div>
+        <div class="oop-body">
+          <span class="var">riya</span> = Student()<br>
+          &nbsp;&nbsp;<span class="oop-attr">name</span> = "Riya"<br>
+          &nbsp;&nbsp;<span class="oop-attr">age</span> = 20<br>
+          &nbsp;&nbsp;<span class="oop-attr">marks</span> = 92<br>
+          &nbsp;&nbsp;<span class="oop-method">riya.study()</span><br>
+          &nbsp;&nbsp;<span class="oop-method">riya.get_grade()</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip-box">
+      <strong>🔑 Core OOP vocabulary:</strong><br>
+      <strong>Class</strong> — the blueprint / template<br>
+      <strong>Object</strong> — a real thing made from the class<br>
+      <strong>Attribute</strong> — a property of the object (name, age, marks)<br>
+      <strong>Method</strong> — a function that belongs to the class (study, get_grade)
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 4: CLASSES & OBJECTS ── -->
+<section class="lesson-section reveal" id="sec4">
+  <div class="section-header">
+    <div class="section-icon icon-purple">✏️</div>
+    <div><div class="section-title">Creating Classes & Objects</div>
+    <div class="section-sub">Writing your first class with __init__</div></div>
+  </div>
+
+  <div class="card">
+    <h3>The __init__ method — the constructor</h3>
+    <p><code>__init__</code> is a special method that runs <strong>automatically</strong> when you create a new object. It sets up the object's initial data. Think of it as the "setup instructions" that run the moment a new object is born.</p>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">class_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Define the class (blueprint)</span>
+<span class="kw">class</span> <span class="cls">Student</span>:
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">age</span>):
+        <span class="cmt"># self = the object being created</span>
+        <span class="var">self</span>.<span class="var">name</span> <span class="op">=</span> <span class="var">name</span>   <span class="cmt"># save as attribute</span>
+        <span class="var">self</span>.<span class="var">age</span>  <span class="op">=</span> <span class="var">age</span>
+
+<span class="cmt"># Create objects (instances) from the class</span>
+<span class="var">riya</span>  <span class="op">=</span> <span class="cls">Student</span>(<span class="str">"Riya"</span>, <span class="num">20</span>)
+<span class="var">ali</span>   <span class="op">=</span> <span class="cls">Student</span>(<span class="str">"Ali"</span>,  <span class="num">22</span>)
+<span class="var">priya</span> <span class="op">=</span> <span class="cls">Student</span>(<span class="str">"Priya"</span>, <span class="num">21</span>)
+
+<span class="cmt"># Access attributes with dot notation</span>
+<span class="fn">print</span>(<span class="var">riya</span>.<span class="var">name</span>)    <span class="cmt"># Riya</span>
+<span class="fn">print</span>(<span class="var">ali</span>.<span class="var">age</span>)     <span class="cmt"># 22</span>
+<span class="fn">print</span>(<span class="var">priya</span>.<span class="var">name</span>)  <span class="cmt"># Priya</span></pre>
+    </div>
+    <div class="output-label">▶ Output</div>
+    <div class="output-box">Riya
+22
+Priya</div>
+
+    <div class="warn-box">
+      <strong>⚠️ What is <code>self</code>?</strong> <code>self</code> refers to the specific object being created or used. When you call <code>riya.name</code>, Python translates that to "give me the name of the <em>riya</em> object". You must always include <code>self</code> as the first parameter in every method — Python passes it automatically!
+    </div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Create your first class</span></div>
+    <textarea class="ic-textarea" id="try4" spellcheck="false">class Dog:
+    def __init__(self, name, breed, age):
+        self.name  = name
+        self.breed = breed
+        self.age   = age
+
+dog1 = Dog("Bruno", "Labrador", 3)
+dog2 = Dog("Milo",  "Poodle",   5)
+
+print("Dog 1:", dog1.name, "-", dog1.breed, "- Age:", dog1.age)
+print("Dog 2:", dog2.name, "-", dog2.breed, "- Age:", dog2.age)</textarea>
+    <button class="ic-run-btn" onclick="runCode('try4','out4')">▶ Run Code</button>
+    <div class="ic-output" id="out4"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 5: METHODS ── -->
+<section class="lesson-section reveal" id="sec5">
+  <div class="section-header">
+    <div class="section-icon icon-green">⚙️</div>
+    <div><div class="section-title">Methods — Functions Inside a Class</div>
+    <div class="section-sub">Teaching your objects to do things</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Adding methods to a class</h3>
+    <p>Methods are functions defined inside a class. They always take <code>self</code> as the first parameter, which gives them access to the object's own data.</p>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">methods.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="kw">class</span> <span class="cls">Student</span>:
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">marks</span>):
+        <span class="var">self</span>.<span class="var">name</span>  <span class="op">=</span> <span class="var">name</span>
+        <span class="var">self</span>.<span class="var">marks</span> <span class="op">=</span> <span class="var">marks</span>
+
+    <span class="cmt"># Method — a function inside the class</span>
+    <span class="kw">def</span> <span class="fn">get_grade</span>(<span class="var">self</span>):
+        <span class="kw">if</span> <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">90</span>:
+            <span class="kw">return</span> <span class="str">"A"</span>
+        <span class="kw">elif</span> <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">80</span>:
+            <span class="kw">return</span> <span class="str">"B"</span>
+        <span class="kw">elif</span> <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">50</span>:
+            <span class="kw">return</span> <span class="str">"C"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="str">"F"</span>
+
+    <span class="kw">def</span> <span class="fn">introduce</span>(<span class="var">self</span>):
+        <span class="var">grade</span> <span class="op">=</span> <span class="var">self</span>.<span class="fn">get_grade</span>()
+        <span class="fn">print</span>(<span class="str">f"Hi! I am {self.name}, I scored {self.marks} — Grade {grade}"</span>)
+
+<span class="cmt"># Create objects and call methods</span>
+<span class="var">riya</span> <span class="op">=</span> <span class="cls">Student</span>(<span class="str">"Riya"</span>, <span class="num">92</span>)
+<span class="var">ali</span>  <span class="op">=</span> <span class="cls">Student</span>(<span class="str">"Ali"</span>,  <span class="num">74</span>)
+
+<span class="var">riya</span>.<span class="fn">introduce</span>()
+<span class="var">ali</span>.<span class="fn">introduce</span>()
+<span class="fn">print</span>(<span class="var">riya</span>.<span class="fn">get_grade</span>())   <span class="cmt"># A</span></pre>
+    </div>
+    <div class="output-label">▶ Output</div>
+    <div class="output-box">Hi! I am Riya, I scored 92 — Grade A
+Hi! I am Ali, I scored 74 — Grade C
+A</div>
+  </div>
+
+  <!-- OOP BUILDER -->
+  <div class="oop-builder">
+    <h3>🎮 Object Builder — Create a Student object and see it come alive!</h3>
+    <div class="ob-row"><span class="ob-label">Name:</span><input class="ob-input" id="obName" value="Riya" placeholder="Student name"></div>
+    <div class="ob-row"><span class="ob-label">Age:</span><input class="ob-input" id="obAge" value="20" type="number" placeholder="Age"></div>
+    <div class="ob-row"><span class="ob-label">Marks:</span><input class="ob-input" id="obMarks" value="87" type="number" min="0" max="100" placeholder="0-100"></div>
+    <div class="ob-row"><span class="ob-label">Course:</span><input class="ob-input" id="obCourse" value="AI Engineering" placeholder="Course name"></div>
+    <button class="ob-btn" onclick="buildObject()">▶ Create Student Object</button>
+    <div class="ob-output" id="obOutput">
+      <div class="ob-card">
+        <div class="ob-card-header">🧍 Student Object Created!</div>
+        <div id="obResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Add a method that updates marks</span></div>
+    <textarea class="ic-textarea" id="try5" spellcheck="false" style="min-height:200px">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner   = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance = self.balance + amount
+        print(f"Deposited {amount}. New balance: {self.balance}")
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print("Insufficient funds!")
+        else:
+            self.balance = self.balance - amount
+            print(f"Withdrew {amount}. New balance: {self.balance}")
+
+    def show_balance(self):
+        print(f"{self.owner}'s balance: Rs. {self.balance}")
+
+acc = BankAccount("Riya", 5000)
+acc.show_balance()
+acc.deposit(2000)
+acc.withdraw(1500)
+acc.withdraw(9000)
+acc.show_balance()</textarea>
+    <button class="ic-run-btn" onclick="runCode('try5','out5')">▶ Run Code</button>
+    <div class="ic-output" id="out5"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 6: MINI PROJECT ── -->
+<section class="lesson-section reveal" id="sec6">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🏆</div>
+    <div><div class="section-title">Mini Project — Student Grade Manager</div>
+    <div class="section-sub">Combining everything from all 6 classes into one real program!</div></div>
+  </div>
+
+  <div class="card">
+    <h3>What we are building</h3>
+    <p>A Student Grade Manager that uses a <code>Student</code> class, a list of student objects, loops, f-strings, error handling, and even a bit of math — all in one program. This is what a real Python mini-project looks like!</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">grade_manager.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <pre><span class="kw">import</span> math
+
+<span class="kw">class</span> <span class="cls">Student</span>:
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">marks</span>):
+        <span class="var">self</span>.<span class="var">name</span>  <span class="op">=</span> <span class="var">name</span>
+        <span class="var">self</span>.<span class="var">marks</span> <span class="op">=</span> <span class="var">marks</span>
+
+    <span class="kw">def</span> <span class="fn">get_grade</span>(<span class="var">self</span>):
+        <span class="kw">if</span>   <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">90</span>: <span class="kw">return</span> <span class="str">"A"</span>
+        <span class="kw">elif</span> <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">80</span>: <span class="kw">return</span> <span class="str">"B"</span>
+        <span class="kw">elif</span> <span class="var">self</span>.<span class="var">marks</span> <span class="op">>=</span> <span class="num">50</span>: <span class="kw">return</span> <span class="str">"C"</span>
+        <span class="kw">else</span>:                <span class="kw">return</span> <span class="str">"F"</span>
+
+    <span class="kw">def</span> <span class="fn">report</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="str">f"{self.name:<span style="color:#f78c6c">10</span>} | {self.marks:>3} | {self.get_grade()}"</span>
+
+
+<span class="kw">def</span> <span class="fn">class_summary</span>(<span class="var">students</span>):
+    <span class="var">total</span>   <span class="op">=</span> <span class="fn">sum</span>(<span class="var">s</span>.<span class="var">marks</span> <span class="kw">for</span> <span class="var">s</span> <span class="kw">in</span> <span class="var">students</span>)
+    <span class="var">average</span> <span class="op">=</span> <span class="var">total</span> <span class="op">/</span> <span class="fn">len</span>(<span class="var">students</span>)
+    <span class="var">highest</span> <span class="op">=</span> <span class="fn">max</span>(<span class="var">students</span>, <span class="var">key</span><span class="op">=</span><span class="kw">lambda</span> <span class="var">s</span>: <span class="var">s</span>.<span class="var">marks</span>)
+    <span class="var">lowest</span>  <span class="op">=</span> <span class="fn">min</span>(<span class="var">students</span>, <span class="var">key</span><span class="op">=</span><span class="kw">lambda</span> <span class="var">s</span>: <span class="var">s</span>.<span class="var">marks</span>)
+    <span class="fn">print</span>(<span class="str">f"\nClass average : {average:.1f}"</span>)
+    <span class="fn">print</span>(<span class="str">f"Highest scorer: {highest.name} ({highest.marks})"</span>)
+    <span class="fn">print</span>(<span class="str">f"Lowest scorer : {lowest.name}  ({lowest.marks})"</span>)
+
+
+<span class="cmt"># --- Main program ---</span>
+<span class="var">classroom</span> <span class="op">=</span> [
+    <span class="cls">Student</span>(<span class="str">"Riya"</span>,  <span class="num">92</span>),
+    <span class="cls">Student</span>(<span class="str">"Ali"</span>,   <span class="num">74</span>),
+    <span class="cls">Student</span>(<span class="str">"Priya"</span>, <span class="num">88</span>),
+    <span class="cls">Student</span>(<span class="str">"Rahul"</span>, <span class="num">55</span>),
+    <span class="cls">Student</span>(<span class="str">"Sneha"</span>, <span class="num">97</span>),
+]
+
+<span class="fn">print</span>(<span class="str">"====== Grade Report ======"</span>)
+<span class="fn">print</span>(<span class="str">f"{'Name':<span style="color:#f78c6c">10</span>} | {'Marks':>5} | Grade"</span>)
+<span class="fn">print</span>(<span class="str">"-" * 26</span>)
+<span class="kw">for</span> <span class="var">s</span> <span class="kw">in</span> <span class="var">classroom</span>:
+    <span class="fn">print</span>(<span class="var">s</span>.<span class="fn">report</span>())
+
+<span class="fn">class_summary</span>(<span class="var">classroom</span>)</pre>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ RUN THE PROJECT — Edit and experiment!</span></div>
+    <textarea class="ic-textarea" id="try6" spellcheck="false" style="min-height:260px">class Student:
+    def __init__(self, name, marks):
+        self.name  = name
+        self.marks = marks
+
+    def get_grade(self):
+        if   self.marks >= 90: return "A"
+        elif self.marks >= 80: return "B"
+        elif self.marks >= 50: return "C"
+        else:                  return "F"
+
+    def report(self):
+        print(f"  {self.name}: {self.marks}/100 -> Grade {self.get_grade()}")
+
+classroom = [
+    Student("Riya",  92),
+    Student("Ali",   74),
+    Student("Priya", 88),
+    Student("Rahul", 55),
+    Student("Sneha", 97),
+]
+
+print("====== Grade Report ======")
+for s in classroom:
+    s.report()
+
+total = 0
+for s in classroom:
+    total = total + s.marks
+average = total / len(classroom)
+print(f"\nClass average: {average}")</textarea>
+    <button class="ic-run-btn" onclick="runCode('try6','out6')">▶ Run Code</button>
+    <div class="ic-output" id="out6"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 7: FINAL QUIZ ── -->
+<section class="lesson-section reveal" id="sec7">
+  <div class="section-header">
+    <div class="section-icon icon-pink">🏆</div>
+    <div><div class="section-title">Final Quiz! — Complete Python Beginner Test</div>
+    <div class="section-sub">12 questions covering all 6 classes</div></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="quiz-card" id="q1">
+    <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What keyword is used to bring a module into your program?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">A</span>include</div>
+        <div class="quiz-option" onclick="mcq('q1',this,true)"><span class="opt-indicator">B</span>import</div>
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">C</span>require</div>
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">D</span>use</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" id="q2">
+    <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What does <code>try/except</code> do?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">A</span>It makes code run faster</div>
+        <div class="quiz-option" onclick="mcq('q2',this,true)"><span class="opt-indicator">B</span>It handles errors gracefully so the program does not crash</div>
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">C</span>It tests if a condition is True</div>
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">D</span>It is another name for if/else</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" id="q3">
+    <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">In OOP, what is a <strong>class</strong>?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">A</span>A running instance of an object</div>
+        <div class="quiz-option" onclick="mcq('q3',this,true)"><span class="opt-indicator">B</span>A blueprint or template for creating objects</div>
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">C</span>A special type of function</div>
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">D</span>A list with named items</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card" id="q4">
+    <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What is the purpose of <code>__init__</code>?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">A</span>It imports a module</div>
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">B</span>It ends a class definition</div>
+        <div class="quiz-option" onclick="mcq('q4',this,true)"><span class="opt-indicator">C</span>It runs automatically when an object is created and sets up its initial data</div>
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">D</span>It is the same as a regular function</div>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card" id="q5">
+    <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What does <code>math.sqrt(25)</code> return?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">A</span>25</div>
+        <div class="quiz-option" onclick="mcq('q5',this,true)"><span class="opt-indicator">B</span>5.0</div>
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">C</span>625</div>
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">D</span>0.04</div>
+      </div>
+      <div class="quiz-feedback" id="q5-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-card" id="q6">
+    <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">What does <code>self</code> refer to inside a class method?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">A</span>The class itself</div>
+        <div class="quiz-option" onclick="mcq('q6',this,true)"><span class="opt-indicator">B</span>The specific object (instance) that the method is being called on</div>
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">C</span>A global variable</div>
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">D</span>The parent module</div>
+      </div>
+      <div class="quiz-feedback" id="q6-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-card" id="q7">
+    <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">What error type is raised when you try <code>int("hello")</code>?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">A</span>TypeError</div>
+        <div class="quiz-option" onclick="mcq('q7',this,true)"><span class="opt-indicator">B</span>ValueError</div>
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">C</span>IndexError</div>
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">D</span>SyntaxError</div>
+      </div>
+      <div class="quiz-feedback" id="q7-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-card" id="q8">
+    <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">Look at this code. What does it print?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-code-snip"><span class="kw">class</span> <span class="cls">Car</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, brand):
+        self.brand = brand
+
+<span class="var">c</span> = Car("Toyota")
+<span class="fn">print</span>(c.brand)</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">A</span>Car</div>
+        <div class="quiz-option" onclick="mcq('q8',this,true)"><span class="opt-indicator">B</span>Toyota</div>
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">C</span>brand</div>
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">D</span>Error</div>
+      </div>
+      <div class="quiz-feedback" id="q8-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q9 FIB -->
+  <div class="quiz-card" id="q9">
+    <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank — the special method that runs when an object is created:</div></div>
+    <div class="quiz-body">
+      <div class="fib-wrap">
+        <span style="color:var(--text)">def </span><input class="fib-input" id="fib9" placeholder="???" autocomplete="off" spellcheck="false" style="width:140px;"><span style="color:var(--text)">(self, name):</span>
+      </div>
+      <button class="fib-btn" onclick="fib('fib9','q9-fb',['__init__'],'q9')">Check Answer</button>
+      <div class="quiz-feedback" id="q9-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-card" id="q10">
+    <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Which block in try/except <strong>always</strong> runs, whether there is an error or not?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">A</span>except</div>
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">B</span>else</div>
+        <div class="quiz-option" onclick="mcq('q10',this,true)"><span class="opt-indicator">C</span>finally</div>
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">D</span>try</div>
+      </div>
+      <div class="quiz-feedback" id="q10-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="quiz-card" id="q11">
+    <div class="quiz-header"><div class="quiz-num">11</div><div class="quiz-q">How do you call a method on an object?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">A</span><code>call(riya, greet)</code></div>
+        <div class="quiz-option" onclick="mcq('q11',this,true)"><span class="opt-indicator">B</span><code>riya.greet()</code></div>
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">C</span><code>greet.riya()</code></div>
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">D</span><code>Student.greet(riya)</code></div>
+      </div>
+      <div class="quiz-feedback" id="q11-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q12 FIB -->
+  <div class="quiz-card" id="q12">
+    <div class="quiz-header"><div class="quiz-num">12</div><div class="quiz-q">Fill in the blank — to import only the <code>randint</code> function from random:</div></div>
+    <div class="quiz-body">
+      <div class="fib-wrap">
+        <input class="fib-input" id="fib12" placeholder="???" autocomplete="off" spellcheck="false" style="width:60px;"><span style="color:var(--text)"> random </span><input class="fib-input" id="fib12b" placeholder="???" autocomplete="off" spellcheck="false" style="width:60px;"><span style="color:var(--text)"> randint</span>
+      </div>
+      <button class="fib-btn" onclick="fibDouble()">Check Answer</button>
+      <div class="quiz-feedback" id="q12-fb"></div>
+    </div>
+  </div>
+
+  <!-- Score Card -->
+  <div class="score-card" id="scoreCard" style="display:none;">
+    <span class="score-emoji" id="scoreEmoji">🎉</span>
+    <div class="score-main" id="scoreMain">0 / 12</div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div></div>
+    <div style="color:var(--muted);font-size:.9rem;margin-bottom:20px" id="scoreTip"></div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- GRADUATION -->
+<div class="grad-section reveal">
+  <div style="font-size:3rem;margin-bottom:16px;">🎓</div>
+  <h2>You Completed the Python Beginner Course!</h2>
+  <p>In 6 classes you went from zero to understanding variables, loops, functions, lists, dictionaries, OOP and more. You are officially a Python beginner. What comes next?</p>
+  <div class="roadmap" style="text-align:left;max-width:480px;margin:0 auto 24px;">
+    <div class="rm-item">
+      <div class="rm-dot" style="background:#f472b622;border-color:#f472b6;">🐍</div>
+      <div class="rm-text"><strong>Python Intermediate</strong><span>List comprehensions, decorators, file handling deep dive, regex</span></div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot" style="background:#38bdf822;border-color:#38bdf8;">🗄️</div>
+      <div class="rm-text"><strong>Databases with Python</strong><span>SQLite, MySQL, PostgreSQL — store data permanently</span></div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot" style="background:#43e97b22;border-color:#43e97b;">🌐</div>
+      <div class="rm-text"><strong>Web with Python</strong><span>Flask or FastAPI — build real websites and APIs</span></div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot" style="background:#a78bfa22;border-color:#a78bfa;">🤖</div>
+      <div class="rm-text"><strong>AI & ML</strong><span>pandas, NumPy, scikit-learn, and beyond — the exciting stuff!</span></div>
+    </div>
+  </div>
+  <div class="grad-badge">🚀 Keep building. The best way to learn Python is to write Python every day!</div>
+</div>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections=7, completedSections=new Set();
+let quizAnswered={}, quizScore=0, quizTotal=12;
+
+// ── NAV ──
+function gotoSec(id){ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); }
+function updateProgress(){
+  let pct=Math.round((completedSections.size/totalSections)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=pct+'%';
+  document.querySelectorAll('.nav-pill').forEach((p,i)=>{if(completedSections.has(i)){p.classList.add('done');p.classList.remove('active');}});
+}
+let obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      let ids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx=ids.indexOf(e.target.id);
+      if(idx>=0){completedSections.add(idx);updateProgress();let pills=document.querySelectorAll('.nav-pill');pills.forEach(p=>p.classList.remove('active'));if(pills[idx])pills[idx].classList.add('active');}
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function copyCode(btn){navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);});}
+
+// ── MODULE SIMULATOR ──
+function runMath(){
+  let out = document.getElementById('modOutput');
+  out.textContent =
+    ">>> import math\n" +
+    ">>> math.sqrt(144)\n4.0 (square root of 144)\n" +
+    ">>> math.pi\n" + Math.PI.toFixed(10) + "\n" +
+    ">>> math.floor(7.9)\n7\n" +
+    ">>> math.ceil(7.1)\n8\n" +
+    ">>> math.pow(2, 10)\n" + Math.pow(2,10).toString();
+}
+function runRandom(){
+  let colors=['red','blue','green','yellow','purple'];
+  let pick=colors[Math.floor(Math.random()*colors.length)];
+  let num=Math.floor(Math.random()*100)+1;
+  let items=['rock','paper','scissors'];
+  let choice=items[Math.floor(Math.random()*items.length)];
+  let d1=Math.floor(Math.random()*6)+1,d2=Math.floor(Math.random()*6)+1;
+  document.getElementById('modOutput').textContent=
+    ">>> from random import randint, choice\n" +
+    ">>> randint(1, 100)\n"+num+"\n" +
+    ">>> choice(['rock','paper','scissors'])\n'"+choice+"'\n" +
+    ">>> randint(1,6), randint(1,6)  # two dice\n("+d1+", "+d2+") — total: "+(d1+d2)+"\n" +
+    ">>> choice(['red','blue','green','yellow','purple'])\n'"+pick+"'";
+}
+function runDate(){
+  let now=new Date();
+  let days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  let months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('modOutput').textContent=
+    ">>> from datetime import date\n" +
+    ">>> date.today()\ndatetime.date("+now.getFullYear()+", "+(now.getMonth()+1)+", "+now.getDate()+")\n" +
+    ">>> str(date.today())\n'"+now.toISOString().slice(0,10)+"'\n" +
+    "Today is: "+days[now.getDay()]+", "+now.getDate()+" "+months[now.getMonth()]+" "+now.getFullYear();
+}
+
+// ── ERROR SIMULATOR ──
+function runErrorSim(){
+  let a=document.getElementById('errInp').value.trim();
+  let b=document.getElementById('errDiv').value.trim();
+  let out=document.getElementById('errOutput');
+  out.classList.add('visible');
+  let lines=[];
+  lines.push("try:");
+  // try converting a to number
+  let numA=parseFloat(a);
+  if(isNaN(numA)&&a!==''){lines.push("  ValueError caught!");lines.push("  '"+a+"' is not a valid number.");lines.push("  Please enter digits only.");out.textContent=lines.join('\n');return;}
+  let numB=parseFloat(b);
+  if(isNaN(numB)&&b!==''){lines.push("  ValueError caught!");lines.push("  '"+b+"' is not a valid divisor.");out.textContent=lines.join('\n');return;}
+  if(numB===0){lines.push("  ZeroDivisionError caught!");lines.push("  Cannot divide "+numA+" by zero!");out.textContent=lines.join('\n');return;}
+  let result=numA/numB;
+  lines.push("  "+numA+" / "+numB+" = "+Math.round(result*1e10)/1e10);
+  lines.push("No error! Program continues normally.");
+  out.textContent=lines.join('\n');
+}
+
+// ── OOP BUILDER ──
+function buildObject(){
+  let name=document.getElementById('obName').value.trim()||'Student';
+  let age=parseInt(document.getElementById('obAge').value)||18;
+  let marks=parseInt(document.getElementById('obMarks').value)||0;
+  let course=document.getElementById('obCourse').value.trim()||'Python';
+  let grade=marks>=90?'A':marks>=80?'B':marks>=50?'C':'F';
+  let el=document.getElementById('obResult');
+  el.innerHTML=
+    '<span style="color:#ffcb6b">self.name</span>   = "'+name+'"<br>'+
+    '<span style="color:#ffcb6b">self.age</span>    = '+age+'<br>'+
+    '<span style="color:#ffcb6b">self.marks</span>  = '+marks+'<br>'+
+    '<span style="color:#ffcb6b">self.course</span> = "'+course+'"<br><br>'+
+    '<span style="color:#82aaff">get_grade()</span> → "'+grade+'"<br>'+
+    '<span style="color:#82aaff">introduce()</span> → "Hi! I am '+name+', studying '+course+'. Grade: '+grade+'"';
+  document.getElementById('obOutput').classList.add('visible');
+  confettiEl(document.querySelector('.ob-btn'));
+}
+
+// ── INTERPRETER ──
+function runCode(tid,oid){
+  let code=document.getElementById(tid).value;
+  let out=document.getElementById(oid);
+  out.classList.add('visible');out.classList.remove('ic-error');out.textContent='';
+  let res=execPy(code);
+  if(res.error){out.classList.add('ic-error');out.textContent='Error: '+res.error;}
+  else out.textContent=res.output||'(no output)';
+}
+
+function execPy(code){
+  let lines=code.split('\n'),vars={},fns={},classes={},output=[],error=null,i=0;
+  try{
+    // collect class defs
+    while(i<lines.length){
+      let raw=lines[i],t=raw.trim();
+      if(/^class\s+\w+\s*(:|\(.*\):)$/.test(t)){
+        let cname=t.match(/^class\s+(\w+)/)[1];
+        let methods={},j=i+1;
+        while(j<lines.length){
+          let bl=lines[j],bt=bl.trim();
+          if(!bt||bt.startsWith('#')){j++;continue;}
+          let ind=bl.length-bl.trimStart().length;
+          if(ind===0)break;
+          if(/^def\s+\w+\s*\(.*\):$/.test(bt)){
+            let mm=bt.slice(0,-1).match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+            if(mm){let mn=mm[1],ps=mm[2].trim()?mm[2].split(',').map(p=>{let x=p.trim().split('=');return{name:x[0].trim(),def:x[1]?x[1].trim():undefined};}):[];
+              let body=[],k=j+1,baseI=bl.length-bl.trimStart().length;
+              while(k<lines.length){let lb=lines[k],tb=lb.trim();if(!tb||tb.startsWith('#')){k++;continue;}let ii=lb.length-lb.trimStart().length;if(ii<=baseI)break;body.push(lb);k++;}
+              methods[mn]={params:ps,body};j=k;continue;}
+          }
+          j++;
+        }
+        classes[cname]={methods};i=j;continue;
+      }
+      if(/^def\s+\w+\s*\(.*\):$/.test(t)){
+        let mm=t.slice(0,-1).match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+        if(mm){let fn=mm[1],ps=mm[2].trim()?mm[2].split(',').map(p=>{let x=p.trim().split('=');return{name:x[0].trim(),def:x[1]?x[1].trim():undefined};}):[];
+          let body=[],j=i+1;while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bl);j++;}
+          fns[fn]={params:ps,body};i=j;continue;}
+      }
+      i++;
+    }
+    // execute top level
+    i=0;
+    while(i<lines.length&&!error){
+      let raw=lines[i],t=raw.trim();
+      if(!t||t.startsWith('#')){i++;continue;}
+      if(/^class\s+/.test(t)){let j=i+1;while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;j++;}i=j;continue;}
+      if(/^def\s+/.test(t)){let j=i+1;while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;j++;}i=j;continue;}
+      if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){let r=pIF(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if(/^for\s+.+\s+in\s+.+:$/.test(t)){let r=pFOR(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if(/^while\s+.+:$/.test(t)){let r=pWHILE(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if(/^try\s*:$/.test(t)){let r=pTRY(lines,i,vars,fns,classes,output);if(r.err&&!r.handled){error=r.err;break;}i=r.next;continue;}
+      if(/^import\s+/.test(t)||/^from\s+\w+\s+import\s+/.test(t)){i++;continue;}
+      let r=xLine(t,vars,fns,classes,output);if(r&&r.err){error=r.err;break;}
+      i++;
+    }
+  }catch(e){error=e.message;}
+  return{output:output.join('\n'),error};
+}
+
+function pTRY(lines,si,vars,fns,classes,output){
+  let tryBody=[],exceptBody=[],finallyBody=[],i=si+1;
+  let phase='try';
+  while(i<lines.length){
+    let bl=lines[i],bt=bl.trim();
+    if(!bt||bt.startsWith('#')){i++;continue;}
+    let ind=bl.length-bl.trimStart().length;
+    if(ind===0){
+      if(/^except/.test(bt)){phase='except';i++;continue;}
+      if(/^finally\s*:$/.test(bt)){phase='finally';i++;continue;}
+      break;
+    }
+    if(phase==='try')tryBody.push(bt);
+    else if(phase==='except')exceptBody.push(bt);
+    else if(phase==='finally')finallyBody.push(bt);
+    i++;
+  }
+  let caught=false,errMsg=null;
+  for(let ln of tryBody){let r=xLine(ln,vars,fns,classes,output);if(r&&r.err){errMsg=r.err;caught=true;break;}if(r&&r.ret!==undefined)return{ret:r.ret,next:i};}
+  if(caught)for(let ln of exceptBody)xLine(ln,vars,fns,classes,output);
+  for(let ln of finallyBody)xLine(ln,vars,fns,classes,output);
+  return{next:i,handled:caught,err:caught?null:errMsg};
+}
+
+function xLine(line,vars,fns,classes,output){
+  if(!line||line.startsWith('#'))return null;
+  if(line==='break')return{brk:true};
+  if(line==='continue')return{cnt:true};
+  if(line==='pass')return null;
+  if(line==='return')return{ret:null};
+  if(line.startsWith('return '))return{ret:ev(line.slice(7).trim(),vars,fns,classes)};
+  if(/^import\s+/.test(line)||/^from\s+\w+\s+import\s+/.test(line))return null;
+
+  // print
+  if(line.startsWith('print(')){let inn=xP(line,'print');if(inn===null)return{err:'Syntax error in print()'};let args=spA(inn).map(a=>fmt(ev(a.trim(),vars,fns,classes)));output.push(args.join(' '));return null;}
+
+  // method call on object: obj.method(...)
+  let mCall=line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\((.*)\)$/);
+  if(mCall){
+    let objName=mCall[1],method=mCall[2],argStr=mCall[3];
+    let obj=vars[objName];
+    if(obj&&obj.__class__){
+      let cls=classes[obj.__class__];
+      if(cls&&cls.methods[method]){let r=callMethod(obj,cls,method,argStr,vars,fns,classes,output);if(r&&r.err)return r;return null;}
+    }
+    // list/string methods
+    if(Array.isArray(obj)){let a=argStr?ev(argStr,vars,fns,classes):undefined;if(method==='append')obj.push(a);else if(method==='sort')obj.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));else if(method==='reverse')obj.reverse();else if(method==='remove'){let i=obj.indexOf(a);if(i>-1)obj.splice(i,1);}else if(method==='pop')obj.pop();return null;}
+    return null;
+  }
+
+  // attribute assignment: obj.attr = val
+  let attrAsgn=line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if(attrAsgn){let obj=vars[attrAsgn[1]];if(obj)obj[attrAsgn[2]]=ev(attrAsgn[3].trim(),vars,fns,classes);return null;}
+
+  // augmented assignment
+  let aug=line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=)\s*(.+)$/);
+  if(aug){let vn=aug[1],op=aug[2],val=ev(aug[3].trim(),vars,fns,classes);if(vars[vn]===undefined)return{err:"'"+vn+"' not defined"};if(op==='+=')vars[vn]+=val;else if(op==='-=')vars[vn]-=val;else if(op==='*=')vars[vn]*=val;else if(op==='/=')vars[vn]/=val;else if(op==='//=')vars[vn]=Math.floor(vars[vn]/val);else if(op==='%=')vars[vn]%=val;return null;}
+
+  // list/dict index assignment
+  let idxA=line.match(/^([a-zA-Z_]\w*)\[(.+)\]\s*=\s*(.+)$/);
+  if(idxA){let obj=vars[idxA[1]],key=ev(idxA[2].trim(),vars,fns,classes),val=ev(idxA[3].trim(),vars,fns,classes);if(Array.isArray(obj)){let i=parseInt(key);obj[i<0?obj.length+i:i]=val;}else if(typeof obj==='object'&&obj)obj[key]=val;return null;}
+
+  // assignment
+  let asgn=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if(asgn){vars[asgn[1]]=ev(asgn[2].trim(),vars,fns,classes);return null;}
+
+  // standalone function call
+  let sc=line.match(/^(\w+)\(([^)]*)\)$/);
+  if(sc){if(fns[sc[1]]){callFn(sc[1],sc[2],vars,fns,classes,output);return null;}}
+  return null;
+}
+
+function callMethod(obj,cls,method,argStr,outerVars,fns,classes,output){
+  let fn=cls.methods[method];if(!fn)return{err:"Method '"+method+"' not found"};
+  let argVals=argStr.trim()?spA(argStr).map(a=>ev(a.trim(),outerVars,fns,classes)):[];
+  let lv={...obj};  // include object attributes as local vars via self
+  let selfProxy=obj;  // self IS the object
+  // params: first is self, rest are args
+  fn.params.slice(1).forEach((p,i)=>{if(argVals[i]!==undefined)selfProxy[p.name]=argVals[i];else if(p.def!==undefined)selfProxy[p.name]=ev(p.def,outerVars,fns,classes);});
+  // create local scope
+  let local={self:selfProxy};
+  for(let raw of fn.body){
+    let t=raw.trim();if(!t||t.startsWith('#'))continue;
+    // handle self.x = y
+    let sa=t.match(/^self\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+    if(sa){selfProxy[sa[1]]=ev(sa[2].trim(),{...outerVars,...local,self:selfProxy},fns,classes);continue;}
+    // self.method() call
+    let sm=t.match(/^self\.([a-zA-Z_]\w*)\(([^)]*)\)$/);
+    if(sm){let r=callMethod(selfProxy,cls,sm[1],sm[2],{...outerVars,...local},fns,classes,output);if(r&&r.err)return r;continue;}
+    // if/elif/else in method body
+    if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){
+      let bodyLines=fn.body.map(l=>l.trim());
+      let bodyIdx=bodyLines.indexOf(t);
+      let merged={...outerVars,...local,self:selfProxy};
+      let r=pIF(bodyLines,bodyIdx,merged,fns,classes,output);
+      if(r.ret!==undefined)return{ret:r.ret};
+      if(r.err)return r;
+      continue;
+    }
+    let merged={...outerVars,...local,self:selfProxy};
+    let r=xLine(t,merged,fns,classes,output);
+    if(r&&r.ret!==undefined){Object.keys(merged).forEach(k=>{if(k in local)local[k]=merged[k];});selfProxy.__dirty=true;return{ret:r.ret};}
+    if(r&&r.err)return r;
+    Object.keys(merged).forEach(k=>{if(k!=='self'&&k in local)local[k]=merged[k];});
+  }
+  return{ret:null};
+}
+
+function callFn(name,argStr,outerVars,fns,classes,output){
+  let fn=fns[name];if(!fn)return{err:"Function '"+name+"' not defined"};
+  let argVals=argStr.trim()?spA(argStr).map(a=>ev(a.trim(),outerVars,fns,classes)):[];
+  let lv={};fn.params.forEach((p,i)=>{if(argVals[i]!==undefined)lv[p.name]=argVals[i];else if(p.def!==undefined)lv[p.name]=ev(p.def,outerVars,fns,classes);});
+  let merged={...outerVars,...lv};
+  for(let raw of fn.body){
+    let t=raw.trim();if(!t||t.startsWith('#'))continue;
+    if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){
+      let bls=fn.body.map(l=>l.trim());let idx=bls.indexOf(t);
+      let r=pIF(bls,idx,merged,fns,classes,output);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;
+    }
+    if(/^for\s+.+:$/.test(t)){let bls=fn.body;let idx=bls.findIndex(l=>l.trim()===t);let r=pFOR(bls,idx,merged,fns,classes,output);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    let r=xLine(t,merged,fns,classes,output);
+    if(r&&r.ret!==undefined)return{ret:r.ret};if(r&&r.err)return r;
+  }
+  return{ret:null};
+}
+
+function pIF(lines,si,vars,fns,classes,out){
+  let blocks=[],i=si;
+  while(i<lines.length){let raw=lines[i],t=typeof raw==='string'?raw.trim():raw;if(!t||t.startsWith('#')){i++;continue;}
+    let isI=/^if\s+.+:$/.test(t),isEI=/^elif\s+.+:$/.test(t),isE=/^else\s*:$/.test(t);if(!isI&&!isEI&&!isE)break;
+    let cond=isE?null:t.replace(/^(?:if|elif)\s+/,'').replace(/:$/,''),body=[],j=i+1;
+    while(j<lines.length){let bl=lines[j],bt=typeof bl==='string'?bl.trim():bl;if(!bt||bt.startsWith('#')){j++;continue;}let ind=bl.length?bl.length-bl.trimStart().length:0;if(ind===0)break;body.push(bt);j++;}
+    blocks.push({cond,body});i=j;}
+  let ran=false;
+  for(let b of blocks){if(ran)break;let ok=b.cond===null?!ran:eC(b.cond,vars,fns,classes);if(ok){ran=true;for(let ln of b.body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.ret!==undefined)return{ret:r.ret,next:i};if(r&&r.err)return{err:r.err,next:i};}}}
+  return{next:i};
+}
+
+function pFOR(lines,si,vars,fns,classes,out){
+  let raw=lines[si],t=typeof raw==='string'?raw.trim():raw;
+  let m=t.slice(0,-1).match(/^for\s+(.+?)\s+in\s+(.+)$/);if(!m)return{next:si+1};
+  let vn=m[1].trim(),ie=m[2].trim(),items=rIter(ie,vars,fns,classes),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=typeof bl==='string'?bl.trim():bl;if(!bt||bt.startsWith('#')){j++;continue;}let ind=bl.length?bl.length-bl.trimStart().length:0;if(ind===0)break;body.push(bt);j++;}
+  let retVal;
+  for(let item of items){
+    if(vn.includes(',')){let ps=vn.split(',').map(x=>x.trim());if(Array.isArray(item))ps.forEach((p,pi)=>vars[p]=item[pi]);}
+    else vars[vn]=item;
+    let brk=false;
+    for(let ln of body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.ret!==undefined)return{ret:r.ret,next:j};if(r&&r.err)return{err:r.err,next:j};}
+    if(brk)break;
+  }
+  return{next:j};
+}
+
+function pWHILE(lines,si,vars,fns,classes,out){
+  let t=lines[si].trim(),cond=t.slice(6,-1).trim(),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  let safety=0;
+  while(eC(cond,vars,fns,classes)&&safety<300){safety++;let brk=false;for(let ln of body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.ret!==undefined)return{ret:r.ret,next:j};if(r&&r.err)return{err:r.err,next:j};}if(brk)break;}
+  return{next:j};
+}
+
+function rIter(expr,vars,fns,classes){
+  expr=expr.trim();
+  let rm=expr.match(/^range\((.+)\)$/);
+  if(rm){let a=rm[1].split(',').map(x=>parseInt(ev(x.trim(),vars,fns,classes)));if(a.length===1)return Array.from({length:a[0]},(_,i)=>i);if(a.length===2){let r=[];for(let i=a[0];i<a[1];i++)r.push(i);return r;}if(a.length===3){let r=[];for(let i=a[0];i<a[1];i+=a[2])r.push(i);return r;}}
+  let em=expr.match(/^enumerate\((.+)\)$/);if(em){let inner=rIter(em[1].trim(),vars,fns,classes);return inner.map((v,i)=>[i,v]);}
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1).split('');
+  if(expr.startsWith('[')&&expr.endsWith(']'))return spA(expr.slice(1,-1)).map(a=>ev(a.trim(),vars,fns,classes));
+  if(vars.hasOwnProperty(expr)){let v=vars[expr];if(Array.isArray(v))return v;if(typeof v==='string')return v.split('');if(typeof v==='object'&&v&&!v.__class__)return Object.keys(v);return[];}
+  return[];
+}
+
+function ev(expr,vars,fns,classes){
+  expr=expr.trim();if(!expr)return'';
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1);
+  if(expr==='True')return true;if(expr==='False')return false;if(expr==='None')return null;
+  if(!isNaN(expr)&&expr!=='')return expr.includes('.')?parseFloat(expr):parseInt(expr);
+  if(expr.startsWith('[')&&expr.endsWith(']'))return spA(expr.slice(1,-1)).map(a=>ev(a.trim(),vars,fns,classes));
+  if(expr.startsWith('(')&&expr.endsWith(')')){let inn=expr.slice(1,-1);return spA(inn).map(a=>ev(a.trim(),vars,fns,classes));}
+
+  // f-string
+  if(expr.startsWith('f"')||expr.startsWith("f'")){let inner=expr.slice(2,-1);return inner.replace(/\{([^}]+)\}/g,(_,e)=>fmtF(e.trim(),vars,fns,classes));}
+
+  // class constructor: ClassName(args)
+  let conM=expr.match(/^([A-Z]\w*)\(([^)]*)\)$/);
+  if(conM&&classes[conM[1]]){
+    let cname=conM[1],cls=classes[cname];
+    let obj={__class__:cname};
+    if(cls.methods['__init__']){
+      let argVals=conM[2].trim()?spA(conM[2]).map(a=>ev(a.trim(),vars,fns,classes)):[];
+      let initFn=cls.methods['__init__'];
+      initFn.params.slice(1).forEach((p,i)=>{if(argVals[i]!==undefined)obj[p.name]=argVals[i];else if(p.def!==undefined)obj[p.name]=ev(p.def,vars,fns,classes);});
+      // run __init__ body for self.x = assignments
+      let local={self:obj};
+      for(let raw of initFn.body){
+        let t=raw.trim();if(!t||t.startsWith('#'))continue;
+        let sa=t.match(/^self\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+        if(sa){obj[sa[1]]=ev(sa[2].trim(),{...vars,...local,self:obj},fns,classes);}
+      }
+    }
+    return obj;
+  }
+
+  // math module
+  let mathM=expr.match(/^math\.(sqrt|floor|ceil|pi|pow|abs|log)\(?([^)]*)\)?$/);
+  if(mathM){let fn=mathM[1],a=mathM[2]?spA(mathM[2]).map(x=>parseFloat(ev(x.trim(),vars,fns,classes))):[];if(fn==='sqrt')return Math.sqrt(a[0]);if(fn==='floor')return Math.floor(a[0]);if(fn==='ceil')return Math.ceil(a[0]);if(fn==='pi')return Math.PI;if(fn==='pow')return Math.pow(a[0],a[1]);if(fn==='abs')return Math.abs(a[0]);}
+
+  // built-ins
+  let intM=expr.match(/^int\((.+)\)$/);if(intM){let v=ev(intM[1].trim(),vars,fns,classes);let n=parseInt(String(v));if(isNaN(n))throw new Error("ValueError: invalid literal for int");return n;}
+  let fltM=expr.match(/^float\((.+)\)$/);if(fltM)return parseFloat(String(ev(fltM[1].trim(),vars,fns,classes)));
+  let strM=expr.match(/^str\((.+)\)$/);if(strM)return fmt(ev(strM[1].trim(),vars,fns,classes));
+  let lenM=expr.match(/^len\((.+)\)$/);if(lenM){let v=ev(lenM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.length:(typeof v==='object'&&v&&!v.__class__?Object.keys(v).length:(typeof v==='string'?v.length:0));}
+  let sumM=expr.match(/^sum\((.+)\)$/);if(sumM){let v=ev(sumM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.reduce((a,b)=>a+b,0):0;}
+  let maxM=expr.match(/^max\((.+?)(,\s*key=.+)?\)$/);if(maxM){let v=ev(maxM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.reduce((a,b)=>a>b?a:b):v;}
+  let minM=expr.match(/^min\((.+?)(,\s*key=.+)?\)$/);if(minM){let v=ev(minM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.reduce((a,b)=>a<b?a:b):v;}
+  let typeM=expr.match(/^type\((.+)\)$/);if(typeM){let v=ev(typeM[1].trim(),vars,fns,classes);return typeof v==='boolean'?"<class 'bool'>":typeof v==='number'?(Number.isInteger(v)?"<class 'int'>":"<class 'float'>"):Array.isArray(v)?"<class 'list'>":(v&&v.__class__?"<class '"+v.__class__+"'>":(typeof v==='object'&&v?"<class 'dict'>":"<class 'str'>"));}
+
+  // object.attr access
+  let dotM=expr.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)$/);
+  if(dotM){let obj=vars[dotM[1]];if(obj&&typeof obj==='object')return obj[dotM[2]];}
+
+  // object.method() call returning value
+  let dotCall=expr.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\(([^)]*)\)$/);
+  if(dotCall){
+    let obj=vars[dotCall[1]],method=dotCall[2],argStr=dotCall[3];
+    if(obj&&obj.__class__){let cls=classes[obj.__class__];if(cls&&cls.methods[method]){let r=callMethod(obj,cls,method,argStr,vars,fns,classes,[]);return r&&r.ret!==undefined?r.ret:null;}}
+    // string methods
+    if(typeof obj==='string'){
+      let a=argStr?ev(argStr,vars,fns,classes):undefined;
+      if(method==='upper')return obj.toUpperCase();if(method==='lower')return obj.toLowerCase();
+      if(method==='strip')return obj.trim();if(method==='title')return obj.replace(/\b\w/g,c=>c.toUpperCase());
+      if(method==='split')return a?obj.split(String(a)):obj.trim().split(/\s+/);
+      if(method==='replace'){let args=spA(argStr);return obj.split(ev(args[0].trim(),vars,fns,classes)).join(ev(args[1].trim(),vars,fns,classes));}
+      if(method==='count')return obj.split(String(a)).length-1;
+    }
+    return null;
+  }
+
+  // string methods via chaining
+  let smChain=expr.match(/^(.+)\.(upper|lower|strip|title)\(\)$/);
+  if(smChain){let v=ev(smChain[1].trim(),vars,fns,classes);if(typeof v==='string'){if(smChain[2]==='upper')return v.toUpperCase();if(smChain[2]==='lower')return v.toLowerCase();if(smChain[2]==='strip')return v.trim();if(smChain[2]==='title')return v.replace(/\b\w/g,c=>c.toUpperCase());}return v;}
+
+  // list index
+  let idxM=expr.match(/^(.+)\[(.+)\]$/);if(idxM){let obj=ev(idxM[1].trim(),vars,fns,classes),key=ev(idxM[2].trim(),vars,fns,classes);if(Array.isArray(obj)){let i=parseInt(key);return obj[i<0?obj.length+i:i];}if(typeof obj==='string'){let i=parseInt(key);return obj[i<0?obj.length+i:i];}if(typeof obj==='object'&&obj)return obj[key];}
+
+  // function call
+  let fcM=expr.match(/^(\w+)\(([^)]*)\)$/);if(fcM&&fns[fcM[1]]){let r=callFn(fcM[1],fcM[2],vars,fns,classes,[]);return r&&r.ret!==undefined?r.ret:null;}
+
+  // variable
+  if(vars.hasOwnProperty(expr))return vars[expr];
+
+  // "x in dict/list" check
+  let inM=expr.match(/^(.+?)\s+in\s+(.+)$/);
+  if(inM){let needle=ev(inM[1].trim(),vars,fns,classes),hay=vars[inM[2].trim()];if(Array.isArray(hay))return hay.includes(needle);if(hay&&typeof hay==='object'&&!hay.__class__)return hay.hasOwnProperty(needle);return false;}
+
+  // string concat
+  if(expr.includes('+')){try{let parts=spPlus(expr);if(parts.length>1){let evs=parts.map(p=>ev(p.trim(),vars,fns,classes));if(evs.some(p=>typeof p==='string'))return evs.map(fmt).join('');return evs.reduce((a,b)=>a+b,0);}}catch(e){}}
+
+  // repetition "*"
+  if(expr.includes('"*')||expr.includes("'*")||expr.match(/\*\s*\d/)){try{let mm=expr.match(/^(.+)\s*\*\s*(\d+)$/);if(mm){let s=ev(mm[1].trim(),vars,fns,classes);if(typeof s==='string')return s.repeat(parseInt(mm[2]));}}catch(e){}}
+
+  // math
+  try{let res=expr.replace(/[a-zA-Z_]\w*/g,m=>vars.hasOwnProperty(m)?(typeof vars[m]==='boolean'?(vars[m]?'1':'0'):String(vars[m])):'NaN');res=res.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(Math.floor(parseFloat(a)/parseFloat(b))));res=res.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(parseFloat(a)%parseFloat(b)));if(/^[\d\s\+\-\*\/\.\(\)]+$/.test(res.replace(/\*\*/g,'')))return sMath(res);}catch(e){}
+  return expr;
+}
+
+function fmtF(e,vars,fns,classes){
+  // handle :.Nf formatting
+  let fmtM=e.match(/^(.+):\.(\d+)f$/);if(fmtM){let v=ev(fmtM[1].trim(),vars,fns,classes);return parseFloat(v).toFixed(parseInt(fmtM[2]));}
+  let wM=e.match(/^(.+):\>?(\d+)$/);if(wM){let v=fmt(ev(wM[1].trim(),vars,fns,classes));return v;}
+  return fmt(ev(e,vars,fns,classes));
+}
+
+function eC(cond,vars,fns,classes){
+  cond=cond.trim();
+  if(cond.startsWith('not '))return !eC(cond.slice(4).trim(),vars,fns,classes);
+  if(cond.includes(' and '))return cond.split(' and ').every(p=>eC(p.trim(),vars,fns,classes));
+  if(cond.includes(' or '))return cond.split(' or ').some(p=>eC(p.trim(),vars,fns,classes));
+  let ops=['>=','<=','==','!=','>','<'];
+  for(let op of ops){let idx=cond.indexOf(op);if(idx>-1){let L=ev(cond.slice(0,idx).trim(),vars,fns,classes),R=ev(cond.slice(idx+op.length).trim(),vars,fns,classes);if(op==='==')return L==R;if(op==='!=')return L!=R;if(op==='>=')return L>=R;if(op==='<=')return L<=R;if(op==='>')return L>R;if(op==='<')return L<R;}}
+  let inM=cond.match(/^(.+?)\s+in\s+(.+)$/);if(inM){let needle=ev(inM[1].trim(),vars,fns,classes),hay=rIter(inM[2].trim(),vars,fns,classes);return hay.includes(needle);}
+  return Boolean(ev(cond,vars,fns,classes));
+}
+
+function xP(line,fn){let s=line.indexOf(fn+'(')+fn.length,d=0,r='';for(let i=s;i<line.length;i++){if(line[i]==='('){if(d>0)r+='(';d++;}else if(line[i]===')'){d--;if(d===0)return r;else r+=')';}else r+=line[i];}return null;}
+function spA(e){return smartSplit(e,',');}
+function spPlus(e){return smartSplit(e,'+');}
+function smartSplit(s,sep){let a=[],d=0,inS=false,sC='',c='';for(let i=0;i<s.length;i++){let ch=s[i];if(!inS&&(ch==='"'||ch==="'")){inS=true;sC=ch;c+=ch;continue;}if(inS&&ch===sC){inS=false;c+=ch;continue;}if(inS){c+=ch;continue;}if(ch==='{'||ch==='['||ch==='('){d++;c+=ch;}else if(ch==='}'||ch===']'||ch===')'){d--;c+=ch;}else if(ch===sep&&d===0){a.push(c);c='';}else c+=ch;}if(c.trim())a.push(c);return a;}
+function fmt(v){if(v===null)return 'None';if(v===true)return 'True';if(v===false)return 'False';if(v&&v.__class__)return '<'+v.__class__+' object>';if(Array.isArray(v))return '['+v.map(x=>(typeof x==='string'?'"'+x+'"':fmt(x))).join(', ')+']';if(typeof v==='object'&&v!==null)return '{'+Object.entries(v).filter(([k])=>!k.startsWith('__')).map(([k,val])=>'"'+k+'": '+fmt(val)).join(', ')+'}';if(typeof v==='number'&&Number.isFinite(v))return String(Math.round(v*1e10)/1e10);return String(v);}
+function sMath(e){e=e.replace(/\*\*/g,'^').replace(/\s/g,'');return pMath(e);}
+function pMath(s){let p=0;function pk(){return s[p];}function cs(){return s[p++];}function atom(){let ng=false;if(pk()==='-'){ng=true;cs();}if(pk()==='('){cs();let v=add();cs();return ng?-v:v;}let n='';while(p<s.length&&/[\d\.]/.test(pk()))n+=cs();return ng?-parseFloat(n):parseFloat(n);}function pw(){let b=atom();while(pk()==='^'){cs();b=Math.pow(b,atom());}return b;}function mul(){let v=pw();while(pk()==='*'||pk()==='/'){let o=cs();v=o==='*'?v*pw():v/pw();}return v;}function add(){let v=mul();while(pk()==='+'||pk()==='-'){let o=cs();v=o==='+'?v+mul():v-mul();}return v;}try{return add();}catch(e){return NaN;}}
+
+// ── QUIZ ──
+function mcq(qId,optEl,isCorrect){
+  if(quizAnswered[qId])return;quizAnswered[qId]=true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o=>o.classList.add('disabled'));
+  let fb=document.getElementById(qId+'-fb');fb.classList.add('show');
+  if(isCorrect){optEl.classList.add('correct');optEl.querySelector('.opt-indicator').textContent='✓';fb.classList.add('fb-correct');fb.textContent=posFb();quizScore++;confettiEl(optEl);}
+  else{optEl.classList.add('wrong');optEl.querySelector('.opt-indicator').textContent='✗';fb.classList.add('fb-wrong');fb.textContent=wrongFb(qId);}
+  checkDone();
+}
+function fib(inputId,fbId,answers,qId){
+  if(quizAnswered[qId])return;let inp=document.getElementById(inputId),val=inp.value.trim().toLowerCase(),fb=document.getElementById(fbId);
+  fb.classList.add('show');quizAnswered[qId]=true;
+  let ok=answers.some(a=>val===a.toLowerCase());
+  if(ok){inp.classList.add('correct');fb.classList.add('fb-correct');fb.textContent=posFb();quizScore++;confettiEl(inp);}
+  else{inp.classList.add('wrong');fb.classList.add('fb-wrong');fb.textContent='Not quite! The answer is: '+answers[0];}
+  inp.disabled=true;let btn=document.querySelector("button[onclick*='"+inputId+"']");if(btn)btn.disabled=true;checkDone();
+}
+function fibDouble(){
+  if(quizAnswered['q12'])return;
+  quizAnswered['q12']=true;
+  let a=document.getElementById('fib12').value.trim().toLowerCase();
+  let b=document.getElementById('fib12b').value.trim().toLowerCase();
+  let fb=document.getElementById('q12-fb');fb.classList.add('show');
+  let ok=(a==='from')&&(b==='import');
+  if(ok){document.getElementById('fib12').classList.add('correct');document.getElementById('fib12b').classList.add('correct');fb.classList.add('fb-correct');fb.textContent=posFb();quizScore++;confettiEl(document.getElementById('fib12'));}
+  else{document.getElementById('fib12').classList.add('wrong');document.getElementById('fib12b').classList.add('wrong');fb.classList.add('fb-wrong');fb.textContent='Not quite! Answer: from random import randint';}
+  document.getElementById('fib12').disabled=true;document.getElementById('fib12b').disabled=true;
+  document.querySelector("button[onclick='fibDouble()']").disabled=true;
+  checkDone();
+}
+function posFb(){let m=["Excellent!","Perfect!","Spot on!","Well done!","Correct!","Outstanding!"];return "✅ "+m[Math.floor(Math.random()*m.length)];}
+function wrongFb(qId){
+  let h={q1:"The keyword is 'import'. E.g. import math",q2:"try/except catches errors so the program handles them gracefully instead of crashing.",q3:"A class is the blueprint. Objects are the actual things made from it.",q4:"__init__ runs automatically when an object is created and sets its initial attributes.",q5:"sqrt(25) = 5.0 (the square root of 25).",q6:"self refers to the specific object the method is called on.",q7:"ValueError is raised when a conversion fails, like int('hello').",q8:"c.brand accesses the 'brand' attribute of the Car object, which was set to 'Toyota'.",q10:"'finally' always runs — whether there was an error or not.",q11:"Methods are called using dot notation: object.method()"};
+  return "Not quite. "+(h[qId]||"Review the section and try again!");
+}
+function checkDone(){if(Object.keys(quizAnswered).length>=quizTotal)setTimeout(showScore,600);}
+function showScore(){
+  let card=document.getElementById('scoreCard');card.style.display='block';card.scrollIntoView({behavior:'smooth',block:'center'});
+  let pct=Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent=quizScore+' / '+quizTotal;
+  document.getElementById('scoreBarFill').style.width=pct+'%';
+  let emoji,sub,tip;
+  if(pct===100){emoji='🏆';sub='PERFECT! You are a Python champion!';tip='You have mastered the entire Python beginner curriculum. Incredible work!';}
+  else if(pct>=80){emoji='🌟';sub='Excellent! Python beginner certified!';tip='You are ready for the intermediate level. Keep building!';}
+  else if(pct>=60){emoji='👍';sub='Well done! Almost there.';tip='Review the topics you missed and try once more.';}
+  else{emoji='💪';sub='Keep going — every expert started here!';tip='Go back through the sections you found difficult and try again.';}
+  document.getElementById('scoreEmoji').textContent=emoji;
+  document.getElementById('scoreSub').textContent=sub;
+  document.getElementById('scoreTip').textContent=tip;
+  bigConfetti();
+  completedSections.add(6);updateProgress();
+}
+function restartQuiz(){
+  quizAnswered={};quizScore=0;
+  for(let i=1;i<=quizTotal;i++){let c=document.getElementById('q'+i);if(!c)continue;
+    c.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    c.querySelectorAll('.opt-indicator').forEach(o=>{if(o.textContent==='✓'||o.textContent==='✗')o.textContent='';});
+    c.querySelectorAll('.quiz-feedback').forEach(f=>{f.classList.remove('show','fb-correct','fb-wrong');f.textContent='';});
+    c.querySelectorAll('.fib-input').forEach(i=>{i.value='';i.disabled=false;i.classList.remove('correct','wrong');});
+    c.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);}
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+function confettiEl(el){let r=el.getBoundingClientRect(),colors=['#f472b6','#43e97b','#38bdf8','#ff6b6b','#ffd700','#a78bfa'];for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(r.left+Math.random()*r.width)+'px;top:'+r.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}}
+function bigConfetti(){let colors=['#f472b6','#43e97b','#38bdf8','#ff6b6b','#ffd700','#a78bfa','#fff'];for(let i=0;i<90;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*30);}}
+</script>
+</body>
+</html>

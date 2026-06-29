@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 7 — Transformers Deep Dive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; }
+
+  /* INTERACTIVE CODE */
+  .interactive-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .interactive-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .ic-label { font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; padding: 20px; resize: vertical; min-height: 110px; line-height: 1.8; }
+  .ic-run-btn { display: flex; align-items: center; gap: 6px; background: var(--accent3); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin: 0 16px 16px; }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output { margin: 0 16px 16px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; min-height: 44px; color: var(--accent3); display: none; white-space: pre-wrap; }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+
+  /* ATTENTION SPOTLIGHT WIDGET */
+  .spotlight { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .spotlight h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; color: var(--accent5); }
+  .spotlight .hint { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+  .word-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .word-chip { padding: 10px 16px; border-radius: 10px; border: 2px solid var(--border); background: var(--card2); font-family: 'Fira Code',monospace; font-weight: 700; font-size: 0.92rem; cursor: pointer; transition: all 0.25s; user-select: none; position: relative; }
+  .word-chip:hover { border-color: var(--accent5); }
+  .word-chip.query { border-color: var(--accent); background: var(--accent); color: #0f1117; transform: scale(1.06); }
+  .word-chip .weight-tag { display: block; font-size: 0.62rem; color: var(--accent3); margin-top: 2px; font-weight: 700; min-height: 12px; }
+  .word-chip.query .weight-tag { color: #0f1117; }
+  .spotlight-msg { margin-top: 14px; font-size: 0.85rem; color: var(--muted); min-height: 22px; }
+  .spotlight-msg strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='day6_deeplearning_nlp.html'">← Day 6</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" onclick="location.href='day8_genai_langchain.html'">Day 8 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 7 — Transformers Deep Dive</span>
+  <span class="hero-emoji">🤖</span>
+  <h1>How Machines Learned to <em>Pay Attention</em></h1>
+  <p>The Transformer is the engine behind ChatGPT, BERT, and every modern LLM. Today we open the hood and understand exactly how it reads, relates, and reasons over words.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 6 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>RNN memory</div>
+  <div class="recap-chip"><span class="dot"></span>Vanishing gradient</div>
+  <div class="recap-chip"><span class="dot"></span>LSTM / GRU</div>
+  <div class="recap-chip"><span class="dot"></span>Embeddings</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. Why Transformers?</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. Attention</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Q, K, V</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. Multi-Head</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. Positional Encoding</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Full Architecture</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: Why Transformers ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🚀</div>
+      <div>
+        <div class="section-title">Why Transformers? The Limits of RNNs</div>
+        <div class="section-sub">What was broken, and what the Transformer fixed</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The problem with reading word-by-word</h3>
+      <p>Yesterday we met RNNs and LSTMs. They read a sentence one word at a time, passing a little "memory" forward. That sounds reasonable — but it creates two big problems.</p>
+      <p><strong style="color:var(--text)">1. They are slow.</strong> Because each word depends on the previous step, an RNN cannot process word 5 until it has finished words 1 to 4. There is no way to use a modern GPU's power to do everything at once — it is forced to go in single file.</p>
+      <p><strong style="color:var(--text)">2. They forget long-range context.</strong> By the time the model reaches the end of a long paragraph, the memory of the first few words has faded (the vanishing gradient problem from Day 6). The word at the start barely influences the word at the end.</p>
+      <div class="analogy-box">
+        <strong>📞 Analogy — Game of Telephone:</strong> An RNN is like a line of people whispering a message ear to ear. By the time it reaches the last person, half the meaning is lost. A Transformer is like a <em>group meeting</em> where everyone hears everyone else speak at the same time — nothing gets garbled, and it is much faster.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The seq2seq bottleneck</h3>
+      <p>The older translation models used an <strong style="color:var(--text)">encoder–decoder</strong> (seq2seq) design. The encoder read the whole input sentence and squeezed it into ONE fixed-size vector — and the decoder had to rebuild the translation from just that single vector.</p>
+      <div class="warn-box">
+        <strong>⚠️ The bottleneck:</strong> Cramming an entire sentence (or paragraph) into one small vector is like summarizing a whole book on a single sticky note. Long inputs lose detail. This single squeezed vector was the choke point that limited quality.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Transformer's two big ideas</h3>
+      <div class="two-col">
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">✅ Parallel processing</h4>
+          <p style="color:var(--muted);font-size:0.88rem">All words are processed at the SAME time, not one by one. This makes training dramatically faster on GPUs.</p>
+        </div>
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">✅ Every word sees every word</h4>
+          <p style="color:var(--muted);font-size:0.88rem">Through <em>attention</em>, any word can directly look at any other word — no matter how far apart. Long-range context is preserved.</p>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>📜 Origin story:</strong> The Transformer was introduced in the 2017 Google paper <em>"Attention Is All You Need."</em> The title was a bold claim — you don't need recurrence or convolutions, just attention. It turned out to be true, and it reshaped the entire field of AI.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: Attention ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">👀</div>
+      <div>
+        <div class="section-title">Attention — The Core Idea</div>
+        <div class="section-sub">Letting each word decide what else matters</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What does "attention" actually mean?</h3>
+      <p>Attention is a simple, powerful idea: <strong style="color:var(--text)">for each word, figure out which other words matter, and blend their information together.</strong></p>
+      <p>It is essentially a <em>weighted average</em>. Each word builds a new, richer version of itself by mixing in pieces of the other words — but it pays MORE attention to the relevant ones and LESS to the irrelevant ones. The "weights" are just numbers that say "how relevant is this word to me right now?"</p>
+      <div class="analogy-box">
+        <strong>🔎 Analogy — Reading "it":</strong> Read this sentence: <em>"The dog chased the ball because it was fast."</em> What does "it" refer to — the dog or the ball? Your brain instantly looks back and links "it" to "dog". That act of looking back and connecting is exactly what attention does, automatically, for every word.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why a weighted average is so clever</h3>
+      <p>Instead of one fixed memory passed down a chain (the RNN way), every word gets to <em>reach out directly</em> to the words it cares about and pull in their meaning. A pronoun pulls from its noun. A verb pulls from its subject. An adjective pulls from the thing it describes.</p>
+      <div class="info-box">
+        <strong>ℹ️ Key insight:</strong> Attention turns "memory of the past" into "direct access to everything." Distance no longer matters — word #1 and word #100 are exactly one step apart. This is the single most important idea in modern AI.
+      </div>
+    </div>
+
+    <!-- ATTENTION SPOTLIGHT WIDGET -->
+    <div class="spotlight">
+      <h3>🔦 Attention Spotlight — try it!</h3>
+      <p class="hint">Click any word below. The clicked word becomes the "query". The other words light up brighter the more that word pays attention to them (illustrative weights).</p>
+      <div class="word-row" id="spotlightRow"></div>
+      <div class="spotlight-msg" id="spotlightMsg">Click a word to see what it "attends" to.</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Q, K, V ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🗝️</div>
+      <div>
+        <div class="section-title">Self-Attention — Query, Key &amp; Value</div>
+        <div class="section-sub">How a word actually finds its relevant neighbours</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Three roles every word plays</h3>
+      <p>To compute attention, each word produces three vectors. Don't panic at the names — they map onto a very human idea: <strong style="color:var(--text)">searching</strong>.</p>
+      <table class="methods-table">
+        <tr><th>Vector</th><th>Plain-English meaning</th><th>Search analogy</th></tr>
+        <tr><td><span class="method-name">Query (Q)</span></td><td>What am I looking for?</td><td>Your search box text</td></tr>
+        <tr><td><span class="method-name">Key (K)</span></td><td>What do I offer / my label</td><td>The title of each web page</td></tr>
+        <tr><td><span class="method-name">Value (V)</span></td><td>My actual content to share</td><td>The page's real content</td></tr>
+      </table>
+      <div class="analogy-box">
+        <strong>🔍 Analogy — Searching a library:</strong> Your <strong>Query</strong> is what you want ("books about space"). Each book has a <strong>Key</strong> on its spine (its label). You match your query against every spine to see which fit. Then you read the <strong>Value</strong> — the actual content — of the books that matched best.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>How the matching works (step by step)</h3>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Score every pair</strong>Take one word's Query and compare it against every other word's Key by taking a dot product. A bigger number means "these two are more relevant to each other."</div></div>
+        <div class="step"><div class="step-body"><strong>Scale &amp; softmax</strong>Shrink the scores a bit (the ÷√dₖ step) to keep them stable, then run them through softmax so they become positive weights that add up to 1 — like splitting 100% of attention across all words.</div></div>
+        <div class="step"><div class="step-body"><strong>Blend the Values</strong>Multiply each word's Value by its weight and add them all up. The result is a new vector for the word — now enriched with information from the words it cared about most.</div></div>
+      </div>
+      <div class="info-box">
+        <strong>ℹ️ The famous formula:</strong> <code style="font-size:1em">Attention(Q,K,V) = softmax(QKᵀ / √dₖ) · V</code><br><br>
+        <strong>QKᵀ</strong> = score every Query against every Key (relevance). &nbsp;
+        <strong>÷√dₖ</strong> = scale down by the square root of the vector size so numbers don't blow up. &nbsp;
+        <strong>softmax</strong> = turn scores into clean weights that sum to 1. &nbsp;
+        <strong>· V</strong> = use those weights to take a blended average of the Values. That's it — the rest is just matrices.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A tiny self-attention sketch</h3>
+      <p>This is illustrative pseudo-PyTorch, not something to run — it shows that the famous formula is just a few lines.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">self_attention.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> torch, math
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> <span class="fn">self_attention</span>(<span class="var">Q</span>, <span class="var">K</span>, <span class="var">V</span>):
+    <span class="var">d_k</span> <span class="op">=</span> <span class="var">Q</span>.size(<span class="op">-</span><span class="num">1</span>)                 <span class="cmt"># size of each vector</span>
+    <span class="var">scores</span> <span class="op">=</span> <span class="var">Q</span> <span class="op">@</span> <span class="var">K</span>.transpose(<span class="op">-</span><span class="num">2</span>, <span class="op">-</span><span class="num">1</span>)  <span class="cmt"># Q · Kᵀ  → relevance</span>
+    <span class="var">scores</span> <span class="op">=</span> <span class="var">scores</span> <span class="op">/</span> math.<span class="fn">sqrt</span>(<span class="var">d_k</span>)      <span class="cmt"># scale by √d_k</span>
+    <span class="var">weights</span> <span class="op">=</span> F.<span class="fn">softmax</span>(<span class="var">scores</span>, dim<span class="op">=</span><span class="op">-</span><span class="num">1</span>)  <span class="cmt"># weights sum to 1</span>
+    <span class="kw">return</span> <span class="var">weights</span> <span class="op">@</span> <span class="var">V</span>                  <span class="cmt"># blended Values</span></pre>
+      </div>
+      <div class="output-label">▶ What you get back</div>
+      <div class="output-box"># a new vector per word, enriched with
+# information from its most relevant neighbours</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: Multi-Head ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-green">🧠</div>
+      <div>
+        <div class="section-title">Multi-Head Attention</div>
+        <div class="section-sub">Many points of view, combined</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>One attention is good — several are better</h3>
+      <p>Instead of computing attention just once, the Transformer runs it several times in parallel. Each copy is called a <strong style="color:var(--text)">head</strong>, and each head has its own Q, K, V projections — so each one learns to focus on a different KIND of relationship.</p>
+      <p>One head might track grammar (which noun goes with which verb). Another might track meaning (which words are about the same topic). Another might track position (nearby words). Afterwards, all the heads' results are concatenated and mixed together into one final answer.</p>
+      <div class="analogy-box">
+        <strong>👥 Analogy — A panel of experts:</strong> Imagine asking the same sentence to several specialists at once: a grammar teacher, a topic expert, and a translator. Each notices something different. You then combine all their notes into one rich understanding. That's multi-head attention — many experts, one combined verdict.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why this matters</h3>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Split into heads</strong>The vectors are divided so each head works on a smaller slice — keeping the total computation about the same.</div></div>
+        <div class="step"><div class="step-body"><strong>Attend independently</strong>Each head runs the full Query–Key–Value attention on its own, learning its own specialty.</div></div>
+        <div class="step"><div class="step-body"><strong>Concatenate &amp; combine</strong>Stick all the heads' outputs back together and pass through one more layer to blend them into the final result.</div></div>
+      </div>
+      <div class="tip-box">
+        <strong>💡 Takeaway:</strong> A single head can only capture one type of pattern. Multiple heads let the model understand a sentence from many angles at the same time — which is a big reason Transformers are so capable.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: Positional Encoding ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🔢</div>
+      <div>
+        <div class="section-title">Positional Encoding</div>
+        <div class="section-sub">Teaching a parallel model about word order</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The price of processing everything at once</h3>
+      <p>Here's a subtle problem. Because the Transformer looks at all words simultaneously, it has no built-in sense of <strong style="color:var(--text)">order</strong>. To attention, a sentence is just a bag of words — it doesn't know which came first.</p>
+      <div class="warn-box">
+        <strong>⚠️ Why order is everything:</strong> Without position information, <em>"dog bites man"</em> and <em>"man bites dog"</em> look identical to the model — same words, same bag. But the meaning is completely different! We MUST tell the model the position of each word.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The fix: add a position signal</h3>
+      <p>The solution is elegant: before attention runs, we ADD a small "position signal" to each word's embedding. The original Transformer uses smooth <strong style="color:var(--text)">sinusoidal</strong> patterns (sine and cosine waves of different frequencies) so that every position gets a unique, recognizable fingerprint — and nearby positions get similar fingerprints.</p>
+      <div class="analogy-box">
+        <strong>📖 Analogy — Numbering the pages:</strong> Imagine tearing all the pages out of a book and tossing them in a pile. If the pages are numbered, you can always put them back in the right order. Positional encoding numbers the words so that even though they're processed all at once, the model never loses track of who came first.
+      </div>
+      <div class="info-box">
+        <strong>ℹ️ In short:</strong> <code>word_input = word_embedding + position_signal</code>. The meaning of the word and where it sits in the sentence travel together into the attention layers.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Full Architecture ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🏗️</div>
+      <div>
+        <div class="section-title">Putting It All Together</div>
+        <div class="section-sub">Encoder, decoder, and one full forward pass</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The two building blocks</h3>
+      <div class="two-col">
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">🟢 Encoder block</h4>
+          <p style="color:var(--muted);font-size:0.88rem">Reads and understands the input. Each block:<br>① Multi-head attention<br>② Add &amp; Layer-Norm<br>③ Feed-forward network<br>④ Add &amp; Layer-Norm<br><br>Stack several of these. BERT is made of encoders.</p>
+        </div>
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">🟠 Decoder block</h4>
+          <p style="color:var(--muted);font-size:0.88rem">Generates the output, one token at a time. Each block:<br>① <em>Masked</em> multi-head attention<br>② Cross-attention to the encoder<br>③ Feed-forward network<br>(each with Add &amp; Layer-Norm)<br><br>GPT is made of decoders.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The two helper pieces, in plain words</h3>
+      <p><strong style="color:var(--text)">Layer Normalization</strong> — after each step, the numbers can drift very large or very small. Layer-norm gently rescales them back to a stable range so training stays smooth. Think of it as keeping the volume from getting too loud or too quiet.</p>
+      <p><strong style="color:var(--text)">Feed-Forward Network (FFN)</strong> — a small two-layer neural network applied to each word on its own. After attention has mixed information between words, the FFN does some extra "thinking" on each word individually.</p>
+      <p><strong style="color:var(--text)">Masked attention</strong> — in the decoder, when predicting the next word, the model must NOT be allowed to peek at future words (that would be cheating). Masking hides everything after the current position.</p>
+      <div class="warn-box">
+        <strong>⚠️ Why masking matters:</strong> A model that's trained to predict the next word while secretly seeing the answer learns nothing useful. Masking forces it to predict using only the words so far — exactly how it works at generation time.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>One full forward pass, start to finish</h3>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Tokenize &amp; embed</strong>Break the text into tokens and turn each into an embedding vector.</div></div>
+        <div class="step"><div class="step-body"><strong>Add positional encoding</strong>Mix in the position signal so the model knows word order.</div></div>
+        <div class="step"><div class="step-body"><strong>Encoder stack</strong>Run through multi-head attention → add &amp; layer-norm → feed-forward → add &amp; layer-norm, repeated across several blocks. Now each word "understands" its context.</div></div>
+        <div class="step"><div class="step-body"><strong>Decoder stack</strong>Masked self-attention (no peeking ahead) → cross-attention that looks back at the encoder's output → feed-forward, all with add &amp; layer-norm.</div></div>
+        <div class="step"><div class="step-body"><strong>Final Linear + Softmax</strong>A final layer turns the decoder's output into a probability for every word in the vocabulary. The highest one becomes the next predicted token.</div></div>
+        <div class="step"><div class="step-body"><strong>Repeat</strong>Append the new token and run again to produce the next one — and so on, until the sentence is complete.</div></div>
+      </div>
+      <div class="tip-box">
+        <strong>🏆 The big picture:</strong> This encoder/decoder design with attention is the backbone of GPT, BERT, T5, Claude, and essentially every modern large language model. Master this and you understand the foundation of the entire GenAI revolution.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 7 Test</div>
+        <div class="section-sub">10 questions on Transformers &amp; attention</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What is a key limitation of RNNs that Transformers solve?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>They can only handle numbers, not text</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>They process words sequentially (slow) and forget long-range context</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>They cannot be trained at all</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>They require no data</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">In one phrase, what does attention do for each word?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>Deletes the least common words</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">B</span>Decides which other words matter and blends their info (a weighted average)</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">C</span>Sorts the words alphabetically</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>Translates the word into another language</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">In self-attention, what does the <strong>Query</strong> represent?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">A</span>What this word is looking for</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">B</span>The final output of the model</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>The position number of the word</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>The total number of words</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">In the formula <code>softmax(QKᵀ/√dₖ)V</code>, what is the role of <strong>softmax</strong>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>It adds the position signal</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>It turns the scores into positive weights that sum to 1</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>It removes all the Values</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>It reverses the sentence</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">Why does the Transformer use <strong>multi-head</strong> attention?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>To make the model smaller</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>So each head can learn a different type of relationship in parallel</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>To avoid using embeddings</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>Because one head is not allowed</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">Why do Transformers need <strong>positional encoding</strong>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>To make training slower</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">B</span>To translate between languages</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">C</span>Because words are processed in parallel, so the model needs to know word order</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>To remove punctuation</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">Without positional encoding, how would the model see "dog bites man" vs "man bites dog"?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">A</span>Identical — same words, no sense of order</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">B</span>Completely different automatically</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>It would crash</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>It would translate them both</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">Why does the decoder use <strong>masked</strong> attention?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>To hide the input from the encoder</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">B</span>So it can't peek at future words while predicting the next one</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">C</span>To delete punctuation</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>To make the output shorter</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (FIB) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the helper step that keeps numbers stable between layers is called layer ______.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          keeps numbers stable → layer
+          <input class="fib-input" id="q9-input" placeholder="type here" />
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q9-input','q9-fb',['normalization','normalisation','norm'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (FIB) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: the 2017 paper that introduced the Transformer was titled "______ Is All You Need."</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          "
+          <input class="fib-input" id="q10-input" placeholder="one word" />
+          Is All You Need"
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q10-input','q10-fb',['attention'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Let's see how you did!</div>
+      <div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div></div>
+      <div class="score-sub" id="scoreTip" style="font-size:0.9rem"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <!-- CHECKPOINT -->
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 7 Complete!</strong>
+        You now understand attention, Q/K/V, multi-head, positional encoding, and the full encoder–decoder architecture behind every modern LLM. Next up: building with LangChain on Day 8!
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "RNNs read word-by-word (slow) and forget far-back context — Transformers fix both.",
+    q2: "Attention is a weighted average: pick which words matter, then blend their info.",
+    q3: "The Query is 'what this word is looking for' — like the text you type in a search box.",
+    q4: "Softmax turns raw scores into positive weights that add up to 1.",
+    q5: "Each head learns a different relationship (grammar, meaning, position) in parallel.",
+    q6: "Words are processed all at once, so a position signal is needed to encode order.",
+    q7: "With no order info, the two sentences are just the same bag of words.",
+    q8: "Masking stops the decoder from peeking at future words while predicting the next one.",
+    q9: "It's called layer normalization — it rescales numbers to stay stable.",
+    q10: "The paper is 'Attention Is All You Need' (2017).",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! Transformer master!';        tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';          tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';       tip='Re-read the attention and architecture sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';      tip='Go through each section again — focus on Q/K/V and attention.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+
+// ── ATTENTION SPOTLIGHT WIDGET (illustrative, dependency-free) ──
+const spotlightWords = ["The", "dog", "chased", "the", "ball", "because", "it", "was", "fast"];
+// hardcoded pretend relevance: for each query index, weight (0-1) toward every word
+const spotlightMap = {
+  0: [1.0,0.3,0.1,0.2,0.1,0.0,0.1,0.0,0.0],   // The -> dog
+  1: [0.3,1.0,0.7,0.1,0.2,0.0,0.4,0.1,0.2],   // dog -> chased, it
+  2: [0.1,0.8,1.0,0.1,0.7,0.1,0.1,0.1,0.2],   // chased -> dog, ball
+  3: [0.2,0.1,0.1,1.0,0.6,0.0,0.1,0.0,0.0],   // the -> ball
+  4: [0.1,0.3,0.7,0.5,1.0,0.1,0.6,0.2,0.5],   // ball -> chased, it, fast
+  5: [0.0,0.2,0.4,0.0,0.3,1.0,0.5,0.3,0.4],   // because -> links cause
+  6: [0.1,0.85,0.2,0.1,0.9,0.3,1.0,0.4,0.6],  // it -> dog/ball (ambiguous, both lit)
+  7: [0.0,0.2,0.1,0.0,0.3,0.2,0.5,1.0,0.8],   // was -> it, fast
+  8: [0.0,0.3,0.2,0.0,0.6,0.2,0.6,0.6,1.0],   // fast -> ball, it
+};
+(function buildSpotlight(){
+  const row = document.getElementById('spotlightRow');
+  if (!row) return;
+  spotlightWords.forEach((w, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'word-chip';
+    chip.innerHTML = w + '<span class="weight-tag"></span>';
+    chip.onclick = () => spotlightSelect(i);
+    row.appendChild(chip);
+  });
+})();
+function spotlightSelect(qi){
+  const chips = document.querySelectorAll('#spotlightRow .word-chip');
+  const weights = spotlightMap[qi] || [];
+  chips.forEach((chip, i) => {
+    const tag = chip.querySelector('.weight-tag');
+    chip.classList.remove('query');
+    if (i === qi) {
+      chip.classList.add('query');
+      chip.style.background = '';
+      chip.style.borderColor = '';
+      tag.textContent = 'query';
+    } else {
+      const w = weights[i] !== undefined ? weights[i] : 0;
+      // shade green by weight; brighter = more attention
+      chip.style.background = 'rgba(67,233,123,' + (0.08 + w*0.55).toFixed(2) + ')';
+      chip.style.borderColor = w > 0.5 ? 'var(--accent3)' : 'var(--border)';
+      tag.textContent = w > 0.05 ? Math.round(w*100) + '%' : '';
+    }
+  });
+  // find the top attended word (excluding the query itself)
+  let best = -1, bestW = -1;
+  weights.forEach((w, i) => { if (i !== qi && w > bestW) { bestW = w; best = i; } });
+  const msg = document.getElementById('spotlightMsg');
+  if (best >= 0) {
+    msg.innerHTML = '<strong>"' + spotlightWords[qi] + '"</strong> pays most attention to <strong>"' + spotlightWords[best] + '"</strong> &nbsp;(' + Math.round(bestW*100) + '%). Brighter words = higher attention weight.';
+  } else {
+    msg.textContent = 'Click a word to see what it attends to.';
+  }
+}
+</script>
+</body>
+</html>

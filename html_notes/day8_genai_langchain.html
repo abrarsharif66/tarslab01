@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 8 — GenAI & LangChain Intro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre-wrap; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} .nested-circles{transform:scale(0.85);} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+
+  /* NESTED CIRCLES (AI > ML > DL > GenAI) */
+  .nested-circles { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0; margin: 20px auto; max-width: 420px; }
+  .ring { width: 100%; border-radius: 22px; text-align: center; font-weight: 800; padding: 14px 0 10px; border: 2px solid; position: relative; }
+  .ring small { display: block; font-weight: 600; font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+  .ring-ai  { background: #f7971e10; border-color: var(--accent);  color: var(--accent); }
+  .ring-ml  { background: #38bdf810; border-color: var(--accent5); color: var(--accent5); width: 82%; margin-top: 8px; }
+  .ring-dl  { background: #6c63ff10; border-color: var(--accent4); color: var(--accent4); width: 64%; margin-top: 8px; }
+  .ring-gen { background: #43e97b14; border-color: var(--accent3); color: var(--accent3); width: 46%; margin: 8px 0 16px; }
+
+  /* TIMELINE */
+  .timeline { list-style: none; position: relative; margin: 16px 0 0 8px; padding-left: 26px; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; background: linear-gradient(180deg,var(--accent),var(--accent3)); }
+  .timeline li { position: relative; padding: 0 0 18px 8px; }
+  .timeline li::before { content: ''; position: absolute; left: -26px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .timeline .tl-year { font-family: 'Fira Code',monospace; font-weight: 700; color: var(--accent); font-size: 0.85rem; }
+  .timeline .tl-title { font-weight: 800; color: var(--text); font-size: 0.95rem; }
+  .timeline .tl-desc { color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='day7_transformers.html'">← Day 7</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" onclick="location.href='day9_langchain_core.html'">Day 9 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 8 — GenAI & LangChain Intro</span>
+  <span class="hero-emoji">🤖</span>
+  <h1>From <em>Understanding</em> Language to <em>Building</em> With It</h1>
+  <p>Today we zoom out: what GenAI really is, how LLMs are trained, how they evolved, and how LangChain helps us build real apps on top of them.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 7 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>Attention</div>
+  <div class="recap-chip"><span class="dot"></span>Self-attention Q/K/V</div>
+  <div class="recap-chip"><span class="dot"></span>Multi-head</div>
+  <div class="recap-chip"><span class="dot"></span>Transformers</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. AI vs ML vs DL vs GenAI</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. How LLMs Train</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Evolution of LLMs</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. LangChain Ecosystem</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. First LangChain App</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: AI vs ML vs DL vs GenAI ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧠</div>
+      <div>
+        <div class="section-title">AI vs ML vs DL vs GenAI</div>
+        <div class="section-sub">Four words people mix up — let's untangle them</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>They are nested, not separate</h3>
+      <p>These four terms are not rivals — they fit <strong>inside each other</strong> like Russian dolls. AI is the biggest idea, and each next term is a smaller, more specialised slice of the one before it.</p>
+      <div class="nested-circles">
+        <div class="ring ring-ai">AI — Artificial Intelligence<small>Any machine that mimics "smart" behaviour</small>
+          <div class="ring ring-ml">ML — Machine Learning<small>Learns patterns from data</small>
+            <div class="ring ring-dl">DL — Deep Learning<small>Uses deep neural networks</small>
+              <div class="ring ring-gen">GenAI<small>Creates NEW content</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="analogy-box">
+        <strong>🪆 Analogy:</strong> Think of <strong>transport</strong> (AI) → <strong>cars</strong> (ML) → <strong>electric cars</strong> (DL) → <strong>self-driving electric cars</strong> (GenAI). Every inner item is still part of the bigger group, just more specialised.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What makes each one different?</h3>
+      <table class="methods-table">
+        <tr><th>Term</th><th>Core Idea</th><th>Everyday Example</th></tr>
+        <tr><td><span class="method-name">AI</span></td><td>Any machine doing tasks that look "intelligent" — even with hand-written rules</td><td><span class="method-ex">A chess engine, a thermostat that reacts to temperature</span></td></tr>
+        <tr><td><span class="method-name">ML</span></td><td>Instead of rules, it <strong>learns from data</strong> and improves with examples</td><td><span class="method-ex">Spam filter, movie recommendations</span></td></tr>
+        <tr><td><span class="method-name">DL</span></td><td>ML using <strong>deep neural networks</strong> (many layers) for complex patterns</td><td><span class="method-ex">Face recognition, voice-to-text</span></td></tr>
+        <tr><td><span class="method-name">GenAI</span></td><td>Deep learning that <strong>creates new content</strong> — text, images, code, audio</td><td><span class="method-ex">ChatGPT, image generators, code copilots</span></td></tr>
+      </table>
+      <div class="info-box">
+        <strong>💡 The key shift:</strong> Classic ML/DL mostly <em>predicts or classifies</em> ("is this spam? yes/no"). GenAI <em>generates</em> — it produces something brand new that did not exist before.
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="compare-box orange-box">
+        <h4 style="color:var(--accent)">🔍 Predictive AI (classic ML/DL)</h4>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0">Looks at input → gives a label or a number.<br>"This email is spam." / "House price ≈ $320k."</p>
+      </div>
+      <div class="compare-box green-box">
+        <h4 style="color:var(--accent3)">✨ Generative AI</h4>
+        <p style="color:var(--muted);font-size:0.88rem;margin:0">Looks at a prompt → creates fresh content.<br>"Write a poem about the sea." → a brand new poem.</p>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>🎯 Why it matters:</strong> When someone says "we use AI," ask <em>which kind?</em> Knowing where a tool sits in these circles tells you what it can and cannot do.
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: How LLMs are trained ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🎓</div>
+      <div>
+        <div class="section-title">How LLMs Are Trained</div>
+        <div class="section-sub">Three stages that turn raw text into a helpful assistant</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>From "predict the next word" to "helpful assistant"</h3>
+      <p>A Large Language Model (LLM) is not built in one shot. It goes through three stages, each teaching it something new — first knowledge, then obedience, then good manners.</p>
+      <div class="analogy-box">
+        <strong>🏫 Analogy:</strong> Training an LLM is like raising a professional. <strong>School</strong> gives general education (pre-training), <strong>job training</strong> teaches the actual role (fine-tuning), and a <strong>mentor's feedback</strong> shapes good judgement (RLHF).
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The 3 stages</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-body">
+            <strong>Pre-training — learn general knowledge</strong>
+            The model reads a huge chunk of the internet and books, and plays one simple game over and over: <em>predict the next token (word piece)</em>. By guessing the next word billions of times, it soaks up grammar, facts, and reasoning patterns.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-body">
+            <strong>Fine-tuning / Instruction tuning — learn to follow instructions</strong>
+            The raw model knows a lot but rambles. We show it many examples of <em>instruction → good answer</em> so it learns to actually do what it is asked: summarise, translate, answer questions.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-body">
+            <strong>RLHF — align to be helpful &amp; safe</strong>
+            Humans rank several answers from best to worst. The model is rewarded for the answers people prefer (RLHF = Reinforcement Learning from Human Feedback), nudging it to be helpful, honest, and harmless.
+          </div>
+        </div>
+      </div>
+      <div class="info-box">
+        <strong>💡 Token, not word:</strong> Models read text in small chunks called <strong>tokens</strong> (roughly ¾ of a word). "Predict the next token" is the heartbeat of every LLM.
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>🎯 Why it matters:</strong> When a model "knows" a fact, that came from <em>pre-training</em>. When it follows your format nicely, that is <em>fine-tuning</em>. When it politely refuses something harmful, that is <em>RLHF</em> at work.
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Evolution of LLMs ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📈</div>
+      <div>
+        <div class="section-title">The Evolution of LLMs</div>
+        <div class="section-sub">How we got from tiny text models to ChatGPT</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A quick timeline</h3>
+      <ul class="timeline">
+        <li>
+          <div class="tl-year">~2014</div>
+          <div class="tl-title">RNNs &amp; LSTMs</div>
+          <div class="tl-desc">Read text one word at a time. Smart for their day, but they forgot long sentences and were slow to train.</div>
+        </li>
+        <li>
+          <div class="tl-year">2017</div>
+          <div class="tl-title">The Transformer ("Attention Is All You Need")</div>
+          <div class="tl-desc">Self-attention let models look at the whole sentence at once and train in parallel. This is the foundation of every LLM today.</div>
+        </li>
+        <li>
+          <div class="tl-year">2018–2019</div>
+          <div class="tl-title">BERT &amp; GPT-2</div>
+          <div class="tl-desc">First big wave built on Transformers. BERT understood text deeply; GPT-2 showed surprisingly fluent generation.</div>
+        </li>
+        <li>
+          <div class="tl-year">2020</div>
+          <div class="tl-title">GPT-3</div>
+          <div class="tl-desc">175 billion parameters. So big it could do new tasks from just a few examples in the prompt ("few-shot learning").</div>
+        </li>
+        <li>
+          <div class="tl-year">2022</div>
+          <div class="tl-title">ChatGPT &amp; RLHF</div>
+          <div class="tl-desc">Instruction tuning + RLHF turned a powerful model into a friendly, easy-to-use assistant. AI went mainstream.</div>
+        </li>
+        <li>
+          <div class="tl-year">2023→ now</div>
+          <div class="tl-title">GPT-4, Claude &amp; multimodal models</div>
+          <div class="tl-desc">Bigger, more capable, and able to handle images, audio and long documents — not just text.</div>
+        </li>
+      </ul>
+      <div class="analogy-box">
+        <strong>🚗 Analogy:</strong> RNNs were bicycles, the Transformer was the first car engine, and each new model is a faster, more capable vehicle built on that same engine.
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>📊 Scaling &amp; emergent abilities:</strong> A surprising lesson of this decade — give models <strong>more data + more parameters + more compute</strong>, and brand-new skills <em>emerge</em> that smaller models simply did not have (like reasoning step-by-step or writing code). Bigger really did mean qualitatively smarter.
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: The LangChain ecosystem ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-green">🔗</div>
+      <div>
+        <div class="section-title">The LangChain Ecosystem</div>
+        <div class="section-sub">A toolkit for building real apps on top of LLMs</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is LangChain — and why use it?</h3>
+      <p>An LLM on its own is just a "text in, text out" box. Real apps need more: connect to a model, write good prompts, feed in your own data, remember past messages, call tools, and chain steps together. <strong>LangChain</strong> gives you ready-made building blocks for all of that, so you do not reinvent the plumbing.</p>
+      <div class="analogy-box">
+        <strong>🧱 Analogy:</strong> LangChain is the <strong>LEGO set / glue</strong> for LLM apps. The LLM is one special brick; LangChain gives you all the other bricks (prompts, memory, data, tools) and a simple way to click them together.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The main pieces</h3>
+      <table class="methods-table">
+        <tr><th>Component</th><th>What it does</th></tr>
+        <tr><td><span class="method-name">Models</span></td><td>A unified way to talk to any LLM / Chat model (OpenAI, Anthropic, and more)</td></tr>
+        <tr><td><span class="method-name">Prompts</span></td><td>Reusable prompt templates with placeholders you fill in at runtime</td></tr>
+        <tr><td><span class="method-name">Chains / LCEL</span></td><td>Pipe steps together (prompt → model → parser) using the LangChain Expression Language</td></tr>
+        <tr><td><span class="method-name">Retrievers &amp; Vector stores</span></td><td>Search your own documents and feed relevant chunks to the model (the heart of RAG)</td></tr>
+        <tr><td><span class="method-name">Memory</span></td><td>Remember earlier turns so a chatbot keeps context across a conversation</td></tr>
+        <tr><td><span class="method-name">Agents &amp; Tools</span></td><td>Let the LLM decide which tools to call (search, calculator, APIs) to reach a goal</td></tr>
+        <tr><td><span class="method-name">LangSmith</span></td><td>Debug, trace, and evaluate your LLM app — see exactly what happened on each step</td></tr>
+        <tr><td><span class="method-name">LangServe</span></td><td>Turn a chain into a deployable web API with a few lines</td></tr>
+      </table>
+      <div class="info-box">
+        <strong>💡 Big picture:</strong> Build with the <strong>core library</strong>, observe with <strong>LangSmith</strong>, ship with <strong>LangServe</strong>. Together they cover the whole journey from idea to production.
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>🎯 Why it matters:</strong> You will rarely call a raw LLM API in a serious app. LangChain's blocks save you weeks of plumbing and let you swap models, data sources, and tools without rewriting everything.
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: OpenAI setup & first LangChain app ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚡</div>
+      <div>
+        <div class="section-title">Setup &amp; Your First LangChain App</div>
+        <div class="section-sub">Install, add your key, and send your first prompt</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step 1 — Install the packages</h3>
+      <p>LangChain is modular: install the core library plus the provider package you want to use.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">terminal</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Core library + the OpenAI integration</span>
+pip install langchain langchain-openai
+
+<span class="cmt"># Optional: the Anthropic (Claude) integration too</span>
+pip install langchain-anthropic</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step 2 — Set your API key (safely!)</h3>
+      <p>Your API key is like a password to a paid service. Store it as an <strong>environment variable</strong> or in a <code>.env</code> file — never paste it directly into your code.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">.env</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># .env file — keep this OUT of git (.gitignore it!)</span>
+<span class="var">OPENAI_API_KEY</span><span class="op">=</span><span class="str">sk-your-secret-key-here</span>
+<span class="var">ANTHROPIC_API_KEY</span><span class="op">=</span><span class="str">sk-ant-your-secret-key-here</span></pre>
+      </div>
+      <div class="warn-box">
+        <strong>⚠️ Never hardcode your key!</strong> Do not write <code>api_key="sk-..."</code> in your code or push it to GitHub. Leaked keys get stolen and can run up huge bills. Always load keys from the environment or a <code>.env</code> file.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step 3 — Your first app: send a prompt, print the reply</h3>
+      <p>A minimal program: load the key, build a chat model, send a message, and print what comes back.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">first_app.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">dotenv</span> <span class="kw">import</span> <span class="fn">load_dotenv</span>
+<span class="kw">from</span> <span class="var">langchain_openai</span> <span class="kw">import</span> <span class="var">ChatOpenAI</span>
+
+<span class="fn">load_dotenv</span>()              <span class="cmt"># reads OPENAI_API_KEY from .env</span>
+
+<span class="cmt"># 1) Build a chat model</span>
+<span class="var">llm</span> <span class="op">=</span> <span class="fn">ChatOpenAI</span>(<span class="var">model</span><span class="op">=</span><span class="str">"gpt-4o-mini"</span>, <span class="var">temperature</span><span class="op">=</span><span class="num">0.7</span>)
+
+<span class="cmt"># 2) Send a prompt</span>
+<span class="var">response</span> <span class="op">=</span> <span class="var">llm</span>.<span class="fn">invoke</span>(<span class="str">"Explain GenAI to a 10-year-old in one sentence."</span>)
+
+<span class="cmt"># 3) Print the reply</span>
+<span class="fn">print</span>(<span class="var">response</span>.<span class="var">content</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">GenAI is like a super-smart robot friend that can make up brand-new
+stories, pictures, and answers all by itself after reading tons of books.</div>
+    </div>
+
+    <div class="card">
+      <h3>Swap to Claude in one line</h3>
+      <p>Because LangChain gives every model the same <code>.invoke()</code> interface, switching providers is almost a copy-paste.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">use_claude.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">langchain_anthropic</span> <span class="kw">import</span> <span class="var">ChatAnthropic</span>
+
+<span class="cmt"># Same .invoke() interface — just a different model class</span>
+<span class="var">llm</span> <span class="op">=</span> <span class="fn">ChatAnthropic</span>(<span class="var">model</span><span class="op">=</span><span class="str">"claude-sonnet-4-5"</span>)
+<span class="fn">print</span>(<span class="var">llm</span>.<span class="fn">invoke</span>(<span class="str">"Say hi in 3 words."</span>).<span class="var">content</span>)</pre>
+      </div>
+      <div class="tip-box">
+        <strong>🎯 The superpower:</strong> The rest of your app does not change — same prompts, same chains. You can swap OpenAI ↔ Claude ↔ others just by changing the model line. That flexibility is a big reason teams choose LangChain.
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <span class="checkpoint-icon">✅</span>
+      <div class="checkpoint-text">
+        <strong>You can now build!</strong>
+        Install → set key safely → ChatOpenAI/ChatAnthropic → <code>.invoke()</code> → print. That is the skeleton of every LangChain app.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 8 Test</div>
+        <div class="section-sub">10 questions on GenAI, LLM training &amp; LangChain</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">Which term is the <strong>broadest</strong> (contains all the others)?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>Deep Learning</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>Artificial Intelligence</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>Machine Learning</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>Generative AI</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What makes Generative AI different from classic ML?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>It only classifies things into categories</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">B</span>It never uses neural networks</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">C</span>It creates new content (text, images, code) rather than just predicting a label</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>It does not need any data</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">During <strong>pre-training</strong>, what is the model's main task?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">A</span>Predict the next token on huge amounts of text</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">B</span>Rank answers written by humans</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>Refuse unsafe requests</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>Deploy itself as a web API</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What does <strong>RLHF</strong> mainly do?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>Teaches the model basic grammar from scratch</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>Uses human rankings of answers to align the model to be helpful &amp; safe</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>Makes the model run faster on GPUs</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>Compresses the model to a smaller size</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">Which architecture (introduced in 2017) is the foundation of modern LLMs?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>LSTM</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">B</span>Convolutional Neural Network</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">C</span>The Transformer</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>Decision Tree</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">As models scale up (more data + params), what surprising thing happens?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>They always get slower and dumber</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>New "emergent" abilities appear that smaller models lacked</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>They stop needing any training</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>They can only handle shorter sentences</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">In LangChain, which component lets the LLM <strong>decide which tools to call</strong> to reach a goal?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>Prompts</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">B</span>Vector stores</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">C</span>Agents</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>LangServe</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">What is the <strong>safe</strong> way to handle your API key?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>Hardcode it directly in your .py file</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>Commit it to a public GitHub repo</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">C</span>Store it in an environment variable / .env file (kept out of git)</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>Share it in your team's public chat</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (fill in blank) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the standard LangChain method to send a prompt to a model and get a response is <code>llm.____("Hello")</code>.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span class="var">response</span> <span class="op">=</span> <span class="var">llm</span>.<input class="fib-input" id="q9-input" placeholder="method?">(<span class="str">"Hello"</span>)
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q9-input','q9-fb',['invoke','invoke()'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (fill in blank) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: GenAI is a specialised slice of ____ Learning (the kind that uses deep neural networks).</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          GenAI ⊂ <input class="fib-input" id="q10-input" placeholder="____"> Learning
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q10-input','q10-fb',['deep'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Let's see how you did!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 8 Complete!</strong>
+        You now know where GenAI fits, how LLMs are trained &amp; evolved, and how LangChain turns models into apps. Next up — Day 9: LangChain Core.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 6;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "AI is the broadest umbrella. ML ⊂ AI, DL ⊂ ML, and GenAI ⊂ DL.",
+    q2: "Classic ML predicts a label or number; GenAI CREATES brand-new content.",
+    q3: "Pre-training = predict the next token over huge text to gain general knowledge.",
+    q4: "RLHF = Reinforcement Learning from Human Feedback: humans rank answers to align the model.",
+    q5: "The Transformer (2017, 'Attention Is All You Need') is the foundation of modern LLMs.",
+    q6: "Scaling up unlocks new 'emergent' abilities smaller models did not have.",
+    q7: "Agents let the LLM choose which tools to call to accomplish a goal.",
+    q8: "Keep keys in an environment variable / .env file — never hardcode or commit them.",
+    q9: "The standard call is llm.invoke(...) — same interface across providers.",
+    q10: "GenAI sits inside Deep Learning (deep neural networks).",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! GenAI champion!';          tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';       tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';    tip='Re-read the LLM training and LangChain sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';   tip='Go through each section again, especially the nested circles and the 3 training stages.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(5); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec6').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 5 — Dictionaries, Tuples & Files</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --card:#22263a; --card2:#1e2235;
+    --accent:#34d399; --accent2:#ff6b6b; --accent3:#f7971e;
+    --accent4:#818cf8; --accent5:#38bdf8;
+    --text:#e8eaf6; --muted:#8892b0; --border:#2e3350;
+    --success:#43e97b; --fail:#ff6b6b; --code-bg:#12151f;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;line-height:1.7;min-height:100vh;}
+
+  /* HEADER */
+  .site-header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px;}
+  .logo{font-size:1.3rem;font-weight:900;white-space:nowrap;}.logo span{color:var(--accent);}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .nav-btn{padding:6px 14px;border:1px solid var(--border);border-radius:99px;background:var(--surface);color:var(--muted);font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;}
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .progress-bar-wrap{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--muted);}
+  .progress-track{width:140px;height:8px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%;}
+  #progress-label{font-weight:700;color:var(--accent);min-width:36px;}
+
+  /* HERO */
+  .hero{text-align:center;padding:72px 24px 48px;background:radial-gradient(ellipse 80% 50% at 50% 0%,#34d39918,transparent);}
+  .hero-emoji{font-size:4rem;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1.15;margin-bottom:16px;}
+  .hero h1 em{font-style:normal;color:var(--accent);}
+  .hero p{color:var(--muted);max-width:560px;margin:0 auto 32px;font-size:1.05rem;}
+  .class-badge{display:inline-block;background:var(--accent);color:#0f1117;font-size:.8rem;font-weight:800;padding:4px 14px;border-radius:99px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px;}
+
+  /* RECAP */
+  .recap-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 24px 40px;}
+  .recap-chip{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:.82rem;color:var(--muted);}
+  .recap-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);}
+
+  /* LESSON NAV */
+  .lesson-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:0 24px 48px;}
+  .nav-pill{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;transition:all .2s;}
+  .nav-pill:hover{border-color:var(--accent);color:var(--text);}
+  .nav-pill.active{background:var(--accent);border-color:var(--accent);color:#0f1117;}
+  .nav-pill.done{border-color:var(--success);color:var(--success);}
+  .nav-pill.done::after{content:' ✓';}
+
+  /* MAIN */
+  .main{max-width:860px;margin:0 auto;padding:0 24px 80px;}
+  .lesson-section{margin-bottom:56px;scroll-margin-top:80px;}
+  .section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+  .section-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+  .icon-green {background:#34d39922;} .icon-orange{background:#f7971e22;}
+  .icon-purple{background:#818cf822;} .icon-blue  {background:#38bdf822;}
+  .icon-red   {background:#ff6b6b22;} .icon-yellow{background:#ffd70022;}
+  .section-title{font-size:1.5rem;font-weight:900;}
+  .section-sub{color:var(--muted);font-size:.9rem;margin-top:2px;}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+  .card h3{font-size:1.05rem;font-weight:800;margin-bottom:10px;}
+  .card p{color:var(--muted);font-size:.95rem;line-height:1.7;}
+  .card p+p{margin-top:10px;}
+  code{font-family:'Fira Code',monospace;background:var(--card2);padding:1px 6px;border-radius:4px;font-size:.88em;color:var(--accent);}
+
+  .analogy-box{background:#34d39912;border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .analogy-box strong{color:var(--accent);}
+  .tip-box{background:#f7971e12;border-left:3px solid var(--accent3);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .tip-box strong{color:var(--accent3);}
+  .warn-box{background:#ff6b6b12;border-left:3px solid var(--fail);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .warn-box strong{color:var(--fail);}
+  .info-box{background:#818cf812;border-left:3px solid var(--accent4);border-radius:0 12px 12px 0;padding:14px 18px;margin:14px 0;font-size:.95rem;}
+  .info-box strong{color:var(--accent4);}
+
+  /* CODE */
+  .code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:16px 0;}
+  .code-topbar{background:#1a1d27;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .code-dots{display:flex;gap:6px;}.code-dots span{width:12px;height:12px;border-radius:50%;}
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label{font-size:.78rem;color:var(--muted);font-family:'Fira Code',monospace;}
+  .code-copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 10px;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;}
+  .code-copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+  pre{padding:20px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:.9rem;line-height:1.8;}
+  .kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.num{color:#f78c6c}.cmt{color:#546e7a;font-style:italic}.var{color:#ffcb6b}.op{color:#89ddff}
+
+  /* OUTPUT */
+  .output-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;font-family:'Nunito',sans-serif;font-weight:700;}
+  .output-box{background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 20px;font-family:'Fira Code',monospace;font-size:.88rem;color:var(--accent3);white-space:pre;}
+
+  /* INTERACTIVE CODE */
+  .interactive-code{background:var(--code-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:16px 0;}
+  .interactive-topbar{background:#1a1d27;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .ic-label{font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.06em;}
+  .ic-textarea{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'Fira Code',monospace;font-size:.9rem;padding:20px;resize:vertical;min-height:120px;line-height:1.8;}
+  .ic-run-btn{display:flex;align-items:center;gap:6px;background:var(--accent3);color:#0f1117;border:none;padding:10px 22px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:opacity .2s;margin:0 16px 16px;}
+  .ic-run-btn:hover{opacity:.85;}
+  .ic-output{margin:0 16px 16px;background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;min-height:44px;color:var(--accent3);display:none;white-space:pre-wrap;}
+  .ic-output.visible{display:block;} .ic-error{color:var(--fail);}
+
+  /* DICT VISUALIZER */
+  .dict-viz{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;}
+  .dict-viz h3{font-size:.95rem;font-weight:800;margin-bottom:16px;color:var(--accent);}
+  .dict-pairs{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .dict-pair{display:flex;align-items:stretch;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  .dict-key{background:var(--accent);color:#0f1117;padding:10px 16px;font-family:'Fira Code',monospace;font-weight:700;font-size:.88rem;min-width:120px;display:flex;align-items:center;}
+  .dict-sep{background:#1e2235;padding:10px 8px;font-weight:800;color:var(--accent3);display:flex;align-items:center;}
+  .dict-val{background:var(--card2);padding:10px 16px;font-family:'Fira Code',monospace;font-size:.88rem;flex:1;display:flex;align-items:center;color:var(--text);}
+  .dict-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .dict-ctrl-input{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem;outline:none;width:110px;transition:border-color .2s;}
+  .dict-ctrl-input:focus{border-color:var(--accent);}
+  .dict-ctrl-btn{padding:8px 14px;border-radius:8px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:opacity .2s;}
+  .dict-ctrl-btn:hover{opacity:.85;}
+  .btn-add{background:var(--accent);color:#0f1117;} .btn-del{background:var(--fail);color:#fff;} .btn-rst{background:var(--card2);color:var(--muted);border:1px solid var(--border);}
+  .dict-log{margin-top:8px;font-family:'Fira Code',monospace;font-size:.82rem;color:var(--muted);min-height:20px;}
+
+  /* TUPLE COMPARE */
+  .cmp-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  .cmp-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .cmp-card h4{font-weight:800;font-size:.9rem;margin-bottom:10px;}
+  .cmp-card.list-card{border-top:3px solid var(--accent4);}
+  .cmp-card.tuple-card{border-top:3px solid var(--accent);}
+  @media(max-width:580px){.cmp-cards{grid-template-columns:1fr;}}
+
+  /* FILE TABS */
+  .file-tabs{margin:16px 0;}
+  .ftab-btns{display:flex;gap:6px;margin-bottom:-1px;}
+  .ftab-btn{padding:8px 18px;border:1px solid var(--border);border-bottom:none;background:var(--card2);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;border-radius:10px 10px 0 0;cursor:pointer;transition:all .2s;}
+  .ftab-btn.active{background:var(--code-bg);color:var(--text);border-color:var(--border);}
+  .ftab-content{background:var(--code-bg);border:1px solid var(--border);border-radius:0 12px 12px 12px;padding:20px;font-family:'Fira Code',monospace;font-size:.88rem;line-height:1.8;display:none;}
+  .ftab-content.active{display:block;}
+
+  /* FILE SIMULATOR */
+  .file-sim{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;}
+  .file-sim h3{font-size:.95rem;font-weight:800;margin-bottom:14px;color:var(--accent5);}
+  .file-sim-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:.88rem;}
+  .file-sim-row label{color:var(--muted);font-weight:700;min-width:80px;}
+  .file-inp{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Fira Code',monospace;font-size:.88rem;outline:none;flex:1;min-width:120px;transition:border-color .2s;}
+  .file-inp:focus{border-color:var(--accent5);}
+  .file-textarea{background:var(--card2);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem;outline:none;width:100%;resize:vertical;min-height:80px;line-height:1.7;margin-bottom:8px;transition:border-color .2s;}
+  .file-textarea:focus{border-color:var(--accent5);}
+  .file-btn{padding:9px 20px;border-radius:9px;border:none;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;transition:opacity .2s;margin-right:6px;margin-bottom:6px;}
+  .file-btn:hover{opacity:.85;}
+  .fbtn-write{background:var(--accent);color:#0f1117;} .fbtn-append{background:var(--accent3);color:#0f1117;} .fbtn-read{background:var(--accent5);color:#0f1117;} .fbtn-clear{background:var(--card2);color:var(--muted);border:1px solid var(--border);}
+  .file-display{margin-top:12px;background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;color:var(--accent3);min-height:60px;white-space:pre-wrap;display:none;}
+  .file-display.visible{display:block;}
+
+  /* QUIZ */
+  .quiz-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;}
+  .quiz-header{background:var(--card2);padding:16px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+  .quiz-num{background:var(--accent);color:#0f1117;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0;}
+  .quiz-q{font-weight:700;font-size:.98rem;}
+  .quiz-body{padding:20px 24px;}
+  .quiz-code-snip{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Fira Code',monospace;font-size:.85rem;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{display:flex;align-items:center;gap:12px;background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;transition:all .2s;font-size:.92rem;font-weight:600;user-select:none;}
+  .quiz-option:hover{border-color:var(--accent);background:#34d39910;}
+  .quiz-option.correct{border-color:var(--success);background:#43e97b12;color:var(--success);}
+  .quiz-option.wrong{border-color:var(--fail);background:#ff6b6b12;color:var(--fail);}
+  .quiz-option.disabled{pointer-events:none;}
+  .opt-indicator{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;}
+  .quiz-option.correct .opt-indicator{background:var(--success);border-color:var(--success);color:#0f1117;}
+  .quiz-option.wrong .opt-indicator{background:var(--fail);border-color:var(--fail);color:#fff;}
+  .quiz-feedback{margin-top:14px;padding:12px 16px;border-radius:10px;font-size:.9rem;font-weight:600;display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.fb-correct{background:#43e97b12;color:var(--success);border:1px solid #43e97b33;}
+  .quiz-feedback.fb-wrong{background:#ff6b6b12;color:#ff9a9a;border:1px solid #ff6b6b33;}
+
+  /* FIB */
+  .fib-wrap{font-family:'Fira Code',monospace;font-size:.9rem;line-height:2.6;}
+  .fib-input{background:var(--code-bg);border:2px solid var(--accent);border-radius:8px;padding:4px 10px;color:var(--accent3);font-family:'Fira Code',monospace;font-size:.9rem;width:140px;outline:none;transition:border-color .2s;}
+  .fib-input.correct{border-color:var(--success);color:var(--success);}
+  .fib-input.wrong{border-color:var(--fail);color:var(--fail);}
+  .fib-btn{background:var(--accent);color:#0f1117;border:none;padding:8px 20px;border-radius:8px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;margin-top:12px;transition:opacity .2s;display:block;}
+  .fib-btn:hover{opacity:.85;}
+
+  /* SCORE */
+  .score-card{background:linear-gradient(135deg,#34d39922,#43e97b11);border:1px solid var(--accent);border-radius:20px;padding:32px;text-align:center;margin-top:40px;}
+  .score-emoji{font-size:3.5rem;display:block;margin-bottom:12px;}
+  .score-main{font-size:3rem;font-weight:900;color:var(--accent3);margin-bottom:8px;}
+  .score-sub{color:var(--muted);margin-bottom:20px;}
+  .score-bar-wrap{max-width:300px;margin:0 auto 20px;}
+  .score-bar-bg{background:var(--border);border-radius:99px;height:12px;overflow:hidden;}
+  .score-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1) .3s;}
+  .restart-btn{background:var(--accent);color:#0f1117;border:none;padding:12px 32px;border-radius:99px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;margin-top:8px;transition:opacity .2s;}
+  .restart-btn:hover{opacity:.85;}
+
+  /* CONFETTI */
+  .confetti-piece{position:fixed;width:10px;height:10px;pointer-events:none;animation:confetti-fall 2s ease-out forwards;z-index:9999;border-radius:2px;}
+  @keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+  /* MISC */
+  .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:48px 0;}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .5s,transform .5s;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .checkpoint{display:flex;align-items:center;gap:14px;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin:16px 0;}
+  .checkpoint-icon{font-size:1.8rem;}
+  .checkpoint-text{font-size:.9rem;color:var(--muted);}
+  .checkpoint-text strong{color:var(--text);display:block;margin-bottom:2px;}
+  @media(max-width:600px){.progress-track{width:90px;}pre{font-size:.78rem;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="header-right">
+    <span class="nav-btn">← Class 4</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Class 5 — Dictionaries, Tuples & Files</span>
+  <span class="hero-emoji">📂</span>
+  <h1>Store Smarter & <em>Talk to Files!</em></h1>
+  <p>Today we learn dictionaries — Python's most powerful data structure — immutable tuples, and how to actually read and write files on disk.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Class 4 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>def — functions</div>
+  <div class="recap-chip"><span class="dot"></span>Parameters & return</div>
+  <div class="recap-chip"><span class="dot"></span>String methods & f-strings</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="gotoSec('sec1')">1. Dictionaries</button>
+  <button class="nav-pill" onclick="gotoSec('sec2')">2. Dict Methods</button>
+  <button class="nav-pill" onclick="gotoSec('sec3')">3. Tuples</button>
+  <button class="nav-pill" onclick="gotoSec('sec4')">4. Reading Files</button>
+  <button class="nav-pill" onclick="gotoSec('sec5')">5. Writing Files</button>
+  <button class="nav-pill" onclick="gotoSec('sec6')">6. with Statement</button>
+  <button class="nav-pill" onclick="gotoSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+<!-- ── SEC 1: Dictionaries ── -->
+<section class="lesson-section reveal" id="sec1">
+  <div class="section-header">
+    <div class="section-icon icon-green">📖</div>
+    <div><div class="section-title">Dictionaries — Key-Value Pairs</div>
+    <div class="section-sub">The most powerful way to store related data</div></div>
+  </div>
+
+  <div class="card">
+    <h3>What is a Dictionary?</h3>
+    <p>A list stores items by <strong>position (index)</strong>. A dictionary stores items by <strong>name (key)</strong>. Instead of saying "give me item 0", you say "give me the 'name' value".</p>
+    <div class="analogy-box">
+      <strong>📒 Analogy:</strong> Think of a real dictionary or contact book. You do not look up a word by its page number — you look it up by its NAME. Each word (key) has a meaning (value). Python dictionaries work exactly the same way!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Creating a Dictionary</h3>
+    <p>Use curly braces <code>{}</code>. Each entry is a <code>key: value</code> pair separated by commas.</p>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">dict_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Create a dictionary with { }</span>
+<span class="var">student</span> <span class="op">=</span> {
+    <span class="str">"name"</span>  : <span class="str">"Riya Sharma"</span>,
+    <span class="str">"age"</span>   : <span class="num">20</span>,
+    <span class="str">"course"</span>: <span class="str">"AI Engineering"</span>,
+    <span class="str">"gpa"</span>   : <span class="num">8.7</span>
+}
+
+<span class="cmt"># Access values by KEY name</span>
+<span class="fn">print</span>(<span class="var">student</span>[<span class="str">"name"</span>])    <span class="cmt"># Riya Sharma</span>
+<span class="fn">print</span>(<span class="var">student</span>[<span class="str">"age"</span>])     <span class="cmt"># 20</span>
+<span class="fn">print</span>(<span class="var">student</span>[<span class="str">"gpa"</span>])     <span class="cmt"># 8.7</span>
+
+<span class="cmt"># Update a value</span>
+<span class="var">student</span>[<span class="str">"age"</span>] <span class="op">=</span> <span class="num">21</span>
+<span class="fn">print</span>(<span class="var">student</span>[<span class="str">"age"</span>])     <span class="cmt"># 21</span>
+
+<span class="cmt"># Add a new key-value pair</span>
+<span class="var">student</span>[<span class="str">"city"</span>] <span class="op">=</span> <span class="str">"Hyderabad"</span>
+<span class="fn">print</span>(<span class="var">student</span>)</pre>
+    </div>
+    <div class="output-label">▶ Output</div>
+    <div class="output-box">Riya Sharma
+20
+8.7
+21
+{'name': 'Riya Sharma', 'age': 21, 'course': 'AI Engineering', 'gpa': 8.7, 'city': 'Hyderabad'}</div>
+  </div>
+
+  <!-- DICT VISUALIZER -->
+  <div class="dict-viz">
+    <h3>🎮 Dictionary Visualizer — Add your own key-value pairs!</h3>
+    <div class="dict-pairs" id="dictPairs"></div>
+    <div class="dict-controls">
+      <input class="dict-ctrl-input" id="dKey"   placeholder="key"   />
+      <input class="dict-ctrl-input" id="dVal"   placeholder="value" />
+      <button class="dict-ctrl-btn btn-add" onclick="dictAdd()">+ Add</button>
+      <button class="dict-ctrl-btn btn-del" onclick="dictDel()">- Delete key</button>
+      <button class="dict-ctrl-btn btn-rst" onclick="dictReset()">Reset</button>
+    </div>
+    <div class="dict-log" id="dictLog"></div>
+  </div>
+
+  <div class="card">
+    <h3>List vs Dictionary — when to use which?</h3>
+    <div class="cmp-cards">
+      <div class="cmp-card list-card">
+        <h4 style="color:var(--accent4)">📋 List — ordered items</h4>
+        <pre style="font-size:.8rem;padding:0;background:none"><span class="var">scores</span> = [<span class="num">85</span>,<span class="num">92</span>,<span class="num">78</span>]
+<span class="fn">print</span>(<span class="var">scores</span>[<span class="num">0</span>])  <span class="cmt"># 85</span>
+<span class="cmt"># Use when: order matters,</span>
+<span class="cmt"># items are similar type</span></pre>
+      </div>
+      <div class="cmp-card tuple-card">
+        <h4 style="color:var(--accent)">📖 Dict — named items</h4>
+        <pre style="font-size:.8rem;padding:0;background:none"><span class="var">info</span> = {<span class="str">"name"</span>:<span class="str">"Riya"</span>,<span class="str">"age"</span>:<span class="num">20</span>}
+<span class="fn">print</span>(<span class="var">info</span>[<span class="str">"name"</span>]) <span class="cmt"># Riya</span>
+<span class="cmt"># Use when: items have labels,</span>
+<span class="cmt"># related info about one thing</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Your own student dictionary</span></div>
+    <textarea class="ic-textarea" id="try1" spellcheck="false">student = {
+    "name"  : "Your Name",
+    "age"   : 20,
+    "course": "Python Basics",
+    "city"  : "Hyderabad"
+}
+
+print("Name  :", student["name"])
+print("Age   :", student["age"])
+print("Course:", student["course"])
+
+student["grade"] = "A"
+print("Grade :", student["grade"])</textarea>
+    <button class="ic-run-btn" onclick="runCode('try1','out1')">▶ Run Code</button>
+    <div class="ic-output" id="out1"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 2: Dict Methods ── -->
+<section class="lesson-section reveal" id="sec2">
+  <div class="section-header">
+    <div class="section-icon icon-orange">🔧</div>
+    <div><div class="section-title">Dictionary Methods & Looping</div>
+    <div class="section-sub">Built-in tools to work with dictionaries</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Essential Dictionary Methods</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">dict_methods.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="var">student</span> <span class="op">=</span> {<span class="str">"name"</span>:<span class="str">"Riya"</span>, <span class="str">"age"</span>:<span class="num">20</span>, <span class="str">"gpa"</span>:<span class="num">8.5</span>}
+
+<span class="cmt"># .keys()   — all the keys</span>
+<span class="fn">print</span>(<span class="var">student</span>.<span class="fn">keys</span>())      <span class="cmt"># dict_keys(['name','age','gpa'])</span>
+
+<span class="cmt"># .values() — all the values</span>
+<span class="fn">print</span>(<span class="var">student</span>.<span class="fn">values</span>())    <span class="cmt"># dict_values(['Riya', 20, 8.5])</span>
+
+<span class="cmt"># .items()  — all key-value pairs</span>
+<span class="fn">print</span>(<span class="var">student</span>.<span class="fn">items</span>())     <span class="cmt"># dict_items([('name','Riya')...])</span>
+
+<span class="cmt"># .get() — safe access (no error if key missing)</span>
+<span class="fn">print</span>(<span class="var">student</span>.<span class="fn">get</span>(<span class="str">"name"</span>))          <span class="cmt"># Riya</span>
+<span class="fn">print</span>(<span class="var">student</span>.<span class="fn">get</span>(<span class="str">"city"</span>, <span class="str">"Unknown"</span>)) <span class="cmt"># Unknown</span>
+
+<span class="cmt"># Check if key exists</span>
+<span class="fn">print</span>(<span class="str">"name"</span> <span class="kw">in</span> <span class="var">student</span>)   <span class="cmt"># True</span>
+<span class="fn">print</span>(<span class="str">"city"</span> <span class="kw">in</span> <span class="var">student</span>)   <span class="cmt"># False</span>
+
+<span class="cmt"># Delete a key</span>
+<span class="kw">del</span> <span class="var">student</span>[<span class="str">"gpa"</span>]
+<span class="fn">print</span>(<span class="var">student</span>)</pre>
+    </div>
+    <div class="tip-box">
+      <strong>💡 Always use .get() for safe access!</strong> If you use <code>student["city"]</code> and "city" does not exist, Python throws a KeyError and crashes. <code>student.get("city", "Unknown")</code> safely returns "Unknown" instead!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Looping through a dictionary</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">dict_loop.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="var">student</span> <span class="op">=</span> {<span class="str">"name"</span>:<span class="str">"Riya"</span>, <span class="str">"age"</span>:<span class="num">20</span>, <span class="str">"city"</span>:<span class="str">"Hyderabad"</span>}
+
+<span class="cmt"># Loop through keys (default)</span>
+<span class="kw">for</span> <span class="var">key</span> <span class="kw">in</span> <span class="var">student</span>:
+    <span class="fn">print</span>(<span class="var">key</span>, <span class="str">"→"</span>, <span class="var">student</span>[<span class="var">key</span>])
+
+<span class="cmt"># Loop through key-value pairs together</span>
+<span class="kw">for</span> <span class="var">key</span>, <span class="var">value</span> <span class="kw">in</span> <span class="var">student</span>.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="str">f"{key}: {value}"</span>)</pre>
+    </div>
+    <div class="output-label">▶ Output (items loop)</div>
+    <div class="output-box">name: Riya
+age: 20
+city: Hyderabad</div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Phone book with dictionary</span></div>
+    <textarea class="ic-textarea" id="try2" spellcheck="false">contacts = {
+    "Riya"  : "9876543210",
+    "Ali"   : "9123456789",
+    "Priya" : "9988776655"
+}
+
+print("--- Phone Book ---")
+for name, number in contacts.items():
+    print(f"{name}: {number}")
+
+print("\nLooking up Ali:", contacts.get("Ali", "Not found"))
+print("Looking up Raj:", contacts.get("Raj", "Not found"))
+
+contacts["Sneha"] = "9000011111"
+print("\nAfter adding Sneha:", len(contacts), "contacts")</textarea>
+    <button class="ic-run-btn" onclick="runCode('try2','out2')">▶ Run Code</button>
+    <div class="ic-output" id="out2"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 3: Tuples ── -->
+<section class="lesson-section reveal" id="sec3">
+  <div class="section-header">
+    <div class="section-icon icon-purple">🔒</div>
+    <div><div class="section-title">Tuples — Immutable Lists</div>
+    <div class="section-sub">Lists that cannot be changed after creation</div></div>
+  </div>
+
+  <div class="card">
+    <h3>What is a Tuple?</h3>
+    <p>A tuple is exactly like a list — except you <strong>cannot change it</strong> after it is created. It is <em>immutable</em> (unchangeable). You create it with <code>()</code> instead of <code>[]</code>.</p>
+    <div class="analogy-box">
+      <strong>🏛️ Analogy:</strong> Think of the days of the week — Monday, Tuesday, Wednesday... They are always in that order and never change. A tuple is perfect for data that should stay fixed forever, like coordinates, RGB colors, or days of the week!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Tuple syntax and accessing</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">tuples.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Create with ( ) — parentheses</span>
+<span class="var">colors</span>      <span class="op">=</span> (<span class="str">"red"</span>, <span class="str">"green"</span>, <span class="str">"blue"</span>)
+<span class="var">coordinates</span> <span class="op">=</span> (<span class="num">17.385</span>, <span class="num">78.486</span>)   <span class="cmt"># Hyderabad lat/lon</span>
+<span class="var">rgb</span>         <span class="op">=</span> (<span class="num">255</span>, <span class="num">165</span>, <span class="num">0</span>)         <span class="cmt"># orange color</span>
+
+<span class="cmt"># Access by index — same as lists</span>
+<span class="fn">print</span>(<span class="var">colors</span>[<span class="num">0</span>])          <span class="cmt"># red</span>
+<span class="fn">print</span>(<span class="var">colors</span>[<span class="op">-</span><span class="num">1</span>])         <span class="cmt"># blue</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">colors</span>))        <span class="cmt"># 3</span>
+
+<span class="cmt"># Unpack tuple into variables</span>
+<span class="var">lat</span>, <span class="var">lon</span> <span class="op">=</span> <span class="var">coordinates</span>
+<span class="fn">print</span>(<span class="str">f"Latitude: {lat}, Longitude: {lon}"</span>)
+
+<span class="cmt"># Loop through tuple — same as list</span>
+<span class="kw">for</span> <span class="var">color</span> <span class="kw">in</span> <span class="var">colors</span>:
+    <span class="fn">print</span>(<span class="var">color</span>)</pre>
+    </div>
+  </div>
+
+  <div class="cmp-cards">
+    <div class="cmp-card list-card">
+      <h4 style="color:var(--accent4)">📋 List [ ] — mutable</h4>
+      <pre style="font-size:.8rem;padding:0;background:none"><span class="var">fruits</span> = [<span class="str">"apple"</span>, <span class="str">"mango"</span>]
+<span class="var">fruits</span>[<span class="num">0</span>] = <span class="str">"grape"</span>  <span class="cmt"># ✅ OK</span>
+<span class="var">fruits</span>.<span class="fn">append</span>(<span class="str">"kiwi"</span>)  <span class="cmt"># ✅ OK</span>
+<span class="cmt"># Use for: collections that change</span></pre>
+    </div>
+    <div class="cmp-card tuple-card">
+      <h4 style="color:var(--accent)">🔒 Tuple ( ) — immutable</h4>
+      <pre style="font-size:.8rem;padding:0;background:none"><span class="var">point</span> = (<span class="num">10</span>, <span class="num">20</span>)
+<span class="var">point</span>[<span class="num">0</span>] = <span class="num">99</span>   <span class="cmt"># ❌ ERROR!</span>
+<span class="cmt"># Use for: fixed data like</span>
+<span class="cmt"># coordinates, settings, days</span></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>When to use a Tuple?</h3>
+    <p>Use tuples when you want to make sure the data <strong>cannot be accidentally changed</strong>. Common uses:</p>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">tuple_uses.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Fixed configuration — should never change</span>
+<span class="var">DB_CONFIG</span> <span class="op">=</span> (<span class="str">"localhost"</span>, <span class="num">5432</span>, <span class="str">"mydb"</span>)
+
+<span class="cmt"># Days of the week — fixed order</span>
+<span class="var">DAYS</span> <span class="op">=</span> (<span class="str">"Mon"</span>, <span class="str">"Tue"</span>, <span class="str">"Wed"</span>, <span class="str">"Thu"</span>, <span class="str">"Fri"</span>, <span class="str">"Sat"</span>, <span class="str">"Sun"</span>)
+<span class="fn">print</span>(<span class="str">"Weekdays:"</span>, <span class="var">DAYS</span>[:<span class="num">5</span>])
+
+<span class="cmt"># Functions returning multiple values use tuples!</span>
+<span class="kw">def</span> <span class="fn">min_max</span>(<span class="var">numbers</span>):
+    <span class="kw">return</span> <span class="fn">min</span>(<span class="var">numbers</span>), <span class="fn">max</span>(<span class="var">numbers</span>)   <span class="cmt"># returns a tuple</span>
+
+<span class="var">low</span>, <span class="var">high</span> <span class="op">=</span> <span class="fn">min_max</span>([<span class="num">5</span>, <span class="num">2</span>, <span class="num">9</span>, <span class="num">1</span>, <span class="num">7</span>])
+<span class="fn">print</span>(<span class="str">f"Min: {low}, Max: {high}"</span>)</pre>
+    </div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Tuples in action</span></div>
+    <textarea class="ic-textarea" id="try3" spellcheck="false">DAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+print("Total days:", len(DAYS))
+print("First day :", DAYS[0])
+print("Weekend   :", DAYS[5], "and", DAYS[6])
+
+point = (10, 20)
+x, y = point
+print(f"x = {x}, y = {y}")
+
+for i, day in enumerate(DAYS):
+    print(i + 1, "-", day)</textarea>
+    <button class="ic-run-btn" onclick="runCode('try3','out3')">▶ Run Code</button>
+    <div class="ic-output" id="out3"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 4: Reading Files ── -->
+<section class="lesson-section reveal" id="sec4">
+  <div class="section-header">
+    <div class="section-icon icon-blue">📄</div>
+    <div><div class="section-title">Reading Files</div>
+    <div class="section-sub">Loading real data from your computer</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Why File Handling?</h3>
+    <p>Every real program works with files — reading CSV data, loading configuration, saving user data. Python makes it super easy with the built-in <code>open()</code> function.</p>
+    <div class="analogy-box">
+      <strong>📚 Analogy:</strong> Think of a file like a book. Before you can read it, you open it. After you are done, you close it. Python's <code>open()</code> opens the file, you read it, and you close it when done — just like a real book!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How to read a file</h3>
+
+    <div class="file-tabs" id="readTab">
+      <div class="ftab-btns">
+        <button class="ftab-btn active" onclick="showFTab('readTab','all')">Read All</button>
+        <button class="ftab-btn" onclick="showFTab('readTab','line')">Read Line</button>
+        <button class="ftab-btn" onclick="showFTab('readTab','lines')">Read Lines</button>
+      </div>
+      <div class="ftab-content active" id="readTab-all">
+<span class="cmt"># Read entire file as one big string</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"r"</span>)   <span class="cmt"># "r" = read mode</span>
+<span class="var">content</span> <span class="op">=</span> <span class="var">file</span>.<span class="fn">read</span>()
+<span class="fn">print</span>(<span class="var">content</span>)
+<span class="var">file</span>.<span class="fn">close</span>()                   <span class="cmt"># always close!</span></div>
+      <div class="ftab-content" id="readTab-line">
+<span class="cmt"># Read one line at a time</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"r"</span>)
+<span class="var">first_line</span> <span class="op">=</span> <span class="var">file</span>.<span class="fn">readline</span>()
+<span class="fn">print</span>(<span class="var">first_line</span>)
+<span class="var">file</span>.<span class="fn">close</span>()</div>
+      <div class="ftab-content" id="readTab-lines">
+<span class="cmt"># Read all lines into a list</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"r"</span>)
+<span class="var">lines</span> <span class="op">=</span> <span class="var">file</span>.<span class="fn">readlines</span>()   <span class="cmt"># returns a list</span>
+<span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">lines</span>:
+    <span class="fn">print</span>(<span class="var">line</span>.<span class="fn">strip</span>())      <span class="cmt"># .strip() removes \n</span>
+<span class="var">file</span>.<span class="fn">close</span>()</div>
+    </div>
+
+    <div class="tip-box" style="margin-top:16px;">
+      <strong>📌 The "r" mode means READ.</strong> File modes:<br>
+      <code>"r"</code> — read (file must exist)<br>
+      <code>"w"</code> — write (creates new / overwrites)<br>
+      <code>"a"</code> — append (adds to end of file)<br>
+      <code>"r+"</code>— read and write
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 5: Writing Files ── -->
+<section class="lesson-section reveal" id="sec5">
+  <div class="section-header">
+    <div class="section-icon icon-orange">✏️</div>
+    <div><div class="section-title">Writing to Files</div>
+    <div class="section-sub">Saving data permanently to disk</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Writing and Appending</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">write_files.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># "w" mode — write (WARNING: overwrites existing content!)</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"w"</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"Hello from Python!\n"</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"This is line 2.\n"</span>)
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># "a" mode — append (adds to END, keeps existing content)</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"a"</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"This line was added later.\n"</span>)
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Read it back to verify</span>
+<span class="var">file</span> <span class="op">=</span> <span class="fn">open</span>(<span class="str">"notes.txt"</span>, <span class="str">"r"</span>)
+<span class="fn">print</span>(<span class="var">file</span>.<span class="fn">read</span>())
+<span class="var">file</span>.<span class="fn">close</span>()</pre>
+    </div>
+    <div class="warn-box">
+      <strong>⚠️ "w" mode is destructive!</strong> If the file already exists, "w" completely erases everything in it before writing. Use "a" (append) when you want to ADD to existing content!
+    </div>
+  </div>
+
+  <!-- FILE SIMULATOR -->
+  <div class="file-sim">
+    <h3>🎮 File Simulator — Experience read/write interactively!</h3>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:14px;">This simulates a file in memory so you can practise without needing a real disk.</p>
+    <div class="file-sim-row">
+      <label>File name:</label>
+      <input class="file-inp" id="simFileName" value="notes.txt" style="max-width:160px;">
+    </div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:6px;">Content to write/append:</div>
+    <textarea class="file-textarea" id="simContent" placeholder="Type something to write to the file...">Hello from Python!
+Learning file handling is fun.</textarea>
+    <div>
+      <button class="file-btn fbtn-write"  onclick="simWrite()">💾 Write (overwrite)</button>
+      <button class="file-btn fbtn-append" onclick="simAppend()">➕ Append</button>
+      <button class="file-btn fbtn-read"   onclick="simRead()">📖 Read File</button>
+      <button class="file-btn fbtn-clear"  onclick="simClear()">🗑 Clear File</button>
+    </div>
+    <div class="file-display" id="fileDisplay"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 6: with Statement ── -->
+<section class="lesson-section reveal" id="sec6">
+  <div class="section-header">
+    <div class="section-icon icon-green">🛡️</div>
+    <div><div class="section-title">The <code style="color:var(--accent);font-size:1.2rem">with</code> Statement — The Right Way</div>
+    <div class="section-sub">Automatically closes files — even if an error happens</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Why use <code>with</code>?</h3>
+    <p>When using <code>open()</code> manually, you must always remember to call <code>.close()</code>. If your program crashes before reaching close(), the file stays open — causing problems. The <code>with</code> statement handles closing <strong>automatically</strong>, every time.</p>
+    <div class="analogy-box">
+      <strong>🚪 Analogy:</strong> Imagine a room with a door. Without <code>with</code>, you have to remember to close the door yourself — and might forget. With <code>with</code>, the door closes automatically the moment you step out, no matter what!
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>with vs without — always prefer with!</h3>
+    <div class="cmp-cards">
+      <div class="cmp-card" style="border-top:3px solid var(--fail);">
+        <h4 style="color:var(--fail)">❌ Old way — risky</h4>
+        <pre style="font-size:.8rem;padding:0;background:none"><span class="var">f</span> = <span class="fn">open</span>(<span class="str">"data.txt"</span>,<span class="str">"r"</span>)
+<span class="var">text</span> = <span class="var">f</span>.<span class="fn">read</span>()
+<span class="cmt"># what if error here?</span>
+<span class="var">f</span>.<span class="fn">close</span>()  <span class="cmt"># might never run!</span></pre>
+      </div>
+      <div class="cmp-card" style="border-top:3px solid var(--success);">
+        <h4 style="color:var(--success)">✅ with — always safe</h4>
+        <pre style="font-size:.8rem;padding:0;background:none"><span class="kw">with</span> <span class="fn">open</span>(<span class="str">"data.txt"</span>,<span class="str">"r"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="var">text</span> = <span class="var">f</span>.<span class="fn">read</span>()
+<span class="cmt"># file auto-closed here!</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>with statement — full examples</h3>
+    <div class="code-wrap">
+      <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">with_statement.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="cmt"># Writing with 'with'</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"w"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="str">"Riya Sharma\n"</span>)
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="str">"Ali Khan\n"</span>)
+    <span class="var">f</span>.<span class="fn">write</span>(<span class="str">"Priya Patel\n"</span>)
+<span class="cmt"># file is automatically closed here</span>
+
+<span class="cmt"># Reading with 'with'</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"students.txt"</span>, <span class="str">"r"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">f</span>:          <span class="cmt"># loop through each line</span>
+        <span class="fn">print</span>(<span class="var">line</span>.<span class="fn">strip</span>())
+
+<span class="cmt"># Writing data from a list</span>
+<span class="var">students</span> <span class="op">=</span> [<span class="str">"Riya"</span>, <span class="str">"Ali"</span>, <span class="str">"Priya"</span>]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">"names.txt"</span>, <span class="str">"w"</span>) <span class="kw">as</span> <span class="var">f</span>:
+    <span class="kw">for</span> <span class="var">name</span> <span class="kw">in</span> <span class="var">students</span>:
+        <span class="var">f</span>.<span class="fn">write</span>(<span class="var">name</span> <span class="op">+</span> <span class="str">"\n"</span>)</pre>
+    </div>
+  </div>
+
+  <div class="interactive-code">
+    <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Dictionaries + Files combo</span></div>
+    <textarea class="ic-textarea" id="try6" spellcheck="false">students = {
+    "Riya" : 92,
+    "Ali"  : 78,
+    "Priya": 88,
+    "Rahul": 65
+}
+
+print("--- Grade Report ---")
+for name, marks in students.items():
+    if marks >= 80:
+        grade = "A"
+    elif marks >= 60:
+        grade = "B"
+    else:
+        grade = "C"
+    print(f"{name}: {marks} marks -> Grade {grade}")
+
+print("\nTop students:")
+for name, marks in students.items():
+    if marks >= 85:
+        print(f"  {name} with {marks}")</textarea>
+    <button class="ic-run-btn" onclick="runCode('try6','out6')">▶ Run Code</button>
+    <div class="ic-output" id="out6"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ── SEC 7: QUIZ ── -->
+<section class="lesson-section reveal" id="sec7">
+  <div class="section-header">
+    <div class="section-icon icon-yellow">🧩</div>
+    <div><div class="section-title">Quiz Time! — Class 5 Test</div>
+    <div class="section-sub">12 questions on dictionaries, tuples and file handling</div></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="quiz-card" id="q1">
+    <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">How do you create a dictionary in Python?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">A</span>Using square brackets [ ]</div>
+        <div class="quiz-option" onclick="mcq('q1',this,true)"><span class="opt-indicator">B</span>Using curly braces { } with key: value pairs</div>
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">C</span>Using parentheses ( )</div>
+        <div class="quiz-option" onclick="mcq('q1',this,false)"><span class="opt-indicator">D</span>Using the dict keyword only</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" id="q2">
+    <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What does this code print?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-code-snip">person = {"name": "Ali", "age": 22}
+print(person["name"])</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">A</span>person["name"]</div>
+        <div class="quiz-option" onclick="mcq('q2',this,true)"><span class="opt-indicator">B</span>Ali</div>
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">C</span>22</div>
+        <div class="quiz-option" onclick="mcq('q2',this,false)"><span class="opt-indicator">D</span>Error</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" id="q3">
+    <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">Which method safely gets a value from a dictionary without crashing if the key does not exist?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">A</span>.find()</div>
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">B</span>.search()</div>
+        <div class="quiz-option" onclick="mcq('q3',this,true)"><span class="opt-indicator">C</span>.get()</div>
+        <div class="quiz-option" onclick="mcq('q3',this,false)"><span class="opt-indicator">D</span>.fetch()</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card" id="q4">
+    <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What is the key difference between a List and a Tuple?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">A</span>Lists use ( ) and tuples use [ ]</div>
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">B</span>Lists store numbers, tuples store strings</div>
+        <div class="quiz-option" onclick="mcq('q4',this,true)"><span class="opt-indicator">C</span>Lists are mutable (changeable); tuples are immutable (cannot be changed)</div>
+        <div class="quiz-option" onclick="mcq('q4',this,false)"><span class="opt-indicator">D</span>Tuples are faster to create but otherwise the same</div>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card" id="q5">
+    <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What does <code>open("file.txt", "w")</code> do if the file already exists?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">A</span>Adds to the end of the file</div>
+        <div class="quiz-option" onclick="mcq('q5',this,true)"><span class="opt-indicator">B</span>Overwrites (erases) all existing content</div>
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">C</span>Opens it in read-only mode</div>
+        <div class="quiz-option" onclick="mcq('q5',this,false)"><span class="opt-indicator">D</span>Raises an error</div>
+      </div>
+      <div class="quiz-feedback" id="q5-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-card" id="q6">
+    <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">What is the main benefit of using <code>with open(...) as f:</code>?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">A</span>It makes reading faster</div>
+        <div class="quiz-option" onclick="mcq('q6',this,true)"><span class="opt-indicator">B</span>It automatically closes the file when the block ends, even if an error occurs</div>
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">C</span>It creates a backup of the file</div>
+        <div class="quiz-option" onclick="mcq('q6',this,false)"><span class="opt-indicator">D</span>It allows writing to read-only files</div>
+      </div>
+      <div class="quiz-feedback" id="q6-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-card" id="q7">
+    <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">Given <code>d = {"a": 1, "b": 2}</code>, what does <code>d.keys()</code> return?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">A</span>[1, 2]</div>
+        <div class="quiz-option" onclick="mcq('q7',this,true)"><span class="opt-indicator">B</span>dict_keys(["a", "b"])</div>
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">C</span>("a", "b")</div>
+        <div class="quiz-option" onclick="mcq('q7',this,false)"><span class="opt-indicator">D</span>{"a", "b"}</div>
+      </div>
+      <div class="quiz-feedback" id="q7-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-card" id="q8">
+    <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">Which file mode ADDS content to the end without erasing existing content?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">A</span>"w"</div>
+        <div class="quiz-option" onclick="mcq('q8',this,true)"><span class="opt-indicator">B</span>"a"</div>
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">C</span>"r"</div>
+        <div class="quiz-option" onclick="mcq('q8',this,false)"><span class="opt-indicator">D</span>"x"</div>
+      </div>
+      <div class="quiz-feedback" id="q8-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q9 FIB -->
+  <div class="quiz-card" id="q9">
+    <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank — to loop through both keys AND values of a dictionary:</div></div>
+    <div class="quiz-body">
+      <div class="fib-wrap">
+        <span style="color:var(--text)">for key, value in my_dict.</span><input class="fib-input" id="fib9" placeholder="???()" autocomplete="off" spellcheck="false" style="width:120px;">
+      </div>
+      <button class="fib-btn" onclick="fib('fib9','q9-fb',['items()','items'],'q9')">Check Answer</button>
+      <div class="quiz-feedback" id="q9-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-card" id="q10">
+    <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">What happens when you try to modify a tuple?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-code-snip">t = (1, 2, 3)
+t[0] = 99</div>
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">A</span>t becomes (99, 2, 3)</div>
+        <div class="quiz-option" onclick="mcq('q10',this,true)"><span class="opt-indicator">B</span>TypeError — tuples are immutable</div>
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">C</span>Nothing happens, the change is ignored</div>
+        <div class="quiz-option" onclick="mcq('q10',this,false)"><span class="opt-indicator">D</span>The tuple becomes a list</div>
+      </div>
+      <div class="quiz-feedback" id="q10-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="quiz-card" id="q11">
+    <div class="quiz-header"><div class="quiz-num">11</div><div class="quiz-q">What does <code>f.readlines()</code> return?</div></div>
+    <div class="quiz-body">
+      <div class="quiz-options">
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">A</span>A single string with all the text</div>
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">B</span>The number of lines in the file</div>
+        <div class="quiz-option" onclick="mcq('q11',this,true)"><span class="opt-indicator">C</span>A list where each item is one line</div>
+        <div class="quiz-option" onclick="mcq('q11',this,false)"><span class="opt-indicator">D</span>Only the first line</div>
+      </div>
+      <div class="quiz-feedback" id="q11-fb"></div>
+    </div>
+  </div>
+
+  <!-- Q12 FIB -->
+  <div class="quiz-card" id="q12">
+    <div class="quiz-header"><div class="quiz-num">12</div><div class="quiz-q">Fill in the blank — to create a tuple with three colours:</div></div>
+    <div class="quiz-body">
+      <div class="fib-wrap">
+        <span style="color:var(--text)">colors = </span><input class="fib-input" id="fib12" placeholder="???" autocomplete="off" spellcheck="false" style="width:220px;">
+      </div>
+      <button class="fib-btn" onclick="fib('fib12','q12-fb',['("red","green","blue")','("red", "green", "blue")','(red, green, blue)'],'q12')">Check Answer</button>
+      <div class="quiz-feedback" id="q12-fb"></div>
+    </div>
+  </div>
+
+  <div class="score-card" id="scoreCard" style="display:none;">
+    <span class="score-emoji" id="scoreEmoji">🎉</span>
+    <div class="score-main" id="scoreMain">0 / 12</div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div></div>
+    <div style="color:var(--muted);font-size:.9rem;margin-bottom:20px" id="scoreTip"></div>
+    <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+<div class="checkpoint reveal">
+  <div class="checkpoint-icon">🏁</div>
+  <div class="checkpoint-text">
+    <strong>Class 5 Complete!</strong>
+    You mastered dictionaries, tuples, and file handling — three of the most practical Python skills used in real projects. Final class tomorrow: modules, error handling, and your first mini project!
+  </div>
+</div>
+</main>
+
+<script>
+// ── STATE ──
+let totalSections=7, completedSections=new Set();
+let quizAnswered={}, quizScore=0, quizTotal=12;
+let simFiles={};   // virtual filesystem for file simulator
+
+// ── NAV ──
+function gotoSec(id){ document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'}); }
+function updateProgress(){
+  let pct=Math.round((completedSections.size/totalSections)*100);
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progress-label').textContent=pct+'%';
+  document.querySelectorAll('.nav-pill').forEach((p,i)=>{ if(completedSections.has(i)){p.classList.add('done');p.classList.remove('active');} });
+}
+let obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      let ids=['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx=ids.indexOf(e.target.id);
+      if(idx>=0){completedSections.add(idx);updateProgress();let pills=document.querySelectorAll('.nav-pill');pills.forEach(p=>p.classList.remove('active'));if(pills[idx])pills[idx].classList.add('active');}
+    }
+  });
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+function copyCode(btn){ navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(()=>{btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);}); }
+
+// ── FILE TABS ──
+function showFTab(groupId,key){
+  let g=document.getElementById(groupId);
+  g.querySelectorAll('.ftab-content').forEach(c=>c.classList.remove('active'));
+  g.querySelectorAll('.ftab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(groupId+'-'+key).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── DICT VISUALIZER ──
+let dictData={"name":"Riya","age":"20","course":"AI Engineering"};
+function renderDict(){
+  let el=document.getElementById('dictPairs'); el.innerHTML='';
+  Object.entries(dictData).forEach(([k,v])=>{
+    let pair=document.createElement('div'); pair.className='dict-pair';
+    pair.innerHTML='<div class="dict-key">'+k+'</div><div class="dict-sep">→</div><div class="dict-val">'+v+'</div>';
+    el.appendChild(pair);
+  });
+}
+renderDict();
+function dictAdd(){
+  let k=document.getElementById('dKey').value.trim(), v=document.getElementById('dVal').value.trim();
+  if(!k||!v){document.getElementById('dictLog').textContent='Please enter both a key and a value.';return;}
+  let isUpdate=dictData.hasOwnProperty(k);
+  dictData[k]=v;
+  document.getElementById('dKey').value=''; document.getElementById('dVal').value='';
+  document.getElementById('dictLog').textContent=(isUpdate?'Updated':'Added')+' "'+k+'" → "'+v+'"';
+  renderDict();
+}
+function dictDel(){
+  let k=document.getElementById('dKey').value.trim();
+  if(!k){document.getElementById('dictLog').textContent='Enter the key name to delete.';return;}
+  if(dictData.hasOwnProperty(k)){delete dictData[k];document.getElementById('dictLog').textContent='Deleted key "'+k+'"';}
+  else document.getElementById('dictLog').textContent='Key "'+k+'" not found.';
+  renderDict();
+}
+function dictReset(){dictData={"name":"Riya","age":"20","course":"AI Engineering"};renderDict();document.getElementById('dictLog').textContent='Dictionary reset.';}
+
+// ── FILE SIMULATOR ──
+function simWrite(){
+  let fn=document.getElementById('simFileName').value.trim()||'notes.txt';
+  let content=document.getElementById('simContent').value;
+  simFiles[fn]=content;
+  showFileDisplay('Wrote to '+fn+':\n\n'+content);
+}
+function simAppend(){
+  let fn=document.getElementById('simFileName').value.trim()||'notes.txt';
+  let content=document.getElementById('simContent').value;
+  simFiles[fn]=(simFiles[fn]||'')+content;
+  showFileDisplay('Appended to '+fn+'. File now contains:\n\n'+simFiles[fn]);
+}
+function simRead(){
+  let fn=document.getElementById('simFileName').value.trim()||'notes.txt';
+  if(simFiles[fn]===undefined){showFileDisplay('FileNotFoundError: '+fn+' does not exist.\nTip: Write to the file first!');return;}
+  showFileDisplay('Reading '+fn+':\n\n'+simFiles[fn]);
+}
+function simClear(){
+  let fn=document.getElementById('simFileName').value.trim()||'notes.txt';
+  simFiles[fn]='';
+  showFileDisplay('Cleared '+fn+'. File is now empty.');
+}
+function showFileDisplay(text){let d=document.getElementById('fileDisplay');d.textContent=text;d.classList.add('visible');}
+
+// ── INTERPRETER ──
+function runCode(tid,oid){
+  let code=document.getElementById(tid).value;
+  let out=document.getElementById(oid);
+  out.classList.add('visible');out.classList.remove('ic-error');out.textContent='';
+  let res=execPy(code);
+  if(res.error){out.classList.add('ic-error');out.textContent='Error: '+res.error;}
+  else out.textContent=res.output||'(no output)';
+}
+
+function execPy(code){
+  let lines=code.split('\n'),vars={},fns={},output=[],error=null,i=0;
+  try{
+    // collect function defs
+    while(i<lines.length){
+      let raw=lines[i],t=raw.trim();
+      if(/^def\s+\w+\s*\(.*\)\s*:$/.test(t)){
+        let m=t.slice(0,-1).match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+        if(m){let fn=m[1],ps=m[2].trim()?m[2].split(',').map(p=>{let x=p.trim().split('=');return{name:x[0].trim(),def:x[1]?x[1].trim():undefined};}):[],body=[],j=i+1;
+          while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bl);j++;}
+          fns[fn]={params:ps,body};i=j;continue;}
+      }
+      i++;
+    }
+    // execute
+    i=0;
+    while(i<lines.length&&!error){
+      let raw=lines[i],t=raw.trim();
+      if(!t||t.startsWith('#')){i++;continue;}
+      if(/^def\s+/.test(t)){let j=i+1;while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;j++;}i=j;continue;}
+      if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){let r=pIF(lines,i,vars,fns,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if(/^for\s+.+\s+in\s+.+:$/.test(t)){let r=pFOR(lines,i,vars,fns,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if(/^while\s+.+:$/.test(t)){let r=pWHILE(lines,i,vars,fns,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      let r=xLine(t,vars,fns,output);if(r&&r.err){error=r.err;break;}
+      i++;
+    }
+  }catch(e){error=e.message;}
+  return{output:output.join('\n'),error};
+}
+
+function xLine(line,vars,fns,output){
+  if(!line||line.startsWith('#'))return null;
+  if(line==='break')return{brk:true};
+  if(line==='continue')return{cnt:true};
+  if(line.startsWith('return '))return{ret:ev(line.slice(7).trim(),vars,fns)};
+  if(line==='return')return{ret:null};
+
+  // print
+  if(line.startsWith('print(')){let inn=xP(line,'print');if(inn===null)return{err:'Syntax error in print()'};let args=spA(inn).map(a=>fmt(ev(a.trim(),vars,fns)));output.push(args.join(' '));return null;}
+
+  // del
+  if(line.startsWith('del ')){let k=line.slice(4).trim();let dm=k.match(/^(\w+)\[(.+)\]$/);if(dm&&vars[dm[1]]){let key=ev(dm[2].trim(),vars,fns);if(typeof vars[dm[1]]==='object'&&!Array.isArray(vars[dm[1]]))delete vars[dm[1]][key];else{let i=parseInt(key);vars[dm[1]].splice(i,1);}}else if(vars.hasOwnProperty(k))delete vars[k];return null;}
+
+  // augmented
+  let aug=line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=)\s*(.+)$/);
+  if(aug){let vn=aug[1],op=aug[2],val=ev(aug[3].trim(),vars,fns);if(vars[vn]===undefined)return{err:"'"+vn+"' not defined"};if(op==='+=')vars[vn]+=val;else if(op==='-=')vars[vn]-=val;else if(op==='*=')vars[vn]*=val;else if(op==='/=')vars[vn]/=val;else if(op==='//=')vars[vn]=Math.floor(vars[vn]/val);else if(op==='%=')vars[vn]%=val;return null;}
+
+  // dict/list assignment: d["key"] = val or l[i] = val
+  let idxAsgn=line.match(/^([a-zA-Z_]\w*)\[(.+)\]\s*=\s*(.+)$/);
+  if(idxAsgn){let obj=vars[idxAsgn[1]],key=ev(idxAsgn[2].trim(),vars,fns),val=ev(idxAsgn[3].trim(),vars,fns);if(typeof obj==='object'&&obj!==null){if(Array.isArray(obj)){let i=parseInt(key);obj[i<0?obj.length+i:i]=val;}else obj[key]=val;}return null;}
+
+  // method call (list/dict/str)
+  let mCall=line.match(/^([a-zA-Z_]\w*)\.(\w+)\((.*)\)$/);
+  if(mCall){let vn=mCall[1],m=mCall[2],aStr=mCall[3].trim(),obj=vars[vn];
+    if(Array.isArray(obj)){let a=aStr?ev(aStr,vars,fns):undefined;if(m==='append')obj.push(a);else if(m==='remove'){let i=obj.indexOf(a);if(i>-1)obj.splice(i,1);}else if(m==='sort')obj.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));else if(m==='reverse')obj.reverse();else if(m==='pop')obj.pop();}
+    else if(typeof obj==='object'&&obj!==null&&!Array.isArray(obj)){if(m==='update'){let upd=ev(aStr,vars,fns);if(typeof upd==='object')Object.assign(obj,upd);}}
+    return null;}
+
+  // standalone function call
+  let scall=line.match(/^(\w+)\(([^)]*)\)$/);
+  if(scall&&fns[scall[1]]){let r=callFn(scall[1],scall[2],vars,fns,output);if(r&&r.err)return r;return null;}
+
+  // assignment
+  let asgn=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if(asgn){vars[asgn[1]]=ev(asgn[2].trim(),vars,fns);return null;}
+  return null;
+}
+
+function callFn(name,argStr,outerV,fns,output){
+  let fn=fns[name];if(!fn)return{err:"Function '"+name+"' not defined"};
+  let argVals=argStr.trim()?spA(argStr).map(a=>ev(a.trim(),outerV,fns)):[];
+  let lv={};
+  fn.params.forEach((p,i)=>{if(argVals[i]!==undefined)lv[p.name]=argVals[i];else if(p.def!==undefined)lv[p.name]=ev(p.def,outerV,fns);});
+  for(let raw of fn.body){
+    let t=raw.trim();if(!t||t.startsWith('#'))continue;
+    if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){let r=pIFb(fn.body,fn.body.indexOf(raw),lv,fns,output);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    if(/^for\s+.+:$/.test(t)){let r=pFORb(fn.body,fn.body.indexOf(raw),lv,fns,output);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    let r=xLine(t,lv,fns,output);if(r&&r.ret!==undefined)return{ret:r.ret};if(r&&r.err)return r;
+  }
+  return{ret:null};
+}
+
+function pIF(lines,si,vars,fns,out){
+  let blocks=[],i=si;
+  while(i<lines.length){let raw=lines[i],t=raw.trim();if(!t||t.startsWith('#')){i++;continue;}
+    let isI=/^if\s+.+:$/.test(t),isEI=/^elif\s+.+:$/.test(t),isE=/^else\s*:$/.test(t);
+    if(!isI&&!isEI&&!isE)break;
+    let cond=isE?null:t.replace(/^(?:if|elif)\s+/,'').replace(/:$/,''),body=[],j=i+1;
+    while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+    blocks.push({cond,body});i=j;}
+  let ran=false;
+  for(let b of blocks){if(ran)break;let ok=b.cond===null?!ran:eC(b.cond,vars,fns);if(ok){ran=true;for(let ln of b.body){let r=xLine(ln,vars,fns,out);if(r&&r.err)return{err:r.err,next:i};}}}
+  return{next:i};
+}
+function pIFb(body,si,vars,fns,out){return pIF(body,si,vars,fns,out);}
+
+function pFOR(lines,si,vars,fns,out){
+  let raw=lines[si],t=raw.trim(),m=t.slice(0,-1).match(/^for\s+(.+?)\s+in\s+(.+)$/);
+  if(!m)return{next:si+1};
+  let vn=m[1].trim(),ie=m[2].trim(),items=rIter(ie,vars,fns),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  for(let item of items){
+    if(vn.includes(',')){let ps=vn.split(',').map(x=>x.trim());if(Array.isArray(item))ps.forEach((p,pi)=>vars[p]=item[pi]);}
+    else vars[vn]=item;
+    let brk=false;
+    for(let ln of body){let r=xLine(ln,vars,fns,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.err)return{err:r.err,next:j};}
+    if(brk)break;
+  }
+  return{next:j};
+}
+function pFORb(body,si,vars,fns,out){return pFOR(body,si,vars,fns,out);}
+
+function pWHILE(lines,si,vars,fns,out){
+  let t=lines[si].trim(),cond=t.slice(6,-1).trim(),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  let safety=0;
+  while(eC(cond,vars,fns)&&safety<300){safety++;let brk=false;for(let ln of body){let r=xLine(ln,vars,fns,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.err)return{err:r.err,next:j};}if(brk)break;}
+  return{next:j};
+}
+
+function rIter(expr,vars,fns){
+  expr=expr.trim();
+  let rm=expr.match(/^range\((.+)\)$/);
+  if(rm){let a=rm[1].split(',').map(x=>parseInt(ev(x.trim(),vars,fns)));if(a.length===1)return Array.from({length:a[0]},(_,i)=>i);if(a.length===2){let r=[];for(let i=a[0];i<a[1];i++)r.push(i);return r;}if(a.length===3){let r=[];for(let i=a[0];i<a[1];i+=a[2])r.push(i);return r;}}
+  let em=expr.match(/^enumerate\((.+)\)$/);if(em){let inner=rIter(em[1].trim(),vars,fns);return inner.map((v,i)=>[i,v]);}
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1).split('');
+  if(expr.startsWith('[')&&expr.endsWith(']'))return spA(expr.slice(1,-1)).map(a=>ev(a.trim(),vars,fns));
+  if(expr.endsWith('.keys()')){let obj=ev(expr.slice(0,-7),vars,fns);return typeof obj==='object'&&!Array.isArray(obj)?Object.keys(obj):[];}
+  if(expr.endsWith('.values()')){let obj=ev(expr.slice(0,-9),vars,fns);return typeof obj==='object'&&!Array.isArray(obj)?Object.values(obj):[];}
+  if(expr.endsWith('.items()')){let obj=ev(expr.slice(0,-8),vars,fns);return typeof obj==='object'&&!Array.isArray(obj)?Object.entries(obj):[];}
+  if(vars.hasOwnProperty(expr)){let v=vars[expr];if(Array.isArray(v))return v;if(typeof v==='string')return v.split('');if(typeof v==='object'&&v!==null)return Object.keys(v);return[];}
+  return[];
+}
+
+function ev(expr,vars,fns){
+  expr=expr.trim();if(!expr)return'';
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1);
+  if(expr==='True')return true;if(expr==='False')return false;if(expr==='None')return null;
+  if(!isNaN(expr)&&expr!=='')return expr.includes('.')?parseFloat(expr):parseInt(expr);
+
+  // dict literal {key:val,...}
+  if(expr.startsWith('{')&&expr.endsWith('}')){
+    let inner=expr.slice(1,-1).trim();
+    if(inner==='')return{};
+    let obj={};
+    let pairs=smartSplit(inner,',');
+    for(let pair of pairs){let ci=pair.indexOf(':');if(ci>-1){let k=ev(pair.slice(0,ci).trim(),vars,fns),v=ev(pair.slice(ci+1).trim(),vars,fns);obj[k]=v;}}
+    return obj;
+  }
+
+  // list literal
+  if(expr.startsWith('[')&&expr.endsWith(']'))return spA(expr.slice(1,-1)).map(a=>ev(a.trim(),vars,fns));
+  // tuple literal
+  if(expr.startsWith('(')&&expr.endsWith(')')){let inn=expr.slice(1,-1);return spA(inn).map(a=>ev(a.trim(),vars,fns));}
+
+  // f-string
+  if(expr.startsWith('f"')||expr.startsWith("f'")){let q=expr[1],inner=expr.slice(2,-1);return inner.replace(/\{([^}]+)\}/g,(_,e)=>fmt(ev(e.trim(),vars,fns)));}
+
+  // built-ins
+  let intM=expr.match(/^int\((.+)\)$/);if(intM)return parseInt(String(ev(intM[1].trim(),vars,fns)));
+  let fltM=expr.match(/^float\((.+)\)$/);if(fltM)return parseFloat(String(ev(fltM[1].trim(),vars,fns)));
+  let strM=expr.match(/^str\((.+)\)$/);if(strM)return fmt(ev(strM[1].trim(),vars,fns));
+  let lenM=expr.match(/^len\((.+)\)$/);if(lenM){let v=ev(lenM[1].trim(),vars,fns);return Array.isArray(v)?v.length:(typeof v==='object'&&v?Object.keys(v).length:(typeof v==='string'?v.length:0));}
+  let minM=expr.match(/^min\((.+)\)$/);if(minM){let v=ev(minM[1].trim(),vars,fns);return Array.isArray(v)?Math.min(...v):undefined;}
+  let maxM=expr.match(/^max\((.+)\)$/);if(maxM){let v=ev(maxM[1].trim(),vars,fns);return Array.isArray(v)?Math.max(...v):undefined;}
+  let typeM=expr.match(/^type\((.+)\)$/);if(typeM){let v=ev(typeM[1].trim(),vars,fns);return typeof v==='boolean'?"<class 'bool'>":typeof v==='number'?(Number.isInteger(v)?"<class 'int'>":"<class 'float'>"):Array.isArray(v)?"<class 'list'>":(typeof v==='object'&&v!==null?"<class 'dict'>":"<class 'str'>");}
+
+  // dict .get()
+  let getM=expr.match(/^([a-zA-Z_]\w*)\.get\((.+)\)$/);
+  if(getM){let obj=vars[getM[1]];if(typeof obj==='object'&&!Array.isArray(obj)&&obj!==null){let gArgs=spA(getM[2]);let key=ev(gArgs[0].trim(),vars,fns);let def=gArgs[1]?ev(gArgs[1].trim(),vars,fns):null;return obj.hasOwnProperty(key)?obj[key]:def;}return null;}
+
+  // dict .keys() .values() .items() as value
+  let dkM=expr.match(/^([a-zA-Z_]\w*)\.(keys|values|items)\(\)$/);
+  if(dkM){let obj=vars[dkM[1]];if(typeof obj==='object'&&!Array.isArray(obj)&&obj!==null){if(dkM[2]==='keys')return'dict_keys(['+Object.keys(obj).map(k=>'"'+k+'"').join(', ')+'])';if(dkM[2]==='values')return'dict_values(['+Object.values(obj).map(fmt).join(', ')+'])';if(dkM[2]==='items')return'dict_items(['+Object.entries(obj).map(([k,v])=>'('+fmt(k)+', '+fmt(v)+')').join(', ')+'])';}return null;}
+
+  // string methods
+  let upM=expr.match(/^(.+)\.(upper|lower|title|strip)\(\)$/);if(upM){let v=ev(upM[1].trim(),vars,fns);if(typeof v==='string'){if(upM[2]==='upper')return v.toUpperCase();if(upM[2]==='lower')return v.toLowerCase();if(upM[2]==='title')return v.replace(/\b\w/g,c=>c.toUpperCase());if(upM[2]==='strip')return v.trim();}return v;}
+  let repM=expr.match(/^(.+)\.replace\((.+),\s*(.+)\)$/);if(repM){let v=ev(repM[1].trim(),vars,fns),a=ev(repM[2].trim(),vars,fns),b=ev(repM[3].trim(),vars,fns);if(typeof v==='string')return v.split(String(a)).join(String(b));return v;}
+  let spM=expr.match(/^(.+)\.split\((.*)\)$/);if(spM){let v=ev(spM[1].trim(),vars,fns),sep=spM[2].trim()?ev(spM[2].trim(),vars,fns):null;if(typeof v==='string')return sep?v.split(String(sep)):v.trim().split(/\s+/);return[];}
+  let jnM=expr.match(/^(.+)\.join\((.+)\)$/);if(jnM){let sep=ev(jnM[1].trim(),vars,fns),lst=ev(jnM[2].trim(),vars,fns);if(Array.isArray(lst))return lst.map(fmt).join(String(sep));return String(sep);}
+  let ctM=expr.match(/^(.+)\.count\((.+)\)$/);if(ctM){let v=ev(ctM[1].trim(),vars,fns),s=ev(ctM[2].trim(),vars,fns);if(typeof v==='string')return v.split(String(s)).length-1;if(Array.isArray(v))return v.filter(x=>x===s).length;return 0;}
+
+  // list/dict/string index
+  let idxM=expr.match(/^(.+)\[(.+)\]$/);
+  if(idxM){let obj=ev(idxM[1].trim(),vars,fns),key=ev(idxM[2].trim(),vars,fns);if(Array.isArray(obj)){let i=parseInt(key);return obj[i<0?obj.length+i:i];}if(typeof obj==='string'){let i=parseInt(key);return obj[i<0?obj.length+i:i];}if(typeof obj==='object'&&obj!==null)return obj[key];return undefined;}
+
+  // list slicing [a:b]
+  let sliceM=expr.match(/^([a-zA-Z_]\w*)\[(\d*):(\d*)\]$/);
+  if(sliceM){let lst=vars[sliceM[1]];if(Array.isArray(lst)||typeof lst==='string'){let a=sliceM[2]?parseInt(sliceM[2]):0,b=sliceM[3]?parseInt(sliceM[3]):undefined;return lst.slice(a,b);}return undefined;}
+
+  // "x in dict" check
+  let inM=expr.match(/^(.+?)\s+in\s+(.+)$/);
+  if(inM){let needle=ev(inM[1].trim(),vars,fns),hay=vars[inM[2].trim()];if(typeof hay==='object'&&!Array.isArray(hay)&&hay!==null)return hay.hasOwnProperty(needle);let hayArr=rIter(inM[2].trim(),vars,fns);return hayArr.includes(needle);}
+
+  // function call
+  let fcM=expr.match(/^(\w+)\(([^)]*)\)$/);if(fcM&&fns[fcM[1]]){let r=callFn(fcM[1],fcM[2],vars,fns,[]);return r&&r.ret!==undefined?r.ret:null;}
+
+  // variable
+  if(vars.hasOwnProperty(expr))return vars[expr];
+
+  // string concat
+  if(expr.includes('+')){try{let parts=splitPlus(expr);if(parts.length>1){let evs=parts.map(p=>ev(p.trim(),vars,fns));if(evs.some(p=>typeof p==='string'))return evs.map(fmt).join('');return evs.reduce((a,b)=>a+b,0);}}catch(e){}}
+
+  // math
+  try{
+    let res=expr.replace(/[a-zA-Z_]\w*/g,m=>vars.hasOwnProperty(m)?(typeof vars[m]==='boolean'?(vars[m]?'1':'0'):String(vars[m])):'NaN');
+    res=res.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(Math.floor(parseFloat(a)/parseFloat(b))));
+    res=res.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(parseFloat(a)%parseFloat(b)));
+    if(/^[\d\s\+\-\*\/\.\(\)]+$/.test(res.replace(/\*\*/g,'')))return sMath(res);
+  }catch(e){}
+  return expr;
+}
+
+function eC(cond,vars,fns){
+  cond=cond.trim();
+  if(cond.startsWith('not '))return !eC(cond.slice(4).trim(),vars,fns);
+  if(cond.includes(' and '))return cond.split(' and ').every(p=>eC(p.trim(),vars,fns));
+  if(cond.includes(' or '))return cond.split(' or ').some(p=>eC(p.trim(),vars,fns));
+  let ops=['>=','<=','==','!=','>','<'];
+  for(let op of ops){let idx=cond.indexOf(op);if(idx>-1){let L=ev(cond.slice(0,idx).trim(),vars,fns),R=ev(cond.slice(idx+op.length).trim(),vars,fns);if(op==='==')return L==R;if(op==='!=')return L!=R;if(op==='>=')return L>=R;if(op==='<=')return L<=R;if(op==='>')return L>R;if(op==='<')return L<R;}}
+  // "in" check
+  let inM=cond.match(/^(.+?)\s+in\s+(.+)$/);
+  if(inM){let needle=ev(inM[1].trim(),vars,fns),hay=vars[inM[2].trim()];if(hay&&typeof hay==='object'&&!Array.isArray(hay))return hay.hasOwnProperty(needle);let arr=rIter(inM[2].trim(),vars,fns);return arr.includes(needle);}
+  return Boolean(ev(cond,vars,fns));
+}
+
+function smartSplit(s,sep){let parts=[],depth=0,inS=false,sC='',cur='';for(let i=0;i<s.length;i++){let c=s[i];if(!inS&&(c==='"'||c==="'")){inS=true;sC=c;cur+=c;continue;}if(inS&&c===sC){inS=false;cur+=c;continue;}if(inS){cur+=c;continue;}if(c==='{'||c==='['||c==='('){depth++;cur+=c;}else if(c==='}'||c===']'||c===')'){depth--;cur+=c;}else if(c===sep&&depth===0){parts.push(cur);cur='';}else cur+=c;}if(cur.trim())parts.push(cur);return parts;}
+function spA(e){return smartSplit(e,',');}
+function splitPlus(e){return smartSplit(e,'+');}
+function xP(line,fn){let s=line.indexOf(fn+'(')+fn.length,d=0,r='';for(let i=s;i<line.length;i++){if(line[i]==='('){if(d>0)r+='(';d++;}else if(line[i]===')'){d--;if(d===0)return r;else r+=')';}else r+=line[i];}return null;}
+function fmt(v){if(v===null)return 'None';if(v===true)return 'True';if(v===false)return 'False';if(Array.isArray(v))return '['+v.map(x=>(typeof x==='string'?'"'+x+'"':fmt(x))).join(', ')+']';if(typeof v==='object'&&v!==null)return '{'+Object.entries(v).map(([k,val])=>'"'+k+'": '+fmt(val)).join(', ')+'}';if(typeof v==='number'&&Number.isFinite(v))return String(Math.round(v*1e10)/1e10);return String(v);}
+function sMath(e){e=e.replace(/\*\*/g,'^').replace(/\s/g,'');return pMath(e);}
+function pMath(s){let p=0;function pk(){return s[p];}function cs(){return s[p++];}function atom(){let ng=false;if(pk()==='-'){ng=true;cs();}if(pk()==='('){cs();let v=add();cs();return ng?-v:v;}let n='';while(p<s.length&&/[\d\.]/.test(pk()))n+=cs();return ng?-parseFloat(n):parseFloat(n);}function pw(){let b=atom();while(pk()==='^'){cs();b=Math.pow(b,atom());}return b;}function mul(){let v=pw();while(pk()==='*'||pk()==='/'){let o=cs();v=o==='*'?v*pw():v/pw();}return v;}function add(){let v=mul();while(pk()==='+'||pk()==='-'){let o=cs();v=o==='+'?v+mul():v-mul();}return v;}try{return add();}catch(e){return NaN;}}
+
+// ── QUIZ ──
+function mcq(qId,optEl,isCorrect){
+  if(quizAnswered[qId])return;quizAnswered[qId]=true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o=>o.classList.add('disabled'));
+  let fb=document.getElementById(qId+'-fb');fb.classList.add('show');
+  if(isCorrect){optEl.classList.add('correct');optEl.querySelector('.opt-indicator').textContent='✓';fb.classList.add('fb-correct');fb.textContent=posFb();quizScore++;confettiEl(optEl);}
+  else{optEl.classList.add('wrong');optEl.querySelector('.opt-indicator').textContent='✗';fb.classList.add('fb-wrong');fb.textContent=wrongFb(qId);}
+  checkDone();
+}
+function fib(inputId,fbId,answers,qId){
+  if(quizAnswered[qId])return;let inp=document.getElementById(inputId),val=inp.value.trim().toLowerCase(),fb=document.getElementById(fbId);
+  fb.classList.add('show');quizAnswered[qId]=true;
+  let ok=answers.some(a=>val===a.toLowerCase()||val===a.toLowerCase().replace(/['"]/g,''));
+  if(ok){inp.classList.add('correct');fb.classList.add('fb-correct');fb.textContent=posFb();quizScore++;confettiEl(inp);}
+  else{inp.classList.add('wrong');fb.classList.add('fb-wrong');fb.textContent='Not quite! The answer is: '+answers[0];}
+  inp.disabled=true;let btn=document.querySelector("button[onclick*='"+inputId+"']");if(btn)btn.disabled=true;checkDone();
+}
+function posFb(){let m=["Excellent!","Perfect!","Spot on!","Well done!","Correct!"];return "✅ "+m[Math.floor(Math.random()*m.length)];}
+function wrongFb(qId){
+  let h={q1:"Dictionaries use curly braces {} with key: value pairs.",q2:"Dictionary values are accessed using their key name in square brackets.",q3:".get() is the safe way — it returns None (or a default) instead of crashing.",q4:"Tuples use () and are immutable. Lists use [] and can be modified.",q5:"'w' mode completely overwrites the file. Use 'a' to add to existing content.",q6:"with automatically closes the file when the block ends, preventing resource leaks.",q7:".keys() returns all the key names as a dict_keys view.",q8:"'a' stands for append — it adds to the end without erasing anything.",q10:"Tuples are immutable. Trying to change an item gives a TypeError.",q11:".readlines() returns a list where each element is one line from the file."};
+  return "Not quite. "+(h[qId]||"Review the section and try again!");
+}
+function checkDone(){if(Object.keys(quizAnswered).length>=quizTotal)setTimeout(showScore,600);}
+function showScore(){
+  let card=document.getElementById('scoreCard');card.style.display='block';card.scrollIntoView({behavior:'smooth',block:'center'});
+  let pct=Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent=quizScore+' / '+quizTotal;
+  document.getElementById('scoreBarFill').style.width=pct+'%';
+  let emoji,sub,tip;
+  if(pct===100){emoji='🏆';sub='Perfect! Data structure master!';tip='You are ready for Class 6!';}
+  else if(pct>=80){emoji='🌟';sub='Excellent work!';tip='Review any questions you missed.';}
+  else if(pct>=60){emoji='👍';sub='Good effort!';tip='Re-read the dictionary and file sections.';}
+  else{emoji='💪';sub='Keep going!';tip='Go through each section again carefully.';}
+  document.getElementById('scoreEmoji').textContent=emoji;
+  document.getElementById('scoreSub').textContent=sub;
+  document.getElementById('scoreTip').textContent=tip;
+  if(pct>=80)bigConfetti();
+  completedSections.add(6);updateProgress();
+}
+function restartQuiz(){
+  quizAnswered={};quizScore=0;
+  for(let i=1;i<=quizTotal;i++){let c=document.getElementById('q'+i);if(!c)continue;
+    c.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    c.querySelectorAll('.opt-indicator').forEach(o=>{if(o.textContent==='✓'||o.textContent==='✗')o.textContent='';});
+    c.querySelectorAll('.quiz-feedback').forEach(f=>{f.classList.remove('show','fb-correct','fb-wrong');f.textContent='';});
+    c.querySelectorAll('.fib-input').forEach(i=>{i.value='';i.disabled=false;i.classList.remove('correct','wrong');});
+    c.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);}
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+function confettiEl(el){let r=el.getBoundingClientRect(),colors=['#34d399','#43e97b','#38bdf8','#ff6b6b','#ffd700','#818cf8'];for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(r.left+Math.random()*r.width)+'px;top:'+r.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}}
+function bigConfetti(){let colors=['#34d399','#43e97b','#38bdf8','#ff6b6b','#ffd700','#818cf8','#fff'];for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}}
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+﻿________________
+45-Day Generative AI Engineer Bootcamp — Day-Wise Plan
+PHASE 1 — Foundations (Days 1–3)
+Day 1 — Python Core & Environments
+ Setup (VS Code, Conda, UV) · virtual environments · syntax, variables, datatypes, operators · conditionals, loops · lists, list comprehension, tuples, sets, dictionaries.
+🔨 Build: data-manipulation exercises.
+Day 2 — Python OOP & Advanced
+ Functions, lambda, map/filter · modules, packages, standard library · file operations · exception handling + custom exceptions · classes, inheritance, polymorphism, encapsulation, abstraction · magic methods, operator overloading · iterators, generators, closures, decorators · logging.
+🔨 Build: a small OOP CLI project.
+Day 3 — Pydantic, Async & Tooling
+ Pydantic models & validation · async/await & concurrency for API calls · Git & project structure · testing basics · Streamlit intro.
+🔨 Build: typed, validated, async script + Streamlit front-end.
+PHASE 2 — How LLMs Work (Days 4–7)
+Day 4 — NLP Fundamentals
+ NLP roadmap & use cases · tokenization · stemming, lemmatization, stopwords · POS tagging · NER (NLTK).
+🔨 Build: text-preprocessing pipeline.
+Day 5 — Text Representation
+ One-hot encoding · Bag of Words · N-grams · TF-IDF (intuition + code) · Word2Vec (CBOW, SkipGram, average).
+🔨 Build: implement and compare embeddings.
+Day 6 — Deep Learning for NLP
+ ANN vs RNN · RNN forward/backward prop · problems with RNN · LSTM (forget/input/output gates) · GRU · bidirectional RNN · embedding layers (Keras).
+🔨 Build: train an LSTM text classifier.
+Day 7 — Transformers Deep Dive
+ Encoder–decoder seq2seq · attention mechanism · why transformers · self-attention (deep) · multi-head attention · positional encoding · layer normalization · feed-forward network · complete encoder + decoder (masked MHA, linear+softmax).
+🔨 Build: annotate/trace a full transformer forward pass.
+PHASE 3 — Building LLM Applications (Days 8–11)
+Day 8 — GenAI & LangChain Intro
+ AI vs ML vs DL vs GenAI · how LLMs are trained · evolution of LLMs · LangChain ecosystem · OpenAI setup.
+🔨 Build: first LangChain app.
+Day 9 — LangChain Core
+ Document loaders & ingestion · text splitters (recursive char, char, HTML, JSON) · prompt templates · LCEL chains · output parsers.
+🔨 Build: a multi-step chain.
+Day 10 — Structured Output & Chatbots
+ Structured output (Pydantic, TypedDict, dataclass) · function/tool calling · chatbots with message history · conversation memory management · LangSmith tracing · Groq API, Ollama, open-source models.
+🔨 Build: conversational chatbot with memory.
+Day 11 — LLM App Projects
+ LangServe (deploy chains as API) · end-to-end Q&A chatbot · text summarization (stuff, map-reduce, refine) · multi-language code assistant.
+🔨 Build: deploy a Q&A app.
+PHASE 4 — Advanced RAG (Days 12–16)
+Day 12 — Embeddings & Vector Stores
+ Embedding models (OpenAI, Ollama, HuggingFace) · FAISS · ChromaDB · retrievers & chains.
+🔨 Build: basic RAG pipeline.
+Day 13 — RAG Q&A Systems
+ RAG document Q&A (Groq/Llama3) · PDF query RAG (AstraDB) · AWS Bedrock RAG · Nvidia NIM.
+🔨 Build: document Q&A system.
+Day 14 — Hybrid Search
+ Dense vs sparse retrieval · BM25/keyword search · hybrid search · Reciprocal Rank Fusion (RRF) · Pinecone hybrid search.
+🔨 Build: hybrid retriever with RRF.
+Day 15 — Reranking & Advanced Patterns
+ Cross-encoder reranking (Cohere, BGE) · semantic & late chunking · HyDE · CRAG · Self-RAG · adaptive routing.
+🔨 Build: add a reranker; measure the accuracy gain.
+Day 16 — GraphRAG
+ Knowledge graphs · RDBMS vs graph DB · Neo4j AuraDB · property graph model · Cypher (basic → advanced) · inserting data · graph query chains · Text-to-Cypher.
+🔨 Build: a GraphRAG system.
+PHASE 5 — AI Agents (Days 17–21)
+Day 17 — Agent Foundations
+ Agent anatomy (LLM + tools + memory + reasoning) · ReAct (reason+act) · tools & agent executors.
+🔨 Build: a ReAct agent with tools.
+Day 18 — Tool & SQL Agents
+ Creating custom tools · search-engine agent · Text2SQL agents (SQLite, MySQL).
+🔨 Build: a natural-language SQL agent.
+Day 19 — LangGraph Fundamentals
+ State, nodes, edges · conditional edges & cycles · building chatbots in LangGraph.
+🔨 Build: a graph-based agent loop.
+Day 20 — LangGraph Advanced
+ Checkpointing, persistence, durability · human-in-the-loop · multi-AI RAG chatbots.
+🔨 Build: stateful agent with HITL pause/resume.
+Day 21 — CrewAI & Memory
+ CrewAI agents, tasks, crews · sequential vs hierarchical process · agent memory (short/long-term, episodic, semantic; Mem0, LangMem).
+🔨 Build: a multi-agent crew with persistent memory.
+PHASE 6 — Multi-Agent with AutoGen (Days 22–25)
+Day 22 — AutoGen Intro
+ Agentic AI · AutoGen architecture (v0.4, AG2 split) · setup · first agent · AutoGen vs LangChain/CrewAI/Semantic Kernel/LlamaIndex.
+🔨 Build: first AutoGen agent.
+Day 23 — AgentChat API
+ Configuring LLMs (OpenAI, Gemini, local, OpenRouter) · agent customization & prompt engineering · tools · messages (text, multimodal image+text) · structured output.
+🔨 Build: configured agent with tools.
+Day 24 — Teams & Control
+ Multi-agent collaboration · teams & team operations · termination conditions (external, abort) · state management (save/load agents & teams) · human-in-the-loop feedback.
+🔨 Build: multi-agent team with termination + state save.
+Day 25 — AutoGen Studio
+ Install & UI · components · round-robin & selector group chat · web/deep-search team · local LLM via LM Studio.
+🔨 Build: a team visually in AutoGen Studio.
+PHASE 7 — MCP & Coding Tools (Days 26–29)
+Day 26 — MCP
+ MCP intro & why it matters · components (tools, resources, prompts) · host/client/server · JSON-RPC & transports · Claude Desktop demo.
+🔨 Build: your own MCP server.
+Day 27 — Claude Code
+ Claude ecosystem · installation & setup · building agents · agent views · agent teams · hooks · skills & plugins.
+🔨 Build: a Claude Code workflow with a custom hook.
+Day 28 — Deep Agents
+ Deep Agents concept & implementation · vs Claude SDK · backends · context engineering (input/memory/skills) · subagents.
+🔨 Build: a Deep Agents project.
+Day 29 — Coding-Tool Landscape
+ Cursor · Google Antigravity · OpenCode · Codex · routing/stacking by task · task decomposition · wiring MCP into coding agents.
+🔨 Build: same feature across 2 tools + an MCP server.
+PHASE 8 — Fine-Tuning (Days 30–32)
+Day 30 — Fine-Tuning Foundations
+ Prompt vs RAG vs fine-tune decision · quantization theory & intuition.
+🔨 Build: quantize a model and compare.
+Day 31 — LoRA & QLoRA
+ LoRA (low-rank adaptation math) · QLoRA (4-bit, NF4, double quantization, paged optimizers) · hyperparameters (rank, alpha, target modules, dropout).
+🔨 Build: set up a LoRA fine-tune.
+Day 32 — Fine-Tuning in Practice
+ Dataset preparation · fine-tune Gemma/Llama on custom data · Lamini cloud fine-tuning · evaluate fine-tune vs base.
+🔨 Build: complete a domain fine-tune.
+PHASE 9 — Evaluation (Days 33–35)
+Day 33 — Eval Foundations
+ Why eval is hard (demo-vs-prod gap) · building golden datasets · component vs end-to-end · offline vs online.
+🔨 Build: a golden evaluation set.
+Day 34 — RAG & LLM Evaluation
+ RAG metrics (faithfulness, answer relevance, context precision/recall — RAGAS) · LLM-as-judge (rubric, pairwise, biases/pitfalls) · frameworks (RAGAS, DeepEval, LangSmith Evals, Promptfoo).
+🔨 Build: evaluate your RAG with RAGAS.
+Day 35 — Eval in Production
+ Regression testing · versioned evals · quality gates in CI · A/B testing · human feedback loops.
+🔨 Build: automated regression suite on every change.
+PHASE 10 — Security & Guardrails (Days 36–38)
+Day 36 — LLM Threat Model
+ OWASP LLM Top 10 · prompt injection (direct & indirect) · jailbreaks · attacks and defenses.
+🔨 Build: run injection attacks and defenses against your app.
+Day 37 — Guardrails
+ Input/output guardrails · schema enforcement · PII detection & redaction · content moderation, toxicity, hallucination grounding · frameworks (NeMo Guardrails, Guardrails AI, LlamaGuard).
+🔨 Build: a multi-layer guardrails pipeline.
+Day 38 — Secure AI Systems
+ Secure agent design (least privilege, HITL, sandboxing) · secure RAG (permission-aware retrieval, prevent cross-silo leakage) · responsible AI & compliance (EU AI Act, DPDP, audit trails).
+🔨 Build: secure a RAG/agent system end-to-end.
+PHASE 11 — LLMOps & Production (Days 39–42)
+Day 39 — Serving & Containers
+ FastAPI for LLM serving (error handling, logging, security) · Docker containerization.
+🔨 Build: containerize an LLM API.
+Day 40 — Deployment & Orchestration
+ Kubernetes (Minikube, GKE) · CI/CD (Jenkins, GitHub Actions) · cloud deploy (AWS Bedrock/Lambda/SageMaker/Fargate, GCP).
+🔨 Build: deploy to a K8s cluster.
+Day 41 — Cost & Inference Optimization
+ Token economics · caching · model routing · prompt compression · open-model serving (Ollama, vLLM).
+🔨 Build: add caching + a model router.
+Day 42 — Observability
+ Monitoring (Prometheus, Grafana) · LLM tracing (Langfuse, LangSmith) · logging (ELK stack).
+🔨 Build: instrument a service with full monitoring.
+PHASE 12 — Capstone & Career (Days 43–45)
+Day 43 — Capstone Build I
+ Architect the system (hybrid RAG + agentic loop + MCP tools) · build the core pipeline.
+🔨 Build: working end-to-end prototype.
+Day 44 — Capstone Build II
+ Add evaluation harness (golden set + RAGAS) · add guardrails (injection defense, PII, output validation) · containerize + deploy with monitoring.
+🔨 Build: production-ready, secured, monitored deployment.
+Day 45 — Capstone Finish & Career
+ Architecture decision log, README, demo video · portfolio & GitHub polish · interview prep (RAG architecture, eval discipline, security, production-incident reasoning).
+🔨 Build: final portfolio + mock interview.
+________________
+
+
+🎁 Optional Bonus (if multimodal positioning)
++Day A: diffusion models & image generation (Stable Diffusion). +Day B: vision-language models & document AI. +Day C: real-time voice agents (STT/TTS, low-latency pipelines).

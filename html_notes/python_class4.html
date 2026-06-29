@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 4 - Functions & Strings</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #e879f9;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #f7971e;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#e879f91a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTIONS */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-pink   { background: #e879f922; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-orange { background: #f7971e22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #e879f912; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+  .dec { color: #e879f9; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; }
+
+  /* INTERACTIVE CODE */
+  .interactive-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .interactive-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .ic-label { font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; padding: 20px; resize: vertical; min-height: 120px; line-height: 1.8; }
+  .ic-run-btn { display: flex; align-items: center; gap: 6px; background: var(--accent3); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin: 0 16px 16px; }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output { margin: 0 16px 16px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; min-height: 44px; color: var(--accent3); display: none; white-space: pre-wrap; }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* FUNCTION ANATOMY DIAGRAM */
+  .fn-diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin: 16px 0; font-family: 'Fira Code',monospace; font-size: 0.95rem; line-height: 2.2; position: relative; }
+  .fn-part { position: relative; display: inline; }
+  .fn-label { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.68rem; font-family: 'Nunito',sans-serif; font-weight: 800; padding: 1px 7px; border-radius: 4px; vertical-align: middle; margin: 0 3px; text-transform: uppercase; }
+  .fn-label.lbl-blue   { background: var(--accent5); }
+  .fn-label.lbl-green  { background: var(--accent3); }
+  .fn-label.lbl-orange { background: var(--accent4); }
+  .fn-label.lbl-purple { background: #6c63ff; color: #fff; }
+
+  /* SCOPE VISUAL */
+  .scope-viz { display: flex; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
+  .scope-box { flex: 1; min-width: 220px; border-radius: 14px; overflow: hidden; border: 2px solid var(--border); }
+  .scope-box-header { padding: 10px 16px; font-weight: 800; font-size: 0.85rem; }
+  .scope-global { border-color: var(--accent5); }
+  .scope-global .scope-box-header { background: #38bdf822; color: var(--accent5); }
+  .scope-local  { border-color: var(--accent); }
+  .scope-local  .scope-box-header { background: #e879f922; color: var(--accent); }
+  .scope-box-body { padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.82rem; line-height: 1.9; background: var(--card2); }
+  .scope-var { color: var(--accent3); }
+
+  /* STRING METHODS TABLE */
+  .str-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .str-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .str-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .str-table tr:last-child td { border-bottom: none; }
+  .str-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--accent3); font-size: 0.8rem; }
+  .method-out  { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* FSTRING PLAYGROUND */
+  .fstr-play { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .fstr-play h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 14px; color: var(--accent); }
+  .fstr-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .fstr-label { color: var(--muted); font-weight: 700; font-size: 0.88rem; min-width: 70px; }
+  .fstr-input { background: var(--card2); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.88rem; outline: none; flex: 1; min-width: 100px; transition: border-color 0.2s; }
+  .fstr-input:focus { border-color: var(--accent); }
+  .fstr-btn { background: var(--accent); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.88rem; cursor: pointer; margin-top: 6px; transition: opacity 0.2s; }
+  .fstr-btn:hover { opacity: 0.85; }
+  .fstr-output { margin-top: 12px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 12px 16px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); display: none; }
+  .fstr-output.visible { display: block; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre-wrap; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #e879f910; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 140px; outline: none; transition: border-color 0.2s; }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#e879f922,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 10px; }
+  .compare-box.pink-box   { border-top: 3px solid var(--accent); }
+  .compare-box.green-box  { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent4); }
+
+  /* call stack visual */
+  .call-stack { display: flex; flex-direction: column-reverse; gap: 6px; margin: 16px 0; }
+  .stack-frame { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; display: flex; align-items: center; gap: 10px; }
+  .stack-frame .sf-label { font-size: 0.72rem; font-family: 'Nunito',sans-serif; font-weight: 800; padding: 2px 8px; border-radius: 99px; }
+  .sf-main { background: #38bdf822; color: var(--accent5); }
+  .sf-fn   { background: #e879f922; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="header-right">
+    <span class="nav-btn">← Class 3</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Class 4 — Functions & Strings</span>
+  <span class="hero-emoji">🧩</span>
+  <h1>Write Code <em>Once,</em> Use It <em>Anywhere!</em></h1>
+  <p>Today we learn the most powerful idea in programming — reusable code blocks called functions — and master Python's text superpowers with strings.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Class 3 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>for / while loops</div>
+  <div class="recap-chip"><span class="dot"></span>break & continue</div>
+  <div class="recap-chip"><span class="dot"></span>Lists & list methods</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. What are Functions?</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. Parameters & Return</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Scope</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. String Methods</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. f-Strings</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Putting It Together</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SEC 1: What are Functions ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-pink">🧩</div>
+      <div>
+        <div class="section-title">What are Functions?</div>
+        <div class="section-sub">Reusable blocks of code with a name</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Problem Functions Solve</h3>
+      <p>Imagine you need to greet 5 different students. Without functions you write the same 3 lines 5 times. That is 15 lines of repeated code. With a function, you write 3 lines ONCE and just call the function 5 times!</p>
+      <div class="analogy-box">
+        <strong>☕ Analogy:</strong> Think of a function like a coffee vending machine. You press a button (call the function), it does its job (runs the code), and gives you coffee (returns a result). You do not need to know HOW it makes coffee — you just press the button. You can press it as many times as you want!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Defining and calling a function</h3>
+      <p>Use the <code>def</code> keyword to define a function. Then call it by its name followed by <code>()</code>.</p>
+
+      <div class="fn-diagram">
+        <span class="kw" style="color:#c792ea">def</span> &nbsp;<span style="color:#e879f9">greet</span>()<span style="color:#89ddff">:</span>
+        <br>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#82aaff">print</span>(<span style="color:#c3e88d">"Hello! Welcome to Python!"</span>)
+        <br><br>
+        <span style="color:#e879f9">greet</span>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt" style="color:#546e7a;font-style:italic"># calling the function</span>
+        <br><br>
+        <span class="fn-label">def keyword</span>
+        <span class="fn-label lbl-blue">function name</span>
+        <span class="fn-label lbl-green">parentheses</span>
+        <span class="fn-label lbl-orange">colon</span>
+        <span class="fn-label lbl-purple">indented body</span>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">functions_basic.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Step 1: DEFINE the function (write the recipe)</span>
+<span class="kw">def</span> <span class="fn">greet</span>():
+    <span class="fn">print</span>(<span class="str">"Hello! Welcome to Python!"</span>)
+    <span class="fn">print</span>(<span class="str">"Have a great learning day!"</span>)
+
+<span class="cmt"># Step 2: CALL the function (use the recipe)</span>
+<span class="fn">greet</span>()     <span class="cmt"># first call</span>
+<span class="fn">greet</span>()     <span class="cmt"># second call — same code runs again!</span>
+<span class="fn">greet</span>()     <span class="cmt"># third call</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Hello! Welcome to Python!
+Have a great learning day!
+Hello! Welcome to Python!
+Have a great learning day!
+Hello! Welcome to Python!
+Have a great learning day!</div>
+
+      <div class="tip-box">
+        <strong>📌 Two steps — always:</strong><br>
+        1. <strong>Define</strong> — write the function once with <code>def</code><br>
+        2. <strong>Call</strong> — run it anywhere by writing its name with <code>()</code>
+      </div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Write and call your first function</span></div>
+      <textarea class="ic-textarea" id="try1" spellcheck="false">def welcome():
+    print("Welcome to Class 4!")
+    print("Today we learn functions.")
+
+def show_line():
+    print("-------------------")
+
+show_line()
+welcome()
+show_line()</textarea>
+      <button class="ic-run-btn" onclick="runCode('try1','out1')">▶ Run Code</button>
+      <div class="ic-output" id="out1"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 2: Parameters & Return ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📥</div>
+      <div>
+        <div class="section-title">Parameters & Return Values</div>
+        <div class="section-sub">Sending data IN and getting results OUT</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Parameters — Sending data into a function</h3>
+      <p>A <strong>parameter</strong> is a variable inside the function that receives a value when you call it. This lets the same function work with different data each time!</p>
+      <div class="analogy-box">
+        <strong>🧮 Analogy:</strong> Think of a calculator. You press "5 + 3" — the numbers 5 and 3 are the inputs (parameters). The calculator uses them to compute the result. Same calculator, different numbers every time!
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">parameters.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># 'name' is a parameter — a placeholder for the real value</span>
+<span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>):
+    <span class="fn">print</span>(<span class="str">"Hello,"</span>, <span class="var">name</span>, <span class="str">"!"</span>)
+
+<span class="cmt"># "Riya", "Ali", "Priya" are ARGUMENTS — the real values</span>
+<span class="fn">greet</span>(<span class="str">"Riya"</span>)
+<span class="fn">greet</span>(<span class="str">"Ali"</span>)
+<span class="fn">greet</span>(<span class="str">"Priya"</span>)
+
+<span class="cmt"># Multiple parameters</span>
+<span class="kw">def</span> <span class="fn">introduce</span>(<span class="var">name</span>, <span class="var">age</span>):
+    <span class="fn">print</span>(<span class="str">"My name is"</span>, <span class="var">name</span>, <span class="str">"and I am"</span>, <span class="var">age</span>, <span class="str">"years old."</span>)
+
+<span class="fn">introduce</span>(<span class="str">"Sneha"</span>, <span class="num">20</span>)
+<span class="fn">introduce</span>(<span class="str">"Rahul"</span>, <span class="num">22</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Hello, Riya !
+Hello, Ali !
+Hello, Priya !
+My name is Sneha and I am 20 years old.
+My name is Rahul and I am 22 years old.</div>
+    </div>
+
+    <div class="card">
+      <h3>return — Getting a result back from a function</h3>
+      <p>Functions can also <strong>send back</strong> a result using <code>return</code>. The returned value can be stored in a variable or used directly.</p>
+      <div class="analogy-box">
+        <strong>🏧 Analogy:</strong> An ATM takes your card (input), processes your request, and gives you cash (return value). The <code>return</code> keyword is Python's way of handing the result back to you!
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">return_value.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">def</span> <span class="fn">add</span>(<span class="var">a</span>, <span class="var">b</span>):
+    <span class="var">result</span> <span class="op">=</span> <span class="var">a</span> <span class="op">+</span> <span class="var">b</span>
+    <span class="kw">return</span> <span class="var">result</span>      <span class="cmt"># send the result back</span>
+
+<span class="cmt"># Store the returned value in a variable</span>
+<span class="var">total</span> <span class="op">=</span> <span class="fn">add</span>(<span class="num">10</span>, <span class="num">5</span>)
+<span class="fn">print</span>(<span class="str">"Sum:"</span>, <span class="var">total</span>)    <span class="cmt"># 15</span>
+
+<span class="cmt"># Use the returned value directly</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">100</span>, <span class="num">200</span>))    <span class="cmt"># 300</span>
+
+<span class="cmt"># Practical example</span>
+<span class="kw">def</span> <span class="fn">calculate_grade</span>(<span class="var">marks</span>):
+    <span class="kw">if</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">90</span>:
+        <span class="kw">return</span> <span class="str">"A"</span>
+    <span class="kw">elif</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">80</span>:
+        <span class="kw">return</span> <span class="str">"B"</span>
+    <span class="kw">elif</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">50</span>:
+        <span class="kw">return</span> <span class="str">"C"</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="str">"F"</span>
+
+<span class="fn">print</span>(<span class="fn">calculate_grade</span>(<span class="num">85</span>))   <span class="cmt"># B</span>
+<span class="fn">print</span>(<span class="fn">calculate_grade</span>(<span class="num">47</span>))   <span class="cmt"># F</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Default parameter values</h3>
+      <p>You can give parameters a <strong>default value</strong>. If the caller does not provide that argument, the default is used automatically.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">default_params.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>, <span class="var">message</span><span class="op">=</span><span class="str">"Good morning"</span>):
+    <span class="fn">print</span>(<span class="var">message</span>, <span class="var">name</span>)
+
+<span class="fn">greet</span>(<span class="str">"Riya"</span>)                    <span class="cmt"># uses default message</span>
+<span class="fn">greet</span>(<span class="str">"Ali"</span>, <span class="str">"Good evening"</span>)    <span class="cmt"># overrides default</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Good morning Riya
+Good evening Ali</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Build a calculator with functions</span></div>
+      <textarea class="ic-textarea" id="try2" spellcheck="false">def add(a, b):
+    return a + b
+
+def subtract(a, b):
+    return a - b
+
+def multiply(a, b):
+    return a * b
+
+def square(n):
+    return n * n
+
+print("5 + 3 =", add(5, 3))
+print("10 - 4 =", subtract(10, 4))
+print("6 x 7 =", multiply(6, 7))
+print("9 squared =", square(9))</textarea>
+      <button class="ic-run-btn" onclick="runCode('try2','out2')">▶ Run Code</button>
+      <div class="ic-output" id="out2"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 3: Scope ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🔭</div>
+      <div>
+        <div class="section-title">Scope — Where Variables Live</div>
+        <div class="section-sub">Local vs Global — why some variables are invisible</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is Scope?</h3>
+      <p>Scope means <strong>where a variable can be seen and used</strong>. Variables created inside a function only exist inside that function. Variables created outside can be seen everywhere.</p>
+      <div class="analogy-box">
+        <strong>🏠 Analogy:</strong> Think of a house with rooms. Items INSIDE a bedroom are only available in that bedroom (local scope). Items in the LIVING ROOM are available to everyone in the house (global scope). You cannot take the bedroom TV into the kitchen!
+      </div>
+    </div>
+
+    <div class="scope-viz">
+      <div class="scope-box scope-global">
+        <div class="scope-box-header">🌍 Global Scope (whole program)</div>
+        <div class="scope-box-body">
+          <span class="scope-var">school_name</span> = "TarsLab"<br>
+          <span class="scope-var">total_students</span> = 100<br>
+          <br>
+          <span style="color:var(--muted)">← visible everywhere</span>
+        </div>
+      </div>
+      <div class="scope-box scope-local">
+        <div class="scope-box-header">📦 Local Scope (inside function)</div>
+        <div class="scope-box-body">
+          <span style="color:#c792ea">def</span> <span style="color:#82aaff">calculate</span>():<br>
+          &nbsp;&nbsp;<span class="scope-var">result</span> = 42<br>
+          &nbsp;&nbsp;<span class="scope-var">temp</span> = 0<br>
+          <br>
+          <span style="color:var(--muted)">← only inside function</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Scope in code</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">scope.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">school</span> <span class="op">=</span> <span class="str">"TarsLab"</span>    <span class="cmt"># GLOBAL variable</span>
+
+<span class="kw">def</span> <span class="fn">show_info</span>():
+    <span class="var">course</span> <span class="op">=</span> <span class="str">"Python"</span>  <span class="cmt"># LOCAL variable — only inside here</span>
+    <span class="fn">print</span>(<span class="var">school</span>)       <span class="cmt"># can access global variable</span>
+    <span class="fn">print</span>(<span class="var">course</span>)       <span class="cmt"># can access local variable</span>
+
+<span class="fn">show_info</span>()
+<span class="fn">print</span>(<span class="var">school</span>)           <span class="cmt"># works fine — global</span>
+<span class="cmt"># print(course)         # ERROR! course doesn't exist here</span></pre>
+      </div>
+      <div class="tip-box">
+        <strong>📌 Simple rule:</strong> Variables created INSIDE a function stay inside. Variables created OUTSIDE are available everywhere. When in doubt, pass values as parameters instead of using globals!
+      </div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Scope in action</span></div>
+      <textarea class="ic-textarea" id="try3" spellcheck="false">city = "Hyderabad"    # global
+
+def describe_city():
+    population = 10000000    # local
+    print("City:", city)
+    print("Population:", population)
+
+def another_function():
+    print("Also global:", city)
+
+describe_city()
+another_function()
+print("From outside:", city)</textarea>
+      <button class="ic-run-btn" onclick="runCode('try3','out3')">▶ Run Code</button>
+      <div class="ic-output" id="out3"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 4: String Methods ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-green">📝</div>
+      <div>
+        <div class="section-title">String Methods — Text Superpowers</div>
+        <div class="section-sub">Built-in tools to manipulate text</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Strings have built-in methods — just like lists!</h3>
+      <p>Remember from Class 1 that strings are text surrounded by quotes. Python gives strings dozens of powerful built-in methods that let you search, replace, split, and transform text.</p>
+      <table class="str-table">
+        <tr><th>Method</th><th>What it does</th><th>Example</th><th>Result</th></tr>
+        <tr><td><span class="method-name">.upper()</span></td><td>ALL CAPS</td><td><span class="method-ex">"hello".upper()</span></td><td><span class="method-out">"HELLO"</span></td></tr>
+        <tr><td><span class="method-name">.lower()</span></td><td>all lowercase</td><td><span class="method-ex">"HELLO".lower()</span></td><td><span class="method-out">"hello"</span></td></tr>
+        <tr><td><span class="method-name">.title()</span></td><td>Title Case</td><td><span class="method-ex">"hello world".title()</span></td><td><span class="method-out">"Hello World"</span></td></tr>
+        <tr><td><span class="method-name">.strip()</span></td><td>Remove spaces from both ends</td><td><span class="method-ex">"  hi  ".strip()</span></td><td><span class="method-out">"hi"</span></td></tr>
+        <tr><td><span class="method-name">.replace(a,b)</span></td><td>Replace a with b</td><td><span class="method-ex">"hello".replace("l","r")</span></td><td><span class="method-out">"herro"</span></td></tr>
+        <tr><td><span class="method-name">.split()</span></td><td>Split into a list by spaces</td><td><span class="method-ex">"a b c".split()</span></td><td><span class="method-out">["a","b","c"]</span></td></tr>
+        <tr><td><span class="method-name">.join(list)</span></td><td>Join list items into a string</td><td><span class="method-ex">"-".join(["a","b","c"])</span></td><td><span class="method-out">"a-b-c"</span></td></tr>
+        <tr><td><span class="method-name">.find(x)</span></td><td>Find position of x (-1 if not found)</td><td><span class="method-ex">"hello".find("l")</span></td><td><span class="method-out">2</span></td></tr>
+        <tr><td><span class="method-name">.count(x)</span></td><td>Count how many times x appears</td><td><span class="method-ex">"hello".count("l")</span></td><td><span class="method-out">2</span></td></tr>
+        <tr><td><span class="method-name">.startswith(x)</span></td><td>Does it start with x?</td><td><span class="method-ex">"hello".startswith("he")</span></td><td><span class="method-out">True</span></td></tr>
+        <tr><td><span class="method-name">.endswith(x)</span></td><td>Does it end with x?</td><td><span class="method-ex">"hello".endswith("lo")</span></td><td><span class="method-out">True</span></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>String methods in action</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">string_methods.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">name</span> <span class="op">=</span> <span class="str">"  riya sharma  "</span>
+
+<span class="fn">print</span>(<span class="var">name</span>.<span class="fn">strip</span>())          <span class="cmt"># "riya sharma"</span>
+<span class="fn">print</span>(<span class="var">name</span>.<span class="fn">strip</span>().<span class="fn">title</span>())  <span class="cmt"># "Riya Sharma"</span>
+<span class="fn">print</span>(<span class="var">name</span>.<span class="fn">strip</span>().<span class="fn">upper</span>())  <span class="cmt"># "RIYA SHARMA"</span>
+
+<span class="var">sentence</span> <span class="op">=</span> <span class="str">"Python is easy and Python is fun"</span>
+<span class="fn">print</span>(<span class="var">sentence</span>.<span class="fn">count</span>(<span class="str">"Python"</span>))          <span class="cmt"># 2</span>
+<span class="fn">print</span>(<span class="var">sentence</span>.<span class="fn">replace</span>(<span class="str">"Python"</span>, <span class="str">"Java"</span>)) <span class="cmt"># Java is easy and Java is fun</span>
+
+<span class="var">words</span> <span class="op">=</span> <span class="var">sentence</span>.<span class="fn">split</span>()  <span class="cmt"># split into list</span>
+<span class="fn">print</span>(<span class="var">words</span>)
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">words</span>), <span class="str">"words"</span>)
+
+<span class="cmt"># Join back with dash</span>
+<span class="fn">print</span>(<span class="str">"-"</span>.<span class="fn">join</span>([<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>]))  <span class="cmt"># a-b-c</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>String indexing — like lists!</h3>
+      <p>Strings behave like lists of characters. You can access individual characters using index numbers.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">string_index.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">word</span> <span class="op">=</span> <span class="str">"Python"</span>
+
+<span class="fn">print</span>(<span class="var">word</span>[<span class="num">0</span>])    <span class="cmt"># P  (first letter)</span>
+<span class="fn">print</span>(<span class="var">word</span>[<span class="op">-</span><span class="num">1</span>])   <span class="cmt"># n  (last letter)</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">word</span>))  <span class="cmt"># 6  (total letters)</span>
+
+<span class="cmt"># Slicing — grab a portion</span>
+<span class="fn">print</span>(<span class="var">word</span>[<span class="num">0</span>:<span class="num">3</span>])  <span class="cmt"># Pyt (index 0,1,2)</span>
+<span class="fn">print</span>(<span class="var">word</span>[<span class="num">2</span>:])   <span class="cmt"># thon (index 2 to end)</span>
+<span class="fn">print</span>(<span class="var">word</span>[:<span class="num">4</span>])   <span class="cmt"># Pyth (start to index 4)</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">P
+n
+6
+Pyt
+thon
+Pyth</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — String methods practice</span></div>
+      <textarea class="ic-textarea" id="try4" spellcheck="false">message = "  hello world from python  "
+
+print(message.strip())
+print(message.strip().upper())
+print(message.strip().title())
+print(message.strip().replace("world", "everyone"))
+
+words = message.strip().split()
+print("Word count:", len(words))
+print("Words:", words)
+print("First word:", words[0])
+print("Last word:", words[-1])</textarea>
+      <button class="ic-run-btn" onclick="runCode('try4','out4')">▶ Run Code</button>
+      <div class="ic-output" id="out4"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 5: f-Strings ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-purple">✨</div>
+      <div>
+        <div class="section-title">f-Strings — Modern String Formatting</div>
+        <div class="section-sub">The cleanest way to mix variables and text</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The old way vs the f-string way</h3>
+      <p>Before f-strings, mixing variables into text was clunky. f-strings (introduced in Python 3.6) make it clean and readable — just put an <code>f</code> before the quote and use <code>{variable}</code> inside!</p>
+      <div class="two-col">
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent4)">Old way — clunky</h4>
+          <pre style="font-size:0.8rem;padding:0;background:none"><span class="fn">print</span>(<span class="str">"Hello, "</span> <span class="op">+</span> <span class="var">name</span> <span class="op">+</span>
+  <span class="str">"! You are "</span> <span class="op">+</span>
+  <span class="fn">str</span>(<span class="var">age</span>) <span class="op">+</span> <span class="str">" years old"</span>)</pre>
+        </div>
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">f-string — clean!</h4>
+          <pre style="font-size:0.8rem;padding:0;background:none"><span class="fn">print</span>(<span class="str">f"Hello, <span style="color:#f78c6c">{name}</span>!
+  You are <span style="color:#f78c6c">{age}</span> years old"</span>)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>f-string examples</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">fstrings.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">name</span>  <span class="op">=</span> <span class="str">"Riya"</span>
+<span class="var">age</span>   <span class="op">=</span> <span class="num">20</span>
+<span class="var">score</span> <span class="op">=</span> <span class="num">87.5</span>
+
+<span class="cmt"># Basic f-string — put f before the quote</span>
+<span class="fn">print</span>(<span class="str">f"Hello, <span style="color:#f78c6c">{name}</span>!"</span>)
+<span class="fn">print</span>(<span class="str">f"You are <span style="color:#f78c6c">{age}</span> years old."</span>)
+
+<span class="cmt"># Math inside curly braces!</span>
+<span class="fn">print</span>(<span class="str">f"Next year you will be <span style="color:#f78c6c">{age + 1}</span>."</span>)
+<span class="fn">print</span>(<span class="str">f"Your score is <span style="color:#f78c6c">{score}</span> out of 100."</span>)
+
+<span class="cmt"># Round decimal places with :.2f</span>
+<span class="var">price</span> <span class="op">=</span> <span class="num">49.9876</span>
+<span class="fn">print</span>(<span class="str">f"Price: Rs. <span style="color:#f78c6c">{price:.2f}</span>"</span>)   <span class="cmt"># 49.99</span>
+
+<span class="cmt"># Call a method inside {}</span>
+<span class="fn">print</span>(<span class="str">f"Name in caps: <span style="color:#f78c6c">{name.upper()}</span>"</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Hello, Riya!
+You are 20 years old.
+Next year you will be 21.
+Your score is 87.5 out of 100.
+Price: Rs. 49.99
+Name in caps: RIYA</div>
+    </div>
+
+    <!-- f-string playground -->
+    <div class="fstr-play">
+      <h3>🎮 f-String Playground — See it live!</h3>
+      <div class="fstr-row">
+        <span class="fstr-label">Your name:</span>
+        <input class="fstr-input" id="fsName" value="Riya" placeholder="Enter name">
+      </div>
+      <div class="fstr-row">
+        <span class="fstr-label">Your age:</span>
+        <input class="fstr-input" id="fsAge" value="20" type="number" placeholder="Enter age">
+      </div>
+      <div class="fstr-row">
+        <span class="fstr-label">Your score:</span>
+        <input class="fstr-input" id="fsScore" value="87.5" type="number" placeholder="Enter score">
+      </div>
+      <button class="fstr-btn" onclick="runFString()">▶ Generate Output</button>
+      <div class="fstr-output" id="fsOutput"></div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — f-strings in functions</span></div>
+      <textarea class="ic-textarea" id="try5" spellcheck="false">def student_report(name, marks):
+    if marks >= 90:
+        grade = "A"
+    elif marks >= 80:
+        grade = "B"
+    elif marks >= 50:
+        grade = "C"
+    else:
+        grade = "F"
+    print(f"Student: {name}")
+    print(f"Marks  : {marks}/100")
+    print(f"Grade  : {grade}")
+    print("---")
+
+student_report("Riya", 92)
+student_report("Ali", 74)
+student_report("Priya", 45)</textarea>
+      <button class="ic-run-btn" onclick="runCode('try5','out5')">▶ Run Code</button>
+      <div class="ic-output" id="out5"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 6: Putting It Together ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚡</div>
+      <div>
+        <div class="section-title">Putting It All Together</div>
+        <div class="section-sub">Functions + Strings + Everything so far</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Real mini project — Name Formatter</h3>
+      <p>A function that cleans up messy name input — strips spaces, fixes capitalisation, and prints a formatted ID card.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">name_formatter.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">def</span> <span class="fn">clean_name</span>(<span class="var">raw_name</span>):
+    <span class="kw">return</span> <span class="var">raw_name</span>.<span class="fn">strip</span>().<span class="fn">title</span>()
+
+<span class="kw">def</span> <span class="fn">make_email</span>(<span class="var">name</span>):
+    <span class="var">parts</span>  <span class="op">=</span> <span class="var">name</span>.<span class="fn">lower</span>().<span class="fn">split</span>()
+    <span class="kw">return</span> <span class="str">"."</span>.<span class="fn">join</span>(<span class="var">parts</span>) <span class="op">+</span> <span class="str">"@tarslab.com"</span>
+
+<span class="kw">def</span> <span class="fn">print_id_card</span>(<span class="var">raw_name</span>, <span class="var">course</span>, <span class="var">roll</span>):
+    <span class="var">name</span>  <span class="op">=</span> <span class="fn">clean_name</span>(<span class="var">raw_name</span>)
+    <span class="var">email</span> <span class="op">=</span> <span class="fn">make_email</span>(<span class="var">name</span>)
+    <span class="fn">print</span>(<span class="str">f"====== STUDENT ID ======"</span>)
+    <span class="fn">print</span>(<span class="str">f"Name  : <span style="color:#f78c6c">{name}</span>"</span>)
+    <span class="fn">print</span>(<span class="str">f"Roll  : <span style="color:#f78c6c">{roll}</span>"</span>)
+    <span class="fn">print</span>(<span class="str">f"Course: <span style="color:#f78c6c">{course}</span>"</span>)
+    <span class="fn">print</span>(<span class="str">f"Email : <span style="color:#f78c6c">{email}</span>"</span>)
+    <span class="fn">print</span>(<span class="str">f"========================"</span>)
+
+<span class="fn">print_id_card</span>(<span class="str">"  riya sharma  "</span>, <span class="str">"AI Engineering"</span>, <span class="str">"TL001"</span>)
+<span class="fn">print_id_card</span>(<span class="str">"ALI khan"</span>,         <span class="str">"AI Engineering"</span>, <span class="str">"TL002"</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">====== STUDENT ID ======
+Name  : Riya Sharma
+Roll  : TL001
+Course: AI Engineering
+Email : riya.sharma@tarslab.com
+========================
+====== STUDENT ID ======
+Name  : Ali Khan
+Roll  : TL002
+Course: AI Engineering
+Email : ali.khan@tarslab.com
+========================</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Full program combining everything!</span></div>
+      <textarea class="ic-textarea" id="try6" spellcheck="false" style="min-height:200px">def calculate_average(scores):
+    total = 0
+    for s in scores:
+        total = total + s
+    return total / len(scores)
+
+def get_grade(avg):
+    if avg >= 90:
+        return "A"
+    elif avg >= 75:
+        return "B"
+    elif avg >= 50:
+        return "C"
+    else:
+        return "F"
+
+def print_report(name, scores):
+    avg   = calculate_average(scores)
+    grade = get_grade(avg)
+    print(f"--- Report: {name} ---")
+    print(f"Scores : {scores}")
+    print(f"Average: {avg}")
+    print(f"Grade  : {grade}")
+
+print_report("Riya",  [88, 92, 79, 95, 84])
+print_report("Ali",   [65, 70, 58, 72, 61])
+print_report("Priya", [95, 98, 92, 97, 99])</textarea>
+      <button class="ic-run-btn" onclick="runCode('try6','out6')">▶ Run Code</button>
+      <div class="ic-output" id="out6"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SEC 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-pink">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Class 4 Test</div>
+        <div class="section-sub">12 questions on functions and strings</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What keyword is used to define a function in Python?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>function</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">B</span>func</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">C</span>def</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>define</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What is the output of this code?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="kw">def</span> <span class="fn">double</span>(<span class="var">n</span>):
+    <span class="kw">return</span> <span class="var">n</span> * <span class="num">2</span>
+
+<span class="fn">print</span>(<span class="fn">double</span>(<span class="num">7</span>))</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>7</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">B</span>14</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">C</span>n * 2</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>Nothing — no print inside</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">What is the difference between a parameter and an argument?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>They are the same thing</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>Parameter is in the definition; argument is the actual value passed when calling</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>Argument is in the definition; parameter is the actual value passed</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>Parameters are only used with return</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What does <code>"hello world".upper()</code> return?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>"Hello World"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>"HELLO WORLD"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>"hello world"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>An error</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What does <code>"Python is fun".split()</code> return?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>"Python", "is", "fun" (three separate strings)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>["Python", "is", "fun"] (a list)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>"Python is fun" (unchanged)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>3</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">A variable created INSIDE a function can be used outside it. True or False?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>True — all variables are global</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>False — it is local and only exists inside the function</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>True — only if the function has a return</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>It depends on the variable name</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">What is the output of this f-string?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="var">x</span> = <span class="num">5</span>
+<span class="fn">print</span>(<span class="str">f"Value is {x * 2}"</span>)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>Value is x * 2</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">B</span>Value is 5</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">C</span>Value is 10</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>Error</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">What does <code>"  hello  ".strip()</code> return?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">A</span>"hello"</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>"  hello  " (unchanged)</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">C</span>"HELLO"</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>5</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 fill in blank -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank — to send a value back from a function, we use:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span style="color:var(--text)">def add(a, b):<br>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <input class="fib-input" id="fib9" placeholder="???" autocomplete="off" spellcheck="false">
+          <span style="color:var(--text)"> a + b</span>
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb',['return'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">What does <code>"banana".count("a")</code> return?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">A</span>1</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">B</span>2</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,true)"><span class="opt-indicator">C</span>3</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">D</span>0</div>
+        </div>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="quiz-card" id="q11">
+      <div class="quiz-header"><div class="quiz-num">11</div><div class="quiz-q">What is the output?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="kw">def</span> <span class="fn">say_hi</span>(<span class="var">name</span>=<span class="str">"friend"</span>):
+    <span class="fn">print</span>(<span class="str">f"Hi {name}!"</span>)
+
+<span class="fn">say_hi</span>()
+<span class="fn">say_hi</span>(<span class="str">"Riya"</span>)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">A</span>Error — name not provided</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">B</span>Hi! then Hi Riya!</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,true)"><span class="opt-indicator">C</span>Hi friend! then Hi Riya!</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">D</span>Hi Riya! then Hi Riya!</div>
+        </div>
+        <div class="quiz-feedback" id="q11-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q12 fill in blank -->
+    <div class="quiz-card" id="q12">
+      <div class="quiz-header"><div class="quiz-num">12</div><div class="quiz-q">Fill in the blank — to write an f-string, put ___ before the opening quote:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span style="color:var(--text)">print(</span>
+          <input class="fib-input" id="fib12" placeholder="???" autocomplete="off" spellcheck="false" style="width:60px;">
+          <span style="color:#c3e88d">"Hello {name}"</span>
+          <span style="color:var(--text)">)</span>
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib12','q12-fb',['f'],'q12')">Check Answer</button>
+        <div class="quiz-feedback" id="q12-fb"></div>
+      </div>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🎉</span>
+      <div class="score-main" id="scoreMain">0 / 12</div>
+      <div class="score-sub" id="scoreSub"></div>
+      <div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div></div>
+      <div style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+  <div class="checkpoint reveal">
+    <div class="checkpoint-icon">🏁</div>
+    <div class="checkpoint-text">
+      <strong>Class 4 Complete!</strong>
+      You learned how to define and call functions, use parameters and return values, understand scope, and master string methods and f-strings. Next class: Dictionaries, Tuples and File Handling!
+    </div>
+  </div>
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7, completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 12, quizScore = 0;
+
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) { completedSections.add(idx); updateProgress(); let pills = document.querySelectorAll('.nav-pill'); pills.forEach(p => p.classList.remove('active')); if (pills[idx]) pills[idx].classList.add('active'); }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1500); });
+}
+
+// ── f-STRING PLAYGROUND ──
+function runFString() {
+  let name  = document.getElementById('fsName').value  || 'friend';
+  let age   = parseInt(document.getElementById('fsAge').value)   || 0;
+  let score = parseFloat(document.getElementById('fsScore').value) || 0;
+  let out   = document.getElementById('fsOutput');
+  out.classList.add('visible');
+  out.textContent =
+    "Hello, " + name + "!\n" +
+    "You are " + age + " years old.\n" +
+    "Next year you will be " + (age+1) + ".\n" +
+    "Your score is " + score + " out of 100.\n" +
+    "Name in caps: " + name.toUpperCase();
+}
+
+// ── INTERPRETER ──
+function runCode(tid, oid) {
+  let code = document.getElementById(tid).value;
+  let out  = document.getElementById(oid);
+  out.classList.add('visible'); out.classList.remove('ic-error'); out.textContent = '';
+  let res = execPython(code);
+  if (res.error) { out.classList.add('ic-error'); out.textContent = 'Error: ' + res.error; }
+  else out.textContent = res.output || '(no output)';
+}
+
+function execPython(code) {
+  let lines = code.split('\n'), vars = {}, fns = {}, output = [], error = null, i = 0;
+  try {
+    // First pass: collect function definitions
+    while (i < lines.length) {
+      let raw = lines[i], t = raw.trim();
+      if (/^def\s+\w+\s*\(.*\)\s*:$/.test(t)) {
+        let header = t.slice(0,-1);
+        let mFn = header.match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+        if (mFn) {
+          let fnName = mFn[1], paramStr = mFn[2].trim();
+          let params = paramStr ? paramStr.split(',').map(p => {
+            let parts = p.trim().split('=');
+            return { name: parts[0].trim(), default: parts[1] ? parts[1].trim() : undefined };
+          }) : [];
+          let body = [], j = i+1;
+          while (j < lines.length) {
+            let bl = lines[j], bt = bl.trim();
+            if (!bt || bt.startsWith('#')) { j++; continue; }
+            if (bl.length - bl.trimStart().length === 0) break;
+            body.push(bl); j++;
+          }
+          fns[fnName] = { params, body };
+          i = j; continue;
+        }
+      }
+      i++;
+    }
+    // Second pass: execute top-level code
+    i = 0;
+    while (i < lines.length && !error) {
+      let raw = lines[i], t = raw.trim();
+      if (!t || t.startsWith('#')) { i++; continue; }
+      if (/^def\s+/.test(t)) {
+        // skip already collected
+        let j = i+1;
+        while (j < lines.length) { let bl=lines[j],bt=bl.trim(); if(!bt||bt.startsWith('#')){j++;continue;} if(bl.length-bl.trimStart().length===0)break; j++; }
+        i = j; continue;
+      }
+      if (/^if\s+.+:$/.test(t) || /^elif\s+.+:$/.test(t) || /^else\s*:$/.test(t)) {
+        let r = parseIfElse(lines, i, vars, fns, output);
+        if (r.error) { error = r.error; break; }
+        i = r.next; continue;
+      }
+      if (/^for\s+.+\s+in\s+.+:$/.test(t)) {
+        let r = parseFor(lines, i, vars, fns, output);
+        if (r.error) { error = r.error; break; }
+        i = r.next; continue;
+      }
+      if (/^while\s+.+:$/.test(t)) {
+        let r = parseWhile(lines, i, vars, fns, output);
+        if (r.error) { error = r.error; break; }
+        i = r.next; continue;
+      }
+      let r = execLine(t, vars, fns, output);
+      if (r && r.error) { error = r.error; break; }
+      i++;
+    }
+  } catch(e) { error = e.message; }
+  return { output: output.join('\n'), error };
+}
+
+function execLine(line, vars, fns, output) {
+  if (!line || line.startsWith('#')) return null;
+  if (line === 'break') return { break: true };
+  if (line === 'continue') return { continue: true };
+  if (line.startsWith('return ')) return { return: evalVal(line.slice(7).trim(), vars, fns) };
+  if (line === 'return') return { return: null };
+
+  // print()
+  if (line.startsWith('print(')) {
+    let inner = xParens(line, 'print');
+    if (inner === null) return { error: 'Syntax error in print()' };
+    let args = splitArgs(inner).map(a => fmtV(evalVal(a.trim(), vars, fns)));
+    output.push(args.join(' ')); return null;
+  }
+
+  // function call (standalone)
+  let callM = line.match(/^(\w+)\(([^)]*)\)$/);
+  if (callM && fns[callM[1]]) {
+    let r = callFn(callM[1], callM[2], vars, fns, output);
+    if (r && r.error) return r;
+    return null;
+  }
+
+  // augmented assignment
+  let augM = line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=)\s*(.+)$/);
+  if (augM) {
+    let vn=augM[1],op=augM[2],val=evalVal(augM[3].trim(),vars,fns);
+    if(vars[vn]===undefined)return{error:"Variable '"+vn+"' not defined"};
+    if(op==='+=')vars[vn]+=val; else if(op==='-=')vars[vn]-=val; else if(op==='*=')vars[vn]*=val; else if(op==='/=')vars[vn]/=val; else if(op==='//=')vars[vn]=Math.floor(vars[vn]/val); else if(op==='%=')vars[vn]%=val;
+    return null;
+  }
+
+  // list method call
+  let mthd = line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]+)\((.*)\)$/);
+  if (mthd && vars.hasOwnProperty(mthd[1]) && Array.isArray(vars[mthd[1]])) {
+    let lst=vars[mthd[1]],m=mthd[2],arg=mthd[3]?evalVal(mthd[3].trim(),vars,fns):undefined;
+    if(m==='append')lst.push(arg); else if(m==='remove'){let i=lst.indexOf(arg);if(i>-1)lst.splice(i,1);} else if(m==='sort')lst.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b))); else if(m==='reverse')lst.reverse(); else if(m==='pop')lst.pop();
+    return null;
+  }
+
+  // assignment
+  let asgn = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if (asgn) { vars[asgn[1]] = evalVal(asgn[2].trim(), vars, fns); return null; }
+
+  return null;
+}
+
+function callFn(name, argStr, outerVars, fns, output) {
+  let fn = fns[name]; if (!fn) return { error: "Function '" + name + "' not defined" };
+  let argVals = argStr.trim() ? splitArgs(argStr).map(a => evalVal(a.trim(), outerVars, fns)) : [];
+  let localVars = {};
+  fn.params.forEach((p, i) => {
+    if (argVals[i] !== undefined) localVars[p.name] = argVals[i];
+    else if (p.default !== undefined) localVars[p.name] = evalVal(p.default, outerVars, fns);
+  });
+  // execute body
+  let retVal = null;
+  let i = 0;
+  while (i < fn.body.length) {
+    let raw = fn.body[i], t = raw.trim();
+    if (!t || t.startsWith('#')) { i++; continue; }
+
+    if (/^if\s+.+:$/.test(t)||/^elif\s+.+:$/.test(t)||/^else\s*:$/.test(t)) {
+      let r = parseIfElseInBody(fn.body, i, localVars, fns, output);
+      if (r.ret !== undefined) return { ret: r.ret };
+      if (r.error) return { error: r.error };
+      i = r.next; continue;
+    }
+    if (/^for\s+.+:$/.test(t)) {
+      let r = parseForInBody(fn.body, i, localVars, fns, output);
+      if (r.ret !== undefined) return { ret: r.ret };
+      if (r.error) return { error: r.error };
+      i = r.next; continue;
+    }
+
+    let r = execLine(t, localVars, fns, output);
+    if (r && r.return !== undefined) return { ret: r.return };
+    if (r && r.error) return { error: r.error };
+    i++;
+  }
+  return { ret: retVal };
+}
+
+function parseIfElseInBody(lines, startI, vars, fns, output) {
+  let blocks = [], i = startI;
+  while (i < lines.length) {
+    let raw = lines[i], t = raw.trim();
+    if (!t || t.startsWith('#')) { i++; continue; }
+    let isIf=/^if\s+.+:$/.test(t), isElif=/^elif\s+.+:$/.test(t), isElse=/^else\s*:$/.test(t);
+    if (!isIf && !isElif && !isElse) break;
+    let cond = isElse ? null : t.replace(/^(?:if|elif)\s+/,'').replace(/:$/,'');
+    let body = [], j = i+1, baseInd = raw.length - raw.trimStart().length;
+    while (j < lines.length) {
+      let bl = lines[j], bt = bl.trim(); if (!bt||bt.startsWith('#')){j++;continue;}
+      let ind = bl.length - bl.trimStart().length; if (ind <= baseInd) break;
+      body.push(bt); j++;
+    }
+    blocks.push({ cond, body }); i = j;
+  }
+  let ran = false;
+  for (let b of blocks) {
+    if (ran) break;
+    let ok = b.cond === null ? !ran : evalCond(b.cond, vars, fns);
+    if (ok) { ran = true; for (let ln of b.body) { let r=execLine(ln,vars,fns,output); if(r&&r.return!==undefined)return{ret:r.return,next:i}; if(r&&r.error)return{error:r.error,next:i}; } }
+  }
+  return { next: i };
+}
+
+function parseForInBody(lines, startI, vars, fns, output) {
+  let raw=lines[startI], t=raw.trim(), baseInd=raw.length-raw.trimStart().length;
+  let m=t.slice(0,-1).match(/^for\s+(.+?)\s+in\s+(.+)$/);
+  if (!m) return {next:startI+1};
+  let varName=m[1].trim(), iterExpr=m[2].trim();
+  let items=resolveIter(iterExpr,vars,fns), body=[], j=startI+1;
+  while (j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}let ind=bl.length-bl.trimStart().length;if(ind<=baseInd)break;body.push(bt);j++;}
+  for (let item of items){vars[varName]=item;for(let ln of body){let r=execLine(ln,vars,fns,output);if(r&&r.return!==undefined)return{ret:r.return,next:j};if(r&&r.error)return{error:r.error,next:j};if(r&&r.break)break;}}
+  return { next: j };
+}
+
+function parseIfElse(lines, startI, vars, fns, output) {
+  let blocks=[], i=startI;
+  while (i<lines.length){
+    let raw=lines[i],t=raw.trim();if(!t||t.startsWith('#')){i++;continue;}
+    let isIf=/^if\s+.+:$/.test(t),isElif=/^elif\s+.+:$/.test(t),isElse=/^else\s*:$/.test(t);
+    if (!isIf&&!isElif&&!isElse) break;
+    let cond=isElse?null:t.replace(/^(?:if|elif)\s+/,'').replace(/:$/,'');
+    let body=[],j=i+1;
+    while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+    blocks.push({cond,body});i=j;
+  }
+  let ran=false;
+  for(let b of blocks){if(ran)break;let ok=b.cond===null?!ran:evalCond(b.cond,vars,fns);if(ok){ran=true;for(let ln of b.body){let r=execLine(ln,vars,fns,output);if(r&&r.error)return{error:r.error,next:i};}}}
+  return {next:i};
+}
+
+function parseFor(lines, startI, vars, fns, output) {
+  let raw=lines[startI],t=raw.trim();
+  let m=t.slice(0,-1).match(/^for\s+(.+?)\s+in\s+(.+)$/);
+  if(!m)return{next:startI+1};
+  let varName=m[1].trim(),iterExpr=m[2].trim();
+  let items=resolveIter(iterExpr,vars,fns),body=[],j=startI+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  for(let item of items){vars[varName]=item;let brk=false;for(let ln of body){let r=execLine(ln,vars,fns,output);if(r&&r.break){brk=true;break;}if(r&&r.continue)break;if(r&&r.error)return{error:r.error,next:j};}if(brk)break;}
+  return{next:j};
+}
+
+function parseWhile(lines, startI, vars, fns, output) {
+  let raw=lines[startI],t=raw.trim();
+  let cond=t.slice(6,-1).trim(),body=[],j=startI+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  let safety=0;
+  while(evalCond(cond,vars,fns)&&safety<300){safety++;let brk=false;for(let ln of body){let r=execLine(ln,vars,fns,output);if(r&&r.break){brk=true;break;}if(r&&r.continue)break;if(r&&r.error)return{error:r.error,next:j};}if(brk)break;}
+  return{next:j};
+}
+
+function resolveIter(expr, vars, fns) {
+  expr = expr.trim();
+  let rm=expr.match(/^range\((.+)\)$/);
+  if(rm){let args=rm[1].split(',').map(a=>parseInt(evalVal(a.trim(),vars,fns)));if(args.length===1)return Array.from({length:args[0]},(_,i)=>i);if(args.length===2){let r=[];for(let i=args[0];i<args[1];i++)r.push(i);return r;}if(args.length===3){let r=[];for(let i=args[0];i<args[1];i+=args[2])r.push(i);return r;}}
+  let em=expr.match(/^enumerate\((.+)\)$/);
+  if(em){let inner=resolveIter(em[1].trim(),vars,fns);return inner.map((v,i)=>[i,v]);}
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1).split('');
+  if(expr.startsWith('[')&&expr.endsWith(']'))return parseListLit(expr,vars,fns);
+  if(vars.hasOwnProperty(expr)){let v=vars[expr];if(Array.isArray(v))return v;if(typeof v==='string')return v.split('');return[];}
+  return[];
+}
+
+function parseListLit(expr, vars, fns) { return splitArgs(expr.slice(1,-1)).map(a=>evalVal(a.trim(),vars,fns)); }
+
+function evalVal(expr, vars, fns) {
+  expr = expr.trim(); if (!expr) return '';
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1);
+  if(expr==='True')return true; if(expr==='False')return false; if(expr==='None')return null;
+  if(!isNaN(expr)&&expr!=='')return expr.includes('.')?parseFloat(expr):parseInt(expr);
+  if(expr.startsWith('[')&&expr.endsWith(']'))return parseListLit(expr,vars,fns);
+
+  // f-string
+  if((expr.startsWith('f"')||expr.startsWith("f'"))){
+    let q=expr[1],inner=expr.slice(2,-1);
+    return inner.replace(/\{([^}]+)\}/g,(_,e)=>fmtV(evalVal(e.trim(),vars,fns)));
+  }
+
+  // built-ins
+  let intM=expr.match(/^int\((.+)\)$/); if(intM)return parseInt(String(evalVal(intM[1].trim(),vars,fns)));
+  let fltM=expr.match(/^float\((.+)\)$/); if(fltM)return parseFloat(String(evalVal(fltM[1].trim(),vars,fns)));
+  let strM=expr.match(/^str\((.+)\)$/); if(strM)return fmtV(evalVal(strM[1].trim(),vars,fns));
+  let lenM=expr.match(/^len\((.+)\)$/); if(lenM){let v=evalVal(lenM[1].trim(),vars,fns);return Array.isArray(v)?v.length:typeof v==='string'?v.length:0;}
+  let typeM=expr.match(/^type\((.+)\)$/); if(typeM){let v=evalVal(typeM[1].trim(),vars,fns);return typeof v==='boolean'?"<class 'bool'>":typeof v==='number'?(Number.isInteger(v)?"<class 'int'>":"<class 'float'>"):Array.isArray(v)?"<class 'list'>":"<class 'str'>";}
+
+  // string methods chained
+  let chainM=expr.match(/^(.+)\.(upper|lower|title|strip|lstrip|rstrip)\(\)$/);
+  if(chainM){let v=evalVal(chainM[1].trim(),vars,fns);if(typeof v==='string'){if(chainM[2]==='upper')return v.toUpperCase();if(chainM[2]==='lower')return v.toLowerCase();if(chainM[2]==='title')return v.replace(/\b\w/g,c=>c.toUpperCase());if(chainM[2]==='strip')return v.trim();if(chainM[2]==='lstrip')return v.trimStart();if(chainM[2]==='rstrip')return v.trimEnd();}return v;}
+
+  let replM=expr.match(/^(.+)\.replace\((.+),\s*(.+)\)$/);
+  if(replM){let v=evalVal(replM[1].trim(),vars,fns);let a=evalVal(replM[2].trim(),vars,fns);let b=evalVal(replM[3].trim(),vars,fns);if(typeof v==='string')return v.split(String(a)).join(String(b));return v;}
+
+  let splitM=expr.match(/^(.+)\.split\((.*)\)$/);
+  if(splitM){let v=evalVal(splitM[1].trim(),vars,fns);let sep=splitM[2].trim()?evalVal(splitM[2].trim(),vars,fns):null;if(typeof v==='string')return sep?v.split(String(sep)):v.trim().split(/\s+/);return[];}
+
+  let joinM=expr.match(/^(.+)\.join\((.+)\)$/);
+  if(joinM){let sep=evalVal(joinM[1].trim(),vars,fns);let lst=evalVal(joinM[2].trim(),vars,fns);if(Array.isArray(lst))return lst.map(fmtV).join(String(sep));return String(sep);}
+
+  let countM=expr.match(/^(.+)\.count\((.+)\)$/);
+  if(countM){let v=evalVal(countM[1].trim(),vars,fns);let s=evalVal(countM[2].trim(),vars,fns);if(typeof v==='string')return v.split(String(s)).length-1;if(Array.isArray(v))return v.filter(x=>x===s).length;return 0;}
+
+  let findM=expr.match(/^(.+)\.find\((.+)\)$/);
+  if(findM){let v=evalVal(findM[1].trim(),vars,fns);let s=evalVal(findM[2].trim(),vars,fns);return typeof v==='string'?v.indexOf(String(s)):-1;}
+
+  let startM=expr.match(/^(.+)\.startswith\((.+)\)$/);
+  if(startM){let v=evalVal(startM[1].trim(),vars,fns);let s=evalVal(startM[2].trim(),vars,fns);return typeof v==='string'?v.startsWith(String(s)):false;}
+
+  let endM=expr.match(/^(.+)\.endswith\((.+)\)$/);
+  if(endM){let v=evalVal(endM[1].trim(),vars,fns);let s=evalVal(endM[2].trim(),vars,fns);return typeof v==='string'?v.endsWith(String(s)):false;}
+
+  // list index
+  let idxM=expr.match(/^([a-zA-Z_]\w*)\[(.+)\]$/);
+  if(idxM){let lst=vars[idxM[1]];let idx=parseInt(evalVal(idxM[2].trim(),vars,fns));if(Array.isArray(lst))return lst[idx<0?lst.length+idx:idx];if(typeof lst==='string')return lst[idx<0?lst.length+idx:idx];}
+
+  // function call returning value
+  let callM=expr.match(/^(\w+)\(([^)]*)\)$/);
+  if(callM&&fns[callM[1]]){let r=callFn(callM[1],callM[2],vars,fns,[]);return r&&r.ret!==undefined?r.ret:null;}
+
+  // variable
+  if(vars.hasOwnProperty(expr))return vars[expr];
+
+  // string concat
+  if(expr.includes('+')){try{let parts=splitOnPlus(expr);if(parts.length>1){let ev=parts.map(p=>evalVal(p.trim(),vars,fns));if(ev.some(p=>typeof p==='string'))return ev.map(fmtV).join('');return ev.reduce((a,b)=>a+b,0);}}catch(e){}}
+
+  // math
+  try{
+    let res=expr.replace(/[a-zA-Z_]\w*/g,m=>vars.hasOwnProperty(m)?(typeof vars[m]==='boolean'?(vars[m]?'1':'0'):String(vars[m])):'NaN');
+    res=res.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(Math.floor(parseFloat(a)/parseFloat(b))));
+    res=res.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(parseFloat(a)%parseFloat(b)));
+    if(/^[\d\s\+\-\*\/\.\(\)]+$/.test(res.replace(/\*\*/g,'')))return safeMath(res);
+  }catch(e){}
+  return expr;
+}
+
+function evalCond(cond, vars, fns) {
+  cond=cond.trim();
+  if(cond.startsWith('not '))return !evalCond(cond.slice(4).trim(),vars,fns);
+  if(cond.includes(' and '))return cond.split(' and ').every(p=>evalCond(p.trim(),vars,fns));
+  if(cond.includes(' or '))return cond.split(' or ').some(p=>evalCond(p.trim(),vars,fns));
+  let ops=['>=','<=','==','!=','>','<'];
+  for(let op of ops){let idx=cond.indexOf(op);if(idx>-1){let L=evalVal(cond.slice(0,idx).trim(),vars,fns),R=evalVal(cond.slice(idx+op.length).trim(),vars,fns);if(op==='==')return L==R;if(op==='!=')return L!=R;if(op==='>=')return L>=R;if(op==='<=')return L<=R;if(op==='>')return L>R;if(op==='<')return L<R;}}
+  return Boolean(evalVal(cond,vars,fns));
+}
+
+function xParens(line,fn){let s=line.indexOf(fn+'(')+fn.length,d=0,r='';for(let i=s;i<line.length;i++){if(line[i]==='('){if(d>0)r+='(';d++;}else if(line[i]===')'){d--;if(d===0)return r;else r+=')';}else r+=line[i];}return null;}
+function splitArgs(e){let a=[],d=0,s=false,sc='',c='';for(let i=0;i<e.length;i++){let ch=e[i];if(!s&&(ch==='"'||ch==="'")){s=true;sc=ch;c+=ch;continue;}if(s&&ch===sc){s=false;c+=ch;continue;}if(s){c+=ch;continue;}if(ch==='('||ch==='['){d++;c+=ch;}else if(ch===')'||ch===']'){d--;c+=ch;}else if(ch===','&&d===0){a.push(c);c='';}else c+=ch;}if(c.trim())a.push(c);return a;}
+function splitOnPlus(e){let a=[],d=0,s=false,sc='',c='';for(let i=0;i<e.length;i++){let ch=e[i];if(!s&&(ch==='"'||ch==="'")){s=true;sc=ch;c+=ch;continue;}if(s&&ch===sc){s=false;c+=ch;continue;}if(s){c+=ch;continue;}if(ch==='('||ch==='['){d++;c+=ch;}else if(ch===')'||ch===']'){d--;c+=ch;}else if(ch==='+'&&d===0){a.push(c);c='';}else c+=ch;}if(c)a.push(c);return a;}
+function fmtV(v){if(v===null)return 'None';if(v===true)return 'True';if(v===false)return 'False';if(Array.isArray(v))return '['+v.map(x=>(typeof x==='string'?'"'+x+'"':fmtV(x))).join(', ')+']';if(typeof v==='number'&&Number.isFinite(v))return String(Math.round(v*1e10)/1e10);return String(v);}
+function safeMath(e){e=e.replace(/\*\*/g,'^').replace(/\s/g,'');return pM(e);}
+function pM(s){let p=0;function pk(){return s[p];}function cs(){return s[p++];}function atom(){let ng=false;if(pk()==='-'){ng=true;cs();}if(pk()==='('){cs();let v=add();cs();return ng?-v:v;}let n='';while(p<s.length&&/[\d\.]/.test(pk()))n+=cs();let v=parseFloat(n);return ng?-v:v;}function pw(){let b=atom();while(pk()==='^'){cs();b=Math.pow(b,atom());}return b;}function mul(){let v=pw();while(pk()==='*'||pk()==='/'){let o=cs();let r=pw();v=o==='*'?v*r:v/r;}return v;}function add(){let v=mul();while(pk()==='+'||pk()==='-'){let o=cs();v=o==='+'?v+mul():v-mul();}return v;}try{return add();}catch(e){return NaN;}}
+
+// ── QUIZ ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if(quizAnswered[qId])return; quizAnswered[qId]=true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o=>o.classList.add('disabled'));
+  let fb=document.getElementById(qId+'-fb'); fb.classList.add('show');
+  if(isCorrect){optEl.classList.add('correct');optEl.querySelector('.opt-indicator').textContent='✓';fb.classList.add('fb-correct');fb.textContent=posFb();quizCorrect[qId]=true;quizScore++;confettiEl(optEl);}
+  else{optEl.classList.add('wrong');optEl.querySelector('.opt-indicator').textContent='✗';fb.classList.add('fb-wrong');fb.textContent=wrongFb(qId);}
+  checkDone();
+}
+function checkFIB(inputId,fbId,answers,qId){
+  if(quizAnswered[qId])return; let inp=document.getElementById(inputId),val=inp.value.trim().toLowerCase(),fb=document.getElementById(fbId);
+  fb.classList.add('show'); quizAnswered[qId]=true;
+  let ok=answers.some(a=>val===a.toLowerCase());
+  if(ok){inp.classList.add('correct');fb.classList.add('fb-correct');fb.textContent=posFb();quizCorrect[qId]=true;quizScore++;confettiEl(inp);}
+  else{inp.classList.add('wrong');fb.classList.add('fb-wrong');fb.textContent='Not quite! The answer is: '+answers[0];}
+  inp.disabled=true; let btn=document.querySelector("button[onclick*='"+inputId+"']"); if(btn)btn.disabled=true; checkDone();
+}
+function posFb(){let m=["Excellent!","Perfect!","Spot on!","Well done!","Correct!"];return "✅ "+m[Math.floor(Math.random()*m.length)];}
+function wrongFb(qId){
+  let h={q1:"The keyword is 'def'. Short for define.",q2:"double(7) returns 7*2=14, and print() displays it.",q3:"Parameter is the placeholder in the def line. Argument is the real value you pass when calling.",q4:".upper() converts ALL characters to uppercase.",q5:".split() returns a LIST of words.",q6:"Local variables only exist inside the function — they cannot be accessed from outside.",q7:"f-strings evaluate expressions inside {}. x*2 = 5*2 = 10.",q8:".strip() removes whitespace from both sides of the string.",q10:"b-a-n-a-n-a has 3 a's.",q11:"Default parameters are used when no argument is provided. 'friend' is the default."};
+  return "Not quite. "+(h[qId]||"Review the section and try again!");
+}
+function checkDone(){if(Object.keys(quizAnswered).length>=quizTotal)setTimeout(showScore,600);}
+function showScore(){
+  let card=document.getElementById('scoreCard'); card.style.display='block'; card.scrollIntoView({behavior:'smooth',block:'center'});
+  let pct=Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent=quizScore+' / '+quizTotal;
+  document.getElementById('scoreBarFill').style.width=pct+'%';
+  let emoji,sub,tip;
+  if(pct===100){emoji='🏆';sub='Perfect! Function master!';tip='You have fully mastered Class 4!';}
+  else if(pct>=80){emoji='🌟';sub='Excellent work!';tip='Almost there — review any you missed!';}
+  else if(pct>=60){emoji='👍';sub='Good effort!';tip='Re-read the functions and string sections.';}
+  else{emoji='💪';sub='Keep going!';tip='Go through each section carefully and try the editors.';}
+  document.getElementById('scoreEmoji').textContent=emoji;
+  document.getElementById('scoreSub').textContent=sub;
+  document.getElementById('scoreTip').textContent=tip;
+  if(pct>=80)bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+function restartQuiz(){
+  quizAnswered={};quizCorrect={};quizScore=0;
+  for(let i=1;i<=quizTotal;i++){let c=document.getElementById('q'+i);if(!c)continue;c.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));c.querySelectorAll('.opt-indicator').forEach(o=>{if(o.textContent==='✓'||o.textContent==='✗')o.textContent='';});c.querySelectorAll('.quiz-feedback').forEach(f=>{f.classList.remove('show','fb-correct','fb-wrong');f.textContent='';});c.querySelectorAll('.fib-input').forEach(i=>{i.value='';i.disabled=false;i.classList.remove('correct','wrong');});c.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);}
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+function confettiEl(el){let r=el.getBoundingClientRect(),colors=['#e879f9','#43e97b','#38bdf8','#ff6b6b','#ffd700','#f7971e'];for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(r.left+Math.random()*r.width)+'px;top:'+r.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}}
+function bigConfetti(){let colors=['#e879f9','#43e97b','#38bdf8','#ff6b6b','#ffd700','#f7971e','#fff'];for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}}
+</script>
+</body>
+</html>

@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 5 — Text Representation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; overflow-x: auto; }
+
+  /* INTERACTIVE CODE */
+  .interactive-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .interactive-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .ic-label { font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; padding: 20px; resize: vertical; min-height: 110px; line-height: 1.8; }
+  .ic-run-btn { display: flex; align-items: center; gap: 6px; background: var(--accent3); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin: 0 16px 16px; }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output { margin: 0 16px 16px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; min-height: 44px; color: var(--accent3); display: none; white-space: pre-wrap; }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* BOW WIDGET (reusing loop-viz styling) */
+  .loop-viz { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .loop-viz h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 16px; color: var(--accent); }
+  .loop-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .loop-run-btn { background: var(--accent); color: #0f1117; border: none; padding: 9px 20px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: opacity 0.2s; }
+  .loop-run-btn:hover { opacity: 0.85; }
+  .bow-textarea { width: 100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.88rem; padding: 12px 14px; resize: vertical; min-height: 80px; outline: none; line-height: 1.6; transition: border-color 0.2s; margin-bottom: 12px; }
+  .bow-textarea:focus { border-color: var(--accent); }
+  .bow-bars { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .bow-row { display: flex; align-items: center; gap: 10px; font-family: 'Fira Code',monospace; font-size: 0.85rem; }
+  .bow-word { min-width: 110px; color: var(--accent5); font-weight: 700; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bow-bar-track { flex: 1; background: var(--card2); border-radius: 99px; height: 22px; overflow: hidden; }
+  .bow-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.5s cubic-bezier(.4,0,.2,1); min-width: 2px; }
+  .bow-count { min-width: 26px; color: var(--accent3); font-weight: 700; }
+  .bow-empty { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='day4_nlp_fundamentals.html'">← Day 4</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" onclick="location.href='day6_deeplearning_nlp.html'">Day 6 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 5 — Text Representation</span>
+  <span class="hero-emoji">🔢</span>
+  <h1>Turning <em>Words</em> into <em>Numbers</em></h1>
+  <p>Machines do math, not language. Today we learn how to convert text into numbers (vectors) so a computer can finally "read".</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 4 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>Tokenization</div>
+  <div class="recap-chip"><span class="dot"></span>Stemming / Lemmatization</div>
+  <div class="recap-chip"><span class="dot"></span>Stopwords</div>
+  <div class="recap-chip"><span class="dot"></span>POS &amp; NER</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. Why Numbers?</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. One-Hot</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Bag of Words</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. N-grams</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. TF-IDF</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Word2Vec</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: Why turn text into numbers ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🤔</div>
+      <div>
+        <div class="section-title">Why Turn Text into Numbers?</div>
+        <div class="section-sub">Models only do math — text must become vectors first</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Computers cannot read — they can only calculate</h3>
+      <p>A machine learning model is, at heart, a giant calculator. It adds, multiplies, and compares <em>numbers</em>. It has no idea what the word "cat" means. So before any model can work with language, we must convert each word or sentence into a list of numbers — what we call a <strong>vector</strong>.</p>
+      <p>This whole process is called <strong>text representation</strong> (or <em>vectorization</em>): turning messy human text into clean numbers a model can crunch.</p>
+      <div class="analogy-box">
+        <strong>🌐 Analogy:</strong> Imagine you only speak English and you need to talk to someone who only speaks Math. You hire a translator who rewrites every sentence into numbers. The model "speaks Math" — so we translate our words into the only language it understands.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The real goal: capture meaning</h3>
+      <p>A good translation does not just give <em>some</em> numbers — it gives numbers that preserve <strong>meaning</strong>. We want similar texts to get similar numbers, so the model can tell that "happy" and "joyful" are close, while "happy" and "tractor" are far apart.</p>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Start with text</strong>"I love this movie"</div></div>
+        <div class="step"><div class="step-body"><strong>Vectorize it</strong>Turn it into numbers, e.g. [0, 1, 1, 0, 1, ...]</div></div>
+        <div class="step"><div class="step-body"><strong>Feed the model</strong>Now it can classify, search, cluster, or generate</div></div>
+      </div>
+      <div class="info-box">
+        <strong>ℹ️ The journey of today:</strong> We start with the simplest method (one-hot) and climb step by step to powerful methods (Word2Vec) that actually understand meaning. Each method fixes a weakness of the one before it.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: One-Hot Encoding ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">1️⃣</div>
+      <div>
+        <div class="section-title">One-Hot Encoding</div>
+        <div class="section-sub">The simplest way: one slot per word, flip a single switch on</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>One word = one "1", everything else "0"</h3>
+      <p>First we list every unique word in our world (the <strong>vocabulary</strong>). Each word gets its own position. To encode a single word, we make a vector of all 0s with a single <strong>1</strong> in that word's position.</p>
+      <div class="analogy-box">
+        <strong>🚦 Analogy:</strong> Think of a row of light switches, one switch per word in the dictionary. To say "cat", you flip ON only the "cat" switch and leave every other switch OFF. That on/off pattern is the word's number.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A tiny worked example</h3>
+      <p>Suppose our whole vocabulary is just 4 words: <code>cat</code>, <code>dog</code>, <code>king</code>, <code>queen</code>. Each word becomes a 4-slot vector:</p>
+      <table class="methods-table">
+        <tr><th>Word</th><th>cat</th><th>dog</th><th>king</th><th>queen</th></tr>
+        <tr><td class="method-name">cat</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td class="method-name">dog</td><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td class="method-name">king</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td class="method-name">queen</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+      </table>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">one_hot.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">vocab</span> <span class="op">=</span> [<span class="str">"cat"</span>, <span class="str">"dog"</span>, <span class="str">"king"</span>, <span class="str">"queen"</span>]
+
+<span class="kw">def</span> <span class="fn">one_hot</span>(<span class="var">word</span>):
+    <span class="var">vec</span> <span class="op">=</span> [<span class="num">0</span>] <span class="op">*</span> <span class="fn">len</span>(<span class="var">vocab</span>)   <span class="cmt"># all zeros</span>
+    <span class="var">vec</span>[<span class="var">vocab</span>.<span class="fn">index</span>(<span class="var">word</span>)] <span class="op">=</span> <span class="num">1</span>   <span class="cmt"># flip one switch on</span>
+    <span class="kw">return</span> <span class="var">vec</span>
+
+<span class="fn">print</span>(<span class="fn">one_hot</span>(<span class="str">"king"</span>))
+<span class="fn">print</span>(<span class="fn">one_hot</span>(<span class="str">"queen"</span>))</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">[0, 0, 1, 0]
+[0, 0, 0, 1]</div>
+    </div>
+
+    <div class="card">
+      <h3>The two big problems</h3>
+      <div class="warn-box">
+        <strong>⚠️ Problem 1 — Huge &amp; sparse:</strong> Real vocabularies have 50,000+ words. So every single word becomes a 50,000-long vector that is almost entirely zeros. Massive to store, slow to compute — this is called the "curse of dimensionality".
+      </div>
+      <div class="warn-box">
+        <strong>⚠️ Problem 2 — No meaning, no similarity:</strong> "king" and "queen" are clearly related, but their vectors <code>[0,0,1,0]</code> and <code>[0,0,0,1]</code> share nothing in common. To one-hot, every word is equally unrelated to every other word. It captures identity, not meaning.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Bag of Words ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-green">🛍️</div>
+      <div>
+        <div class="section-title">Bag of Words (BoW)</div>
+        <div class="section-sub">Count how often each word appears — represent a whole document</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Count the words, forget the order</h3>
+      <p>One-hot encodes a single word. <strong>Bag of Words</strong> encodes a whole sentence or document: we count how many times each vocabulary word appears. The result is one vector per document.</p>
+      <div class="analogy-box">
+        <strong>🛍️ Analogy:</strong> Imagine dumping all the words of a sentence into a shopping bag and shaking it up. You no longer know the order — but you can still count: "two apples, one banana, three eggs". BoW is exactly that: a word-count tally, order thrown away.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Worked example — 2 sentences</h3>
+      <p>Take two short documents:</p>
+      <p><code>Doc 1: "the cat sat"</code> &nbsp; and &nbsp; <code>Doc 2: "the cat ate the fish"</code></p>
+      <p>The combined vocabulary is: <code>the, cat, sat, ate, fish</code>. We count each word per document:</p>
+      <table class="methods-table">
+        <tr><th>Document</th><th>the</th><th>cat</th><th>sat</th><th>ate</th><th>fish</th></tr>
+        <tr><td class="method-name">Doc 1: the cat sat</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td class="method-name">Doc 2: the cat ate the fish</td><td>2</td><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+      </table>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">bag_of_words.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">sklearn.feature_extraction.text</span> <span class="kw">import</span> <span class="fn">CountVectorizer</span>
+
+<span class="var">docs</span> <span class="op">=</span> [<span class="str">"the cat sat"</span>, <span class="str">"the cat ate the fish"</span>]
+
+<span class="var">cv</span> <span class="op">=</span> <span class="fn">CountVectorizer</span>()
+<span class="var">X</span> <span class="op">=</span> <span class="var">cv</span>.<span class="fn">fit_transform</span>(<span class="var">docs</span>)
+
+<span class="fn">print</span>(<span class="var">cv</span>.<span class="fn">get_feature_names_out</span>())
+<span class="fn">print</span>(<span class="var">X</span>.<span class="fn">toarray</span>())</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">['ate' 'cat' 'fish' 'sat' 'the']
+[[0 1 0 1 1]
+ [1 1 1 0 2]]</div>
+      <div class="info-box">
+        <strong>ℹ️ Order is lost!</strong> Because we only count words, BoW cannot tell <code>"dog bites man"</code> apart from <code>"man bites dog"</code> — both produce the exact same vector. Meaning that depends on word order disappears.
+      </div>
+    </div>
+
+    <!-- BOW WIDGET -->
+    <div class="loop-viz">
+      <h3>🎮 Bag of Words Counter — type a sentence!</h3>
+      <textarea class="bow-textarea" id="bowInput" spellcheck="false">the cat sat on the mat and the cat ran</textarea>
+      <div class="loop-controls">
+        <button class="loop-run-btn" onclick="runBoW()">▶ Count Words</button>
+      </div>
+      <div class="bow-bars" id="bowBars"><div class="bow-empty">Type some text and click "Count Words" to see the bag.</div></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: N-grams ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🔗</div>
+      <div>
+        <div class="section-title">N-grams</div>
+        <div class="section-sub">Count short word sequences to win back some order</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Group words into small chunks</h3>
+      <p>BoW throws away order. <strong>N-grams</strong> fix part of this by counting groups of N consecutive words instead of single words. A <em>bi-gram</em> is 2 words together, a <em>tri-gram</em> is 3.</p>
+      <div class="analogy-box">
+        <strong>🧩 Analogy:</strong> Single words are loose jigsaw pieces. N-grams glue neighbouring pieces together so you keep a little bit of the picture — you can see that "New" and "York" go together as "New York".
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters: "not good" vs "good"</h3>
+      <p>The word <code>good</code> alone sounds positive. But in "not good" the meaning flips. Plain BoW sees <code>not</code> and <code>good</code> separately and misses it. A bi-gram captures the pair <code>not good</code> as a single feature — so the model learns it means something negative.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">ngrams.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">sklearn.feature_extraction.text</span> <span class="kw">import</span> <span class="fn">CountVectorizer</span>
+
+<span class="var">docs</span> <span class="op">=</span> [<span class="str">"the movie is not good"</span>]
+
+<span class="cmt"># ngram_range=(1, 2) -> single words AND word pairs</span>
+<span class="var">cv</span> <span class="op">=</span> <span class="fn">CountVectorizer</span>(<span class="var">ngram_range</span><span class="op">=</span>(<span class="num">1</span>, <span class="num">2</span>))
+<span class="var">X</span> <span class="op">=</span> <span class="var">cv</span>.<span class="fn">fit_transform</span>(<span class="var">docs</span>)
+
+<span class="fn">print</span>(<span class="var">cv</span>.<span class="fn">get_feature_names_out</span>())</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">['is' 'is not' 'movie' 'movie is' 'not'
+ 'not good' 'the' 'the movie']</div>
+      <div class="tip-box">
+        <strong>📌 Trade-off:</strong> Bigger N captures more context but explodes the number of features (and most chunks appear only once). In practice unigrams + bigrams <code>(1, 2)</code> is a popular sweet spot.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: TF-IDF ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚖️</div>
+      <div>
+        <div class="section-title">TF-IDF</div>
+        <div class="section-sub">Weight words by how special they are, not just how often they appear</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Not all words are equally useful</h3>
+      <p>In plain BoW, common words like "the" get huge counts and drown out the words that actually matter. <strong>TF-IDF</strong> fixes this: it boosts words that are frequent in <em>one</em> document but rare across <em>all</em> documents — those are the informative, topic-defining words.</p>
+      <div class="analogy-box">
+        <strong>🔍 Analogy:</strong> If a word appears in every document (like "the"), it tells you nothing special — it is <em>boring</em>. But a rare, specific word like "photosynthesis" appearing in one document instantly tells you what that document is about — it is <em>informative</em>. TF-IDF rewards the informative and discounts the boring.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Two parts, multiplied together</h3>
+      <p><strong>TF (Term Frequency):</strong> how often the word appears <em>in this document</em>. More mentions → more important here.</p>
+      <p><strong>IDF (Inverse Document Frequency):</strong> how rare the word is <em>across all documents</em>. A word in every doc gets a tiny weight; a word in just one doc gets a big weight.</p>
+      <div class="info-box">
+        <strong>ℹ️ Light formula:</strong> &nbsp; <code>TF-IDF = TF × IDF</code><br>
+        where <code>IDF = log(total documents ÷ documents containing the word)</code>.<br>
+        In plain words: <em>"How much does this word show up here?"</em> × <em>"How special is this word overall?"</em>
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">tfidf.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">sklearn.feature_extraction.text</span> <span class="kw">import</span> <span class="fn">TfidfVectorizer</span>
+
+<span class="var">docs</span> <span class="op">=</span> [
+    <span class="str">"the cat sat"</span>,
+    <span class="str">"the dog ran"</span>,
+    <span class="str">"the cat ran fast"</span>,
+]
+
+<span class="var">tv</span> <span class="op">=</span> <span class="fn">TfidfVectorizer</span>()
+<span class="var">X</span> <span class="op">=</span> <span class="var">tv</span>.<span class="fn">fit_transform</span>(<span class="var">docs</span>)
+
+<span class="fn">print</span>(<span class="var">tv</span>.<span class="fn">get_feature_names_out</span>())
+<span class="fn">print</span>(<span class="var">X</span>.<span class="fn">toarray</span>().<span class="fn">round</span>(<span class="num">2</span>))</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">['cat' 'dog' 'fast' 'ran' 'sat' 'the']
+[[0.62 0.   0.   0.   0.80 0.37]
+ [0.   0.72 0.   0.55 0.   0.42]
+ [0.50 0.   0.65 0.50 0.   0.30]]</div>
+      <div class="tip-box">
+        <strong>📌 Notice:</strong> "the" appears in every document, so it gets the <em>lowest</em> weights (~0.3–0.4). The rare, distinctive words like "sat" and "fast" get the <em>highest</em> weights — exactly the words that tell documents apart.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Word2Vec ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🧠</div>
+      <div>
+        <div class="section-title">Word2Vec (Embeddings)</div>
+        <div class="section-sub">Dense vectors that finally capture MEANING from context</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>From counting to understanding</h3>
+      <p>Everything so far (one-hot, BoW, TF-IDF) is based on <em>counting</em> — and to all of them, "king" and "queen" are unrelated. <strong>Word2Vec</strong> changes the game: it learns a short, <em>dense</em> vector (e.g. 100 numbers, all meaningful) for each word by looking at the company it keeps. Words used in similar contexts end up with similar vectors.</p>
+      <div class="analogy-box">
+        <strong>👥 Analogy:</strong> "You are known by the company you keep." If two words constantly appear surrounded by the same neighbours (eat, hungry, food), they must be similar in meaning. Word2Vec reads millions of sentences and places similar words close together in number-space.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Two ways to learn: CBOW vs Skip-Gram</h3>
+      <p>Word2Vec trains by playing a fill-in-the-blank game on real text. There are two versions of the game:</p>
+      <div class="two-col">
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">CBOW — predict the word</h4>
+          <p style="color:var(--muted);font-size:0.9rem;">Given the surrounding words (the context), guess the missing middle word.<br><br><em>"The ___ sat on the mat" → cat</em><br><br>Faster, works well for frequent words.</p>
+        </div>
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">Skip-Gram — predict the neighbours</h4>
+          <p style="color:var(--muted);font-size:0.9rem;">Given one word, guess the words likely to surround it.<br><br><em>"cat" → the, sat, on, mat</em><br><br>Slower, but better for rare words.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The famous word math</h3>
+      <p>Because the vectors capture meaning, you can do <em>arithmetic</em> on words and get sensible answers:</p>
+      <div class="info-box">
+        <strong>ℹ️ king − man + woman ≈ queen</strong><br>
+        Take "king", subtract the "man-ness", add the "woman-ness", and you land right next to "queen". The vectors encode relationships like gender and royalty as directions in space.
+      </div>
+      <p>To represent a whole sentence, a simple trick is to <strong>average</strong> the vectors of its words — giving one vector that roughly captures the sentence's overall meaning.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">word2vec.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">gensim.models</span> <span class="kw">import</span> <span class="fn">Word2Vec</span>
+
+<span class="var">sentences</span> <span class="op">=</span> [
+    [<span class="str">"king"</span>, <span class="str">"queen"</span>, <span class="str">"royal"</span>, <span class="str">"palace"</span>],
+    [<span class="str">"man"</span>, <span class="str">"woman"</span>, <span class="str">"king"</span>, <span class="str">"queen"</span>],
+    [<span class="str">"cat"</span>, <span class="str">"dog"</span>, <span class="str">"pet"</span>, <span class="str">"animal"</span>],
+]
+
+<span class="cmt"># sg=0 -> CBOW, sg=1 -> Skip-Gram</span>
+<span class="var">model</span> <span class="op">=</span> <span class="fn">Word2Vec</span>(<span class="var">sentences</span>, <span class="var">vector_size</span><span class="op">=</span><span class="num">50</span>,
+                 <span class="var">window</span><span class="op">=</span><span class="num">2</span>, <span class="var">min_count</span><span class="op">=</span><span class="num">1</span>, <span class="var">sg</span><span class="op">=</span><span class="num">1</span>)
+
+<span class="fn">print</span>(<span class="var">model</span>.<span class="var">wv</span>[<span class="str">"king"</span>].<span class="var">shape</span>)        <span class="cmt"># dense vector</span>
+<span class="fn">print</span>(<span class="var">model</span>.<span class="var">wv</span>.<span class="fn">most_similar</span>(<span class="str">"king"</span>))</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">(50,)
+[('queen', 0.21), ('royal', 0.14),
+ ('palace', 0.08), ('woman', 0.03),
+ ('man', -0.02), ('pet', -0.09)]</div>
+      <div class="tip-box">
+        <strong>📌 This is the seed of modern LLMs:</strong> Word2Vec invented the idea of dense, meaning-rich <em>embeddings</em>. Today's models (GPT, Claude, BERT) use the same core idea but produce <em>contextual</em> embeddings — the vector for "bank" differs in "river bank" vs "money bank". Everything you build with LLMs and vector databases stands on this foundation.
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎓</span>
+      <span class="checkpoint-text"><strong>You climbed the whole ladder!</strong>One-Hot → BoW → N-grams → TF-IDF → Word2Vec. From simple counting to real meaning. Now test yourself!</span>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 5 Test</div>
+        <div class="section-sub">10 questions on text representation</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">Why do we convert text into numbers before using a model?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>To make the text shorter</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>Models only do math — they need numbers (vectors), not words</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>To remove all the vowels</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>Because numbers are easier to read for humans</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">In one-hot encoding, what does a single word's vector look like?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>A short list of random decimals</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">B</span>All 0s with a single 1 in that word's position</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">C</span>The count of every letter in the word</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>All 1s with a single 0</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">A major weakness of one-hot encoding is that...</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>It is too small to be useful</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>Vectors are huge &amp; sparse, and capture no similarity between words</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>It only works for numbers, not text</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>It needs the internet to run</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What does Bag of Words (BoW) represent?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>The exact order of words in a sentence</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>How many times each vocabulary word appears in a document</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>The grammar of each sentence</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>The meaning of every word</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">Why do "dog bites man" and "man bites dog" get the same BoW vector?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>Because they have different words</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>BoW only counts words and ignores their order</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>Because "bites" is a stopword</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>They actually get different vectors</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">What problem do N-grams help solve?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>They make vectors smaller</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>They recover some word order/context (e.g. capturing "not good")</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>They translate text into other languages</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>They remove punctuation</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">In TF-IDF, which kind of word gets the HIGHEST weight?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>A word that appears in every document (like "the")</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>A word frequent in one document but rare across all documents</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>The shortest word</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>The first word of the document</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">What makes Word2Vec embeddings special compared to BoW/TF-IDF?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>They are longer and sparser</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">B</span>They are dense vectors that capture meaning, so similar words are close</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">C</span>They only store 0s and 1s</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>They ignore the meaning of words</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 — FIB -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the famous Word2Vec analogy</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">king − man + woman ≈
+          <input class="fib-input" id="q9-input" placeholder="?" />
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q9-input','q9-fb',['queen'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 — FIB -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: the Word2Vec mode that predicts the missing middle word from its surrounding context is called ____.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">It is named:
+          <input class="fib-input" id="q10-input" placeholder="?" />
+        </div>
+        <button class="fib-btn" onclick="checkFIB('q10-input','q10-fb',['cbow','c-bow','continuous bag of words'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Let's see how you did!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <div class="checkpoint">
+      <span class="checkpoint-icon">✅</span>
+      <span class="checkpoint-text"><strong>Day 5 Complete!</strong>You can now turn text into numbers — from one-hot all the way to meaning-rich embeddings. Next: Deep Learning for NLP. See you on Day 6!</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "Models are calculators — they need numbers (vectors), so we translate words into math.",
+    q2: "One-hot makes a vector of all 0s with a single 1 in that word's position.",
+    q3: "One-hot vectors are huge & sparse and treat every word as equally unrelated — no similarity.",
+    q4: "Bag of Words counts how many times each vocabulary word appears in a document.",
+    q5: "BoW only counts words and throws away order, so both sentences look identical.",
+    q6: "N-grams group consecutive words (like 'not good') to recover some order/context.",
+    q7: "TF-IDF rewards words frequent in ONE doc but rare across ALL docs — the informative ones.",
+    q8: "Word2Vec gives dense, meaning-rich vectors, so similar words sit close together.",
+    q9: "king − man + woman ≈ queen — the classic embedding analogy.",
+    q10: "CBOW (Continuous Bag of Words) predicts the middle word from its surrounding context.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! Text representation master!';  tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';            tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';         tip='Re-read the TF-IDF and Word2Vec sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';        tip='Go through each section again and revisit the examples.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+
+// ── BAG OF WORDS WIDGET ──
+function runBoW() {
+  let text = (document.getElementById('bowInput').value || '').toLowerCase();
+  let words = text.match(/[a-z0-9']+/g) || [];
+  let bars = document.getElementById('bowBars');
+  if (words.length === 0) {
+    bars.innerHTML = '<div class="bow-empty">No words found. Type a sentence and try again.</div>';
+    return;
+  }
+  let counts = {};
+  words.forEach(w => { counts[w] = (counts[w] || 0) + 1; });
+  let entries = Object.keys(counts).map(w => [w, counts[w]]);
+  entries.sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  let max = entries[0][1];
+  bars.innerHTML = entries.map(([w,c]) => {
+    let pct = Math.round((c / max) * 100);
+    return '<div class="bow-row">' +
+             '<span class="bow-word">' + w + '</span>' +
+             '<span class="bow-bar-track"><span class="bow-bar-fill" style="width:' + pct + '%"></span></span>' +
+             '<span class="bow-count">' + c + '</span>' +
+           '</div>';
+  }).join('');
+}
+</script>
+</body>
+</html>

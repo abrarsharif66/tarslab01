@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Projects — Beginner to Advanced</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --card:#22263a; --card2:#1e2235;
+    --text:#e8eaf6; --muted:#8892b0; --border:#2e3350;
+    --success:#43e97b; --fail:#ff6b6b; --code-bg:#12151f;
+    --b1:#43e97b; --b2:#38bdf8; --b3:#f7971e; --b4:#e879f9; --adv:#ff6b6b;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;line-height:1.7;min-height:100vh;}
+
+  /* ── HEADER ── */
+  .site-header{background:linear-gradient(135deg,#1a1d27,#0f1117);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px;}
+  .logo{font-size:1.3rem;font-weight:900;}.logo span{color:#43e97b;}
+  .filter-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .filter-btn{padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;}
+  .filter-btn:hover{border-color:#43e97b;color:#43e97b;}
+  .filter-btn.active{color:#0f1117;}
+  .filter-btn.fb-all   {background:#e8eaf6;border-color:#e8eaf6;color:#0f1117;}
+  .filter-btn.fb-beg   {background:var(--b1);border-color:var(--b1);}
+  .filter-btn.fb-int   {background:var(--b3);border-color:var(--b3);}
+  .filter-btn.fb-adv   {background:var(--adv);border-color:var(--adv);}
+
+  /* ── HERO ── */
+  .hero{text-align:center;padding:64px 24px 48px;background:radial-gradient(ellipse 80% 50% at 50% 0%,#43e97b18,transparent);}
+  .hero-emoji{font-size:3.8rem;display:block;margin-bottom:14px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .hero h1{font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:14px;}
+  .hero h1 em{font-style:normal;color:#43e97b;}
+  .hero p{color:var(--muted);max-width:540px;margin:0 auto 28px;font-size:1rem;}
+  .level-legend{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+  .legend-chip{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;}
+  .legend-dot{width:10px;height:10px;border-radius:50%;}
+
+  /* ── MAIN ── */
+  .main{max-width:1100px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ── LEVEL SECTION ── */
+  .level-section{margin-bottom:56px;scroll-margin-top:80px;}
+  .level-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+  .level-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+  .level-title{font-size:1.4rem;font-weight:900;}
+  .level-sub{color:var(--muted);font-size:.88rem;margin-top:2px;}
+
+  /* ── PROJECT GRID ── */
+  .project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+
+  /* ── PROJECT CARD ── */
+  .project-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:transform .2s,border-color .2s;cursor:pointer;}
+  .project-card:hover{transform:translateY(-4px);}
+  .project-card.expanded{cursor:default;}
+  .pc-top{padding:20px 20px 14px;}
+  .pc-emoji{font-size:2.2rem;margin-bottom:10px;display:block;}
+  .pc-title{font-size:1rem;font-weight:800;margin-bottom:6px;}
+  .pc-desc{color:var(--muted);font-size:.85rem;line-height:1.6;margin-bottom:12px;}
+  .pc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .pc-tag{background:var(--card2);color:var(--muted);font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:99px;border:1px solid var(--border);}
+  .pc-footer{display:flex;align-items:center;justify-content:space-between;padding:0 20px 16px;}
+  .pc-level{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:99px;}
+  .expand-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:99px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;}
+  .expand-btn:hover{border-color:#43e97b;color:#43e97b;}
+
+  /* ── PROJECT BODY (expanded) ── */
+  .pc-body{display:none;border-top:1px solid var(--border);padding:20px;}
+  .pc-body.open{display:block;}
+
+  /* ── CODE AREA ── */
+  .code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:12px 0;}
+  .code-topbar{background:#1a1d27;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+  .code-dots{display:flex;gap:5px;}.code-dots span{width:11px;height:11px;border-radius:50%;}
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label{font-size:.75rem;color:var(--muted);font-family:'Fira Code',monospace;}
+  .copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .2s;}
+  .copy-btn:hover{border-color:#43e97b;color:#43e97b;}
+  textarea.code-editor{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:'Fira Code',monospace;font-size:.85rem;padding:16px;resize:vertical;min-height:200px;line-height:1.8;}
+  .run-btn{display:flex;align-items:center;gap:6px;background:#43e97b;color:#0f1117;border:none;padding:9px 20px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:opacity .2s;margin:0 0 12px;}
+  .run-btn:hover{opacity:.85;}
+  .ic-output{background:#0a0d14;border:1px dashed #2e3350;border-radius:10px;padding:12px 14px;font-family:'Fira Code',monospace;font-size:.82rem;color:#43e97b;display:none;white-space:pre-wrap;margin-bottom:4px;}
+  .ic-output.visible{display:block;} .ic-err{color:var(--fail);}
+
+  /* ── HINTS ── */
+  .hints-toggle{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all .2s;}
+  .hints-toggle:hover{border-color:#38bdf8;color:#38bdf8;}
+  .hints-box{background:#38bdf812;border-left:3px solid #38bdf8;border-radius:0 10px 10px 0;padding:12px 16px;font-size:.85rem;display:none;margin-bottom:12px;}
+  .hints-box.open{display:block;}
+  .hints-box li{color:var(--muted);margin-left:16px;margin-bottom:4px;}
+
+  /* DIVIDER */
+  .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:40px 0;}
+
+  /* level colors */
+  .lv-beg{background:#43e97b22;color:#43e97b;border:1px solid #43e97b44;}
+  .lv-int{background:#f7971e22;color:#f7971e;border:1px solid #f7971e44;}
+  .lv-adv{background:#ff6b6b22;color:#ff6b6b;border:1px solid #ff6b6b44;}
+  .icon-beg{background:#43e97b22;}
+  .icon-int{background:#f7971e22;}
+  .icon-adv{background:#ff6b6b22;}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  code{font-family:'Fira Code',monospace;background:var(--card2);padding:1px 6px;border-radius:4px;font-size:.86em;color:#43e97b;}
+
+  .progress-summary{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;padding:0 24px 40px;}
+  .ps-item{text-align:center;}
+  .ps-num{font-size:2rem;font-weight:900;}
+  .ps-label{color:var(--muted);font-size:.8rem;}
+
+  @media(max-width:640px){.project-grid{grid-template-columns:1fr;} .site-header{flex-direction:column;height:auto;padding:10px 16px;gap:8px;} .filter-row{justify-content:center;}}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span> Projects</div>
+  <div class="filter-row">
+    <button class="filter-btn fb-all active" onclick="filterProjects('all',this)">All</button>
+    <button class="filter-btn fb-beg" onclick="filterProjects('beg',this)">🟢 Beginner</button>
+    <button class="filter-btn fb-int" onclick="filterProjects('int',this)">🟠 Intermediate</button>
+    <button class="filter-btn fb-adv" onclick="filterProjects('adv',this)">🔴 Advanced</button>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="hero-emoji">🛠️</span>
+  <h1>Build Real Projects in <em>Python!</em></h1>
+  <p>15 hands-on projects using exactly what you learned in Classes 1–6. Each project comes with a starter code editor, hints, and a live runner — just code and click Run!</p>
+  <div class="level-legend">
+    <div class="legend-chip"><div class="legend-dot" style="background:#43e97b"></div>Beginner (Classes 1–2)</div>
+    <div class="legend-chip"><div class="legend-dot" style="background:#f7971e"></div>Intermediate (Classes 3–4)</div>
+    <div class="legend-chip"><div class="legend-dot" style="background:#ff6b6b"></div>Advanced (Classes 5–6)</div>
+  </div>
+</section>
+
+<div class="progress-summary">
+  <div class="ps-item"><div class="ps-num" style="color:#43e97b">6</div><div class="ps-label">Beginner Projects</div></div>
+  <div class="ps-item"><div class="ps-num" style="color:#f7971e">5</div><div class="ps-label">Intermediate Projects</div></div>
+  <div class="ps-item"><div class="ps-num" style="color:#ff6b6b">4</div><div class="ps-label">Advanced Projects</div></div>
+</div>
+
+<main class="main">
+
+<!-- ══════════════════════════════════════
+     BEGINNER
+══════════════════════════════════════ -->
+<section class="level-section reveal" id="beg">
+  <div class="level-header">
+    <div class="level-icon icon-beg">🌱</div>
+    <div>
+      <div class="level-title">Beginner Projects</div>
+      <div class="level-sub">Variables, print(), input(), operators, if/else — Classes 1 & 2</div>
+    </div>
+  </div>
+
+  <div class="project-grid">
+
+    <!-- P1 -->
+    <div class="project-card" data-level="beg" id="card1">
+      <div class="pc-top">
+        <span class="pc-emoji">🧮</span>
+        <div class="pc-title">Simple Calculator</div>
+        <div class="pc-desc">Ask the user for two numbers and an operator (+, -, *, /), then display the result. Handle division by zero!</div>
+        <div class="pc-tags"><span class="pc-tag">input()</span><span class="pc-tag">if/elif</span><span class="pc-tag">operators</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card1')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body1">
+        <button class="hints-toggle" onclick="toggleHints('hints1')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints1">
+          <li>Use <code>float(input(...))</code> to get numbers from the user</li>
+          <li>Use <code>if/elif/else</code> to check which operator was entered</li>
+          <li>Check <code>if b == 0</code> before dividing to avoid ZeroDivisionError</li>
+          <li>Use an f-string to print the result neatly</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">calculator.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code1" spellcheck="false">a  = float(input("Enter first number: "))
+op = input("Enter operator (+, -, *, /): ")
+b  = float(input("Enter second number: "))
+
+if op == "+":
+    result = a + b
+elif op == "-":
+    result = a - b
+elif op == "*":
+    result = a * b
+elif op == "/":
+    if b == 0:
+        result = "Error: Cannot divide by zero"
+    else:
+        result = a / b
+else:
+    result = "Unknown operator"
+
+print(f"{a} {op} {b} = {result}")</textarea>
+          <button class="run-btn" onclick="runProject('code1','run1')">▶ Run Code</button>
+          <div class="ic-output" id="run1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2 -->
+    <div class="project-card" data-level="beg" id="card2">
+      <div class="pc-top">
+        <span class="pc-emoji">🌡️</span>
+        <div class="pc-title">Temperature Converter</div>
+        <div class="pc-desc">Convert temperatures between Celsius, Fahrenheit and Kelvin. Display which category the temperature falls into (freezing, cold, warm, hot).</div>
+        <div class="pc-tags"><span class="pc-tag">variables</span><span class="pc-tag">math</span><span class="pc-tag">if/elif</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card2')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body2">
+        <button class="hints-toggle" onclick="toggleHints('hints2')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints2">
+          <li>Formula: F = (C × 9/5) + 32</li>
+          <li>Formula: K = C + 273.15</li>
+          <li>Use <code>:.2f</code> in an f-string to show 2 decimal places</li>
+          <li>Use elif chain to categorise the temperature</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">temp_converter.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code2" spellcheck="false">celsius = float(input("Enter temperature in Celsius: "))
+
+fahrenheit = (celsius * 9 / 5) + 32
+kelvin     = celsius + 273.15
+
+print(f"Celsius   : {celsius}°C")
+print(f"Fahrenheit: {fahrenheit:.2f}°F")
+print(f"Kelvin    : {kelvin:.2f} K")
+
+if celsius <= 0:
+    category = "Freezing"
+elif celsius <= 15:
+    category = "Cold"
+elif celsius <= 25:
+    category = "Warm"
+else:
+    category = "Hot"
+
+print(f"Category  : {category}")</textarea>
+          <button class="run-btn" onclick="runProject('code2','run2')">▶ Run Code</button>
+          <div class="ic-output" id="run2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3 -->
+    <div class="project-card" data-level="beg" id="card3">
+      <div class="pc-top">
+        <span class="pc-emoji">🎂</span>
+        <div class="pc-title">Age & Birthday Calculator</div>
+        <div class="pc-desc">Take the user's birth year, calculate their age, tell them how many days until their next birthday, and print a fun message based on their age group.</div>
+        <div class="pc-tags"><span class="pc-tag">input()</span><span class="pc-tag">int()</span><span class="pc-tag">if/elif</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card3')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body3">
+        <button class="hints-toggle" onclick="toggleHints('hints3')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints3">
+          <li>age = current_year - birth_year</li>
+          <li>Use an elif chain: child (&lt;13), teen (13-17), adult (18-59), senior (60+)</li>
+          <li>Try using f-strings for the output messages</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">birthday.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code3" spellcheck="false">name       = input("What is your name? ")
+birth_year = int(input("Enter your birth year: "))
+
+current_year = 2025
+age = current_year - birth_year
+
+print(f"\nHello, {name}!")
+print(f"You are {age} years old.")
+
+if age < 13:
+    group = "a child"
+elif age < 18:
+    group = "a teenager"
+elif age < 60:
+    group = "an adult"
+else:
+    group = "a senior"
+
+print(f"You are {group}.")
+print(f"In 10 years you will be {age + 10}.")</textarea>
+          <button class="run-btn" onclick="runProject('code3','run3')">▶ Run Code</button>
+          <div class="ic-output" id="run3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P4 -->
+    <div class="project-card" data-level="beg" id="card4">
+      <div class="pc-top">
+        <span class="pc-emoji">🏧</span>
+        <div class="pc-title">Bill Splitter</div>
+        <div class="pc-desc">Enter a restaurant bill, a tip percentage, and the number of people. Calculate how much each person owes including tip, with a neat breakdown.</div>
+        <div class="pc-tags"><span class="pc-tag">float()</span><span class="pc-tag">operators</span><span class="pc-tag">f-strings</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card4')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body4">
+        <button class="hints-toggle" onclick="toggleHints('hints4')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints4">
+          <li>tip_amount = bill * (tip_percent / 100)</li>
+          <li>total = bill + tip_amount</li>
+          <li>per_person = total / people</li>
+          <li>Use <code>:.2f</code> to format currency to 2 decimal places</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">bill_splitter.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code4" spellcheck="false">bill        = float(input("Enter the total bill (Rs.): "))
+tip_percent = float(input("Enter tip percentage (%): "))
+people      = int(input("Number of people: "))
+
+tip_amount = bill * (tip_percent / 100)
+total      = bill + tip_amount
+per_person = total / people
+
+print("\n===== Bill Summary =====")
+print(f"Bill amount : Rs. {bill:.2f}")
+print(f"Tip ({tip_percent}%)   : Rs. {tip_amount:.2f}")
+print(f"Total       : Rs. {total:.2f}")
+print(f"Per person  : Rs. {per_person:.2f}")
+print("========================")</textarea>
+          <button class="run-btn" onclick="runProject('code4','run4')">▶ Run Code</button>
+          <div class="ic-output" id="run4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P5 -->
+    <div class="project-card" data-level="beg" id="card5">
+      <div class="pc-top">
+        <span class="pc-emoji">🔢</span>
+        <div class="pc-title">Number Guessing Game (Basic)</div>
+        <div class="pc-desc">The program picks a secret number (hardcoded). The user guesses it. Tell them if their guess is too high, too low, or correct. Show the number of tries.</div>
+        <div class="pc-tags"><span class="pc-tag">variables</span><span class="pc-tag">if/elif</span><span class="pc-tag">input()</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card5')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body5">
+        <button class="hints-toggle" onclick="toggleHints('hints5')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints5">
+          <li>Set <code>secret = 42</code> (or any number you like)</li>
+          <li>Use <code>int(input(...))</code> to get the guess</li>
+          <li>Compare guess with secret using if/elif/else</li>
+          <li>Track attempts with a counter variable</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">guess_basic.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code5" spellcheck="false">secret  = 42
+attempts = 0
+
+guess = int(input("Guess the number (1-100): "))
+attempts = attempts + 1
+
+if guess < secret:
+    print(f"Too low! The number was {secret}.")
+elif guess > secret:
+    print(f"Too high! The number was {secret}.")
+else:
+    print("Correct! You got it!")
+
+print(f"Attempts used: {attempts}")</textarea>
+          <button class="run-btn" onclick="runProject('code5','run5')">▶ Run Code</button>
+          <div class="ic-output" id="run5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P6 -->
+    <div class="project-card" data-level="beg" id="card6">
+      <div class="pc-top">
+        <span class="pc-emoji">📊</span>
+        <div class="pc-title">BMI Calculator</div>
+        <div class="pc-desc">Ask for weight (kg) and height (m), calculate BMI, and print the category: Underweight, Normal, Overweight, or Obese.</div>
+        <div class="pc-tags"><span class="pc-tag">float()</span><span class="pc-tag">operators</span><span class="pc-tag">if/elif</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-beg">Beginner</span>
+        <button class="expand-btn" onclick="toggleCard('card6')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body6">
+        <button class="hints-toggle" onclick="toggleHints('hints6')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints6">
+          <li>BMI formula: weight / (height * height)</li>
+          <li>Underweight: BMI &lt; 18.5</li>
+          <li>Normal: 18.5 to 24.9</li>
+          <li>Overweight: 25 to 29.9, Obese: 30+</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">bmi_calculator.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code6" spellcheck="false">name   = input("Enter your name: ")
+weight = float(input("Enter weight in kg: "))
+height = float(input("Enter height in metres: "))
+
+bmi = weight / (height * height)
+
+if bmi < 18.5:
+    category = "Underweight"
+elif bmi < 25:
+    category = "Normal weight"
+elif bmi < 30:
+    category = "Overweight"
+else:
+    category = "Obese"
+
+print(f"\n{name}'s BMI Report")
+print(f"BMI      : {bmi:.2f}")
+print(f"Category : {category}")</textarea>
+          <button class="run-btn" onclick="runProject('code6','run6')">▶ Run Code</button>
+          <div class="ic-output" id="run6"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /beg grid -->
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════
+     INTERMEDIATE
+══════════════════════════════════════ -->
+<section class="level-section reveal" id="int">
+  <div class="level-header">
+    <div class="level-icon icon-int">🔥</div>
+    <div>
+      <div class="level-title">Intermediate Projects</div>
+      <div class="level-sub">Loops, Lists, Functions, Strings — Classes 3 & 4</div>
+    </div>
+  </div>
+
+  <div class="project-grid">
+
+    <!-- P7 -->
+    <div class="project-card" data-level="int" id="card7">
+      <div class="pc-top">
+        <span class="pc-emoji">🔁</span>
+        <div class="pc-title">Number Guessing Game (Advanced)</div>
+        <div class="pc-desc">Now the game loops! The user keeps guessing until they get it right. Track the number of attempts and give feedback every round. Add a max-attempts limit.</div>
+        <div class="pc-tags"><span class="pc-tag">while loop</span><span class="pc-tag">break</span><span class="pc-tag">counters</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-int">Intermediate</span>
+        <button class="expand-btn" onclick="toggleCard('card7')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body7">
+        <button class="hints-toggle" onclick="toggleHints('hints7')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints7">
+          <li>Use <code>while attempts &lt; max_attempts:</code> to loop</li>
+          <li>Use <code>break</code> when the correct answer is found</li>
+          <li>Increment <code>attempts</code> each time the loop runs</li>
+          <li>After the loop, check if they won or ran out of attempts</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">guess_advanced.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code7" spellcheck="false">secret       = 37
+max_attempts = 5
+attempts     = 0
+won          = False
+
+print("Guess the secret number (1-100)!")
+print(f"You have {max_attempts} attempts.")
+
+while attempts < max_attempts:
+    guess    = int(input(f"Attempt {attempts + 1}: "))
+    attempts = attempts + 1
+
+    if guess < secret:
+        print("Too low!")
+    elif guess > secret:
+        print("Too high!")
+    else:
+        won = True
+        break
+
+if won:
+    print(f"Correct! You won in {attempts} attempts!")
+else:
+    print(f"Out of attempts! The number was {secret}.")</textarea>
+          <button class="run-btn" onclick="runProject('code7','run7')">▶ Run Code</button>
+          <div class="ic-output" id="run7"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P8 -->
+    <div class="project-card" data-level="int" id="card8">
+      <div class="pc-top">
+        <span class="pc-emoji">📝</span>
+        <div class="pc-title">Student Grade Book</div>
+        <div class="pc-desc">Store a list of student names and marks. Loop through them to print grades. Calculate and display the class average, highest scorer, and lowest scorer.</div>
+        <div class="pc-tags"><span class="pc-tag">lists</span><span class="pc-tag">for loop</span><span class="pc-tag">functions</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-int">Intermediate</span>
+        <button class="expand-btn" onclick="toggleCard('card8')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body8">
+        <button class="hints-toggle" onclick="toggleHints('hints8')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints8">
+          <li>Use two lists: <code>names = [...]</code> and <code>marks = [...]</code></li>
+          <li>Use <code>for i in range(len(names)):</code> to loop through both together</li>
+          <li>Calculate average: sum all marks / total students</li>
+          <li>Write a <code>get_grade(mark)</code> function to return A/B/C/F</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">grade_book.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code8" spellcheck="false">names = ["Riya", "Ali", "Priya", "Rahul", "Sneha"]
+marks = [92, 74, 88, 55, 97]
+
+def get_grade(m):
+    if m >= 90: return "A"
+    elif m >= 80: return "B"
+    elif m >= 50: return "C"
+    else: return "F"
+
+print("====== Grade Book ======")
+total = 0
+for i in range(len(names)):
+    grade = get_grade(marks[i])
+    print(f"{names[i]:<8} | {marks[i]:>3}/100 | {grade}")
+    total = total + marks[i]
+
+average = total / len(marks)
+best_i  = marks.index(max(marks))
+worst_i = marks.index(min(marks))
+
+print(f"\nAverage : {average:.1f}")
+print(f"Best    : {names[best_i]} ({marks[best_i]})")
+print(f"Lowest  : {names[worst_i]} ({marks[worst_i]})")</textarea>
+          <button class="run-btn" onclick="runProject('code8','run8')">▶ Run Code</button>
+          <div class="ic-output" id="run8"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P9 -->
+    <div class="project-card" data-level="int" id="card9">
+      <div class="pc-top">
+        <span class="pc-emoji">✂️</span>
+        <div class="pc-title">Word Analyser</div>
+        <div class="pc-desc">Ask the user to enter a sentence. Count words, find the longest word, count vowels, reverse the sentence, and check if any word is a palindrome.</div>
+        <div class="pc-tags"><span class="pc-tag">strings</span><span class="pc-tag">split()</span><span class="pc-tag">loops</span><span class="pc-tag">functions</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-int">Intermediate</span>
+        <button class="expand-btn" onclick="toggleCard('card9')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body9">
+        <button class="hints-toggle" onclick="toggleHints('hints9')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints9">
+          <li>Use <code>.split()</code> to break the sentence into a list of words</li>
+          <li>Count vowels by looping through each character and checking if it is in "aeiou"</li>
+          <li>A palindrome reads the same forward and backward: <code>word == word[::-1]</code> — but since we haven't covered slicing in depth, you can compare the word to its reversed version using a loop</li>
+          <li>Use <code>len(word)</code> to find the longest word</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">word_analyser.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code9" spellcheck="false">sentence = input("Enter a sentence: ")
+words    = sentence.lower().split()
+
+print(f"\nWord count  : {len(words)}")
+
+longest = words[0]
+for word in words:
+    if len(word) > len(longest):
+        longest = word
+print(f"Longest word: {longest}")
+
+vowel_count = 0
+vowels = "aeiou"
+for char in sentence.lower():
+    if char in vowels:
+        vowel_count = vowel_count + 1
+print(f"Vowel count : {vowel_count}")
+
+print(f"Reversed    : {sentence[::-1]}")
+
+print("Palindromes :", end=" ")
+for word in words:
+    cleaned = ""
+    for ch in word:
+        if ch.isalpha():
+            cleaned = cleaned + ch
+    if cleaned == cleaned[::-1] and len(cleaned) > 1:
+        print(cleaned, end=" ")</textarea>
+          <button class="run-btn" onclick="runProject('code9','run9')">▶ Run Code</button>
+          <div class="ic-output" id="run9"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P10 -->
+    <div class="project-card" data-level="int" id="card10">
+      <div class="pc-top">
+        <span class="pc-emoji">🛒</span>
+        <div class="pc-title">Shopping Cart</div>
+        <div class="pc-desc">Build a simple shopping cart using lists. Add items, remove items, show the cart, and calculate the total price. Use functions to keep the code clean.</div>
+        <div class="pc-tags"><span class="pc-tag">lists</span><span class="pc-tag">functions</span><span class="pc-tag">f-strings</span><span class="pc-tag">loops</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-int">Intermediate</span>
+        <button class="expand-btn" onclick="toggleCard('card10')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body10">
+        <button class="hints-toggle" onclick="toggleHints('hints10')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints10">
+          <li>Store items as a list of lists: <code>[[name, price], ...]</code></li>
+          <li>Write separate functions: <code>add_item()</code>, <code>show_cart()</code>, <code>total()</code></li>
+          <li>To calculate total, loop through all items and sum up the prices</li>
+          <li>Use <code>.remove()</code> to delete an item from the list</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">shopping_cart.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code10" spellcheck="false">cart = []
+
+def add_item(name, price):
+    cart.append([name, price])
+    print(f"Added: {name} (Rs. {price})")
+
+def show_cart():
+    if len(cart) == 0:
+        print("Cart is empty!")
+        return
+    print("\n--- Your Cart ---")
+    for i in range(len(cart)):
+        print(f"  {i+1}. {cart[i][0]:<15} Rs. {cart[i][1]:.2f}")
+
+def get_total():
+    total = 0
+    for item in cart:
+        total = total + item[1]
+    return total
+
+add_item("Rice (5kg)",    250.00)
+add_item("Milk (1L)",      60.00)
+add_item("Bread",          45.00)
+add_item("Eggs (12)",     110.00)
+
+show_cart()
+print(f"\nTotal: Rs. {get_total():.2f}")</textarea>
+          <button class="run-btn" onclick="runProject('code10','run10')">▶ Run Code</button>
+          <div class="ic-output" id="run10"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P11 -->
+    <div class="project-card" data-level="int" id="card11">
+      <div class="pc-top">
+        <span class="pc-emoji">🔐</span>
+        <div class="pc-title">Password Strength Checker</div>
+        <div class="pc-desc">Check if a password is Weak, Medium, or Strong based on length, use of uppercase, lowercase, numbers and special characters. Give actionable feedback.</div>
+        <div class="pc-tags"><span class="pc-tag">strings</span><span class="pc-tag">loops</span><span class="pc-tag">functions</span><span class="pc-tag">bool</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-int">Intermediate</span>
+        <button class="expand-btn" onclick="toggleCard('card11')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body11">
+        <button class="hints-toggle" onclick="toggleHints('hints11')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints11">
+          <li>Use <code>.isupper()</code>, <code>.islower()</code>, <code>.isdigit()</code> on each character</li>
+          <li>Create a score variable and add +1 for each criterion met</li>
+          <li>score 0-2 = Weak, 3-4 = Medium, 5 = Strong</li>
+          <li>Special chars: check if char is in "!@#$%^&*"</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">password_checker.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code11" spellcheck="false">def check_password(password):
+    score    = 0
+    feedback = []
+
+    if len(password) >= 8:
+        score = score + 1
+    else:
+        feedback.append("Use at least 8 characters")
+
+    has_upper = False
+    has_lower = False
+    has_digit = False
+    has_special = False
+
+    for ch in password:
+        if ch.isupper():   has_upper   = True
+        if ch.islower():   has_lower   = True
+        if ch.isdigit():   has_digit   = True
+        if ch in "!@#$%^&*": has_special = True
+
+    if has_upper:   score += 1
+    else: feedback.append("Add uppercase letters (A-Z)")
+    if has_lower:   score += 1
+    else: feedback.append("Add lowercase letters (a-z)")
+    if has_digit:   score += 1
+    else: feedback.append("Add numbers (0-9)")
+    if has_special: score += 1
+    else: feedback.append("Add special characters (!@#$)")
+
+    if score <= 2: strength = "WEAK"
+    elif score <= 4: strength = "MEDIUM"
+    else: strength = "STRONG"
+
+    print(f"Strength: {strength} ({score}/5)")
+    if feedback:
+        print("Improve by:")
+        for tip in feedback:
+            print(f"  - {tip}")
+
+password = input("Enter a password to check: ")
+check_password(password)</textarea>
+          <button class="run-btn" onclick="runProject('code11','run11')">▶ Run Code</button>
+          <div class="ic-output" id="run11"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /int grid -->
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ══════════════════════════════════════
+     ADVANCED
+══════════════════════════════════════ -->
+<section class="level-section reveal" id="adv">
+  <div class="level-header">
+    <div class="level-icon icon-adv">🚀</div>
+    <div>
+      <div class="level-title">Advanced Projects</div>
+      <div class="level-sub">Dictionaries, OOP, Modules, Error Handling — Classes 5 & 6</div>
+    </div>
+  </div>
+
+  <div class="project-grid">
+
+    <!-- P12 -->
+    <div class="project-card" data-level="adv" id="card12">
+      <div class="pc-top">
+        <span class="pc-emoji">📒</span>
+        <div class="pc-title">Contact Book</div>
+        <div class="pc-desc">A full contact manager using a dictionary. Add, search, update, and delete contacts. Display all contacts in a formatted table. Handle missing contacts gracefully.</div>
+        <div class="pc-tags"><span class="pc-tag">dictionaries</span><span class="pc-tag">functions</span><span class="pc-tag">loops</span><span class="pc-tag">.get()</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-adv">Advanced</span>
+        <button class="expand-btn" onclick="toggleCard('card12')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body12">
+        <button class="hints-toggle" onclick="toggleHints('hints12')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints12">
+          <li>Store contacts as <code>{"Riya": {"phone": "...", "email": "..."}}</code></li>
+          <li>Use <code>.get()</code> to safely look up contacts without crashing</li>
+          <li>Loop through <code>.items()</code> to display all contacts</li>
+          <li>Use <code>del contacts[name]</code> to delete a contact</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">contact_book.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code12" spellcheck="false">contacts = {
+    "Riya"  : {"phone": "9876543210", "city": "Hyderabad"},
+    "Ali"   : {"phone": "9123456789", "city": "Mumbai"},
+    "Priya" : {"phone": "9988776655", "city": "Delhi"}
+}
+
+def add_contact(name, phone, city):
+    contacts[name] = {"phone": phone, "city": city}
+    print(f"Contact '{name}' added.")
+
+def search_contact(name):
+    info = contacts.get(name)
+    if info:
+        print(f"\nFound: {name}")
+        print(f"  Phone: {info['phone']}")
+        print(f"  City : {info['city']}")
+    else:
+        print(f"'{name}' not found.")
+
+def show_all():
+    print(f"\n{'Name':<12} {'Phone':<14} {'City'}")
+    print("-" * 38)
+    for name, info in contacts.items():
+        print(f"{name:<12} {info['phone']:<14} {info['city']}")
+
+add_contact("Sneha", "9000011111", "Chennai")
+show_all()
+search_contact("Ali")
+search_contact("Raj")
+print(f"\nTotal contacts: {len(contacts)}")</textarea>
+          <button class="run-btn" onclick="runProject('code12','run12')">▶ Run Code</button>
+          <div class="ic-output" id="run12"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P13 -->
+    <div class="project-card" data-level="adv" id="card13">
+      <div class="pc-top">
+        <span class="pc-emoji">🏦</span>
+        <div class="pc-title">Bank Account System (OOP)</div>
+        <div class="pc-desc">Create a BankAccount class with deposit, withdraw, and check balance methods. Create multiple accounts and simulate real transactions with error handling for insufficient funds.</div>
+        <div class="pc-tags"><span class="pc-tag">OOP</span><span class="pc-tag">class</span><span class="pc-tag">__init__</span><span class="pc-tag">methods</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-adv">Advanced</span>
+        <button class="expand-btn" onclick="toggleCard('card13')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body13">
+        <button class="hints-toggle" onclick="toggleHints('hints13')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints13">
+          <li>Define <code>class BankAccount:</code> with <code>__init__(self, owner, balance)</code></li>
+          <li>In <code>withdraw()</code>, check <code>if amount &gt; self.balance</code> first</li>
+          <li>Store all transactions in a list <code>self.history = []</code></li>
+          <li>Each method should print a confirmation message using f-strings</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">bank_system.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code13" spellcheck="false">class BankAccount:
+    def __init__(self, owner, balance):
+        self.owner   = owner
+        self.balance = balance
+        self.history = []
+
+    def deposit(self, amount):
+        self.balance = self.balance + amount
+        self.history.append(f"+ Rs.{amount}")
+        print(f"Deposited Rs.{amount}. Balance: Rs.{self.balance}")
+
+    def withdraw(self, amount):
+        if amount > self.balance:
+            print(f"Insufficient funds! Balance: Rs.{self.balance}")
+        else:
+            self.balance = self.balance - amount
+            self.history.append(f"- Rs.{amount}")
+            print(f"Withdrew Rs.{amount}. Balance: Rs.{self.balance}")
+
+    def show_statement(self):
+        print(f"\n--- {self.owner}'s Statement ---")
+        for entry in self.history:
+            print(f"  {entry}")
+        print(f"Current Balance: Rs.{self.balance}")
+
+acc1 = BankAccount("Riya", 10000)
+acc2 = BankAccount("Ali",   5000)
+
+acc1.deposit(3000)
+acc1.withdraw(2000)
+acc1.withdraw(15000)
+acc1.show_statement()
+
+acc2.deposit(1000)
+acc2.show_statement()</textarea>
+          <button class="run-btn" onclick="runProject('code13','run13')">▶ Run Code</button>
+          <div class="ic-output" id="run13"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P14 -->
+    <div class="project-card" data-level="adv" id="card14">
+      <div class="pc-top">
+        <span class="pc-emoji">🎲</span>
+        <div class="pc-title">Mini Quiz Game</div>
+        <div class="pc-desc">A 5-question multiple-choice quiz stored as a list of dictionaries. Track score, give feedback after each answer, show final results with percentage, and use try/except for bad input.</div>
+        <div class="pc-tags"><span class="pc-tag">dictionaries</span><span class="pc-tag">lists</span><span class="pc-tag">loops</span><span class="pc-tag">try/except</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-adv">Advanced</span>
+        <button class="expand-btn" onclick="toggleCard('card14')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body14">
+        <button class="hints-toggle" onclick="toggleHints('hints14')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints14">
+          <li>Store each question as a dict: <code>{"question": "...", "options": [...], "answer": 1}</code></li>
+          <li>Loop through the questions list with <code>for i, q in enumerate(questions):</code></li>
+          <li>Wrap input in try/except ValueError to handle non-numeric input</li>
+          <li>Check <code>if guess == q["answer"]</code> to verify the answer</li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">quiz_game.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code14" spellcheck="false">questions = [
+    {"q": "What does print() do?",
+     "options": ["Saves a file","Shows output","Deletes data","Stores a value"],
+     "answer": 2},
+    {"q": "Which data type stores text?",
+     "options": ["int","float","bool","str"],
+     "answer": 4},
+    {"q": "What is the output of 10 % 3?",
+     "options": ["3","1","0","3.33"],
+     "answer": 2},
+    {"q": "How do you create a list in Python?",
+     "options": ["{}","()","[]","<>"],
+     "answer": 3},
+    {"q": "What keyword defines a function?",
+     "options": ["func","define","def","function"],
+     "answer": 3},
+]
+
+score = 0
+print("=== Python Quiz ===\n")
+
+for i, q in enumerate(questions):
+    print(f"Q{i+1}: {q['q']}")
+    for j, opt in enumerate(q["options"]):
+        print(f"  {j+1}. {opt}")
+    try:
+        guess = int(input("Your answer (1-4): "))
+        if guess == q["answer"]:
+            print("Correct!\n")
+            score = score + 1
+        else:
+            print(f"Wrong! Answer was: {q['options'][q['answer']-1]}\n")
+    except ValueError:
+        print("Invalid input! Skipped.\n")
+
+pct = (score / len(questions)) * 100
+print(f"Final Score: {score}/{len(questions)} ({pct:.0f}%)")
+if pct == 100: print("Perfect!")
+elif pct >= 60: print("Well done!")
+else: print("Keep practising!")</textarea>
+          <button class="run-btn" onclick="runProject('code14','run14')">▶ Run Code</button>
+          <div class="ic-output" id="run14"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P15 -->
+    <div class="project-card" data-level="adv" id="card15">
+      <div class="pc-top">
+        <span class="pc-emoji">🏫</span>
+        <div class="pc-title">School Management System</div>
+        <div class="pc-desc">The capstone project! A full Student class with name, marks list, GPA calculation, and report generation. Manage a whole classroom, sort by GPA, and print a formatted result sheet.</div>
+        <div class="pc-tags"><span class="pc-tag">OOP</span><span class="pc-tag">lists</span><span class="pc-tag">functions</span><span class="pc-tag">dictionaries</span><span class="pc-tag">math</span></div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-level lv-adv">Advanced</span>
+        <button class="expand-btn" onclick="toggleCard('card15')">Open Project ▼</button>
+      </div>
+      <div class="pc-body" id="body15">
+        <button class="hints-toggle" onclick="toggleHints('hints15')">💡 Show Hints</button>
+        <ul class="hints-box" id="hints15">
+          <li>Class attributes: <code>self.name</code>, <code>self.marks = []</code>, <code>self.roll</code></li>
+          <li>Method <code>average()</code>: sum(self.marks) / len(self.marks)</li>
+          <li>Method <code>get_grade()</code>: use if/elif on average</li>
+          <li>Method <code>report()</code>: print a formatted summary using f-strings</li>
+          <li>Sort the class list: <code>classroom.sort(key=lambda s: s.average(), reverse=True)</code></li>
+        </ul>
+        <div class="code-wrap">
+          <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">school_system.py</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <textarea class="code-editor" id="code15" spellcheck="false" style="min-height:280px">class Student:
+    def __init__(self, name, roll):
+        self.name  = name
+        self.roll  = roll
+        self.marks = []
+
+    def add_marks(self, subject_marks):
+        self.marks = subject_marks
+
+    def average(self):
+        return sum(self.marks) / len(self.marks)
+
+    def get_grade(self):
+        avg = self.average()
+        if   avg >= 90: return "A+"
+        elif avg >= 80: return "A"
+        elif avg >= 70: return "B"
+        elif avg >= 50: return "C"
+        else:           return "F"
+
+    def report(self):
+        avg   = self.average()
+        grade = self.get_grade()
+        print(f"  Roll: {self.roll}  Name: {self.name:<12} "
+              f"Avg: {avg:>5.1f}  Grade: {grade}")
+
+
+classroom = [
+    Student("Riya",  "TL001"),
+    Student("Ali",   "TL002"),
+    Student("Priya", "TL003"),
+    Student("Rahul", "TL004"),
+    Student("Sneha", "TL005"),
+]
+
+classroom[0].add_marks([92, 88, 95, 90])
+classroom[1].add_marks([74, 70, 78, 65])
+classroom[2].add_marks([88, 85, 91, 87])
+classroom[3].add_marks([55, 60, 52, 58])
+classroom[4].add_marks([97, 99, 95, 98])
+
+classroom.sort(key=lambda s: s.average(), reverse=True)
+
+print("=" * 50)
+print("       SCHOOL MANAGEMENT SYSTEM")
+print("=" * 50)
+for rank, student in enumerate(classroom):
+    print(f"Rank #{rank+1}:")
+    student.report()
+
+all_avgs = [s.average() for s in classroom]
+class_avg = sum(all_avgs) / len(all_avgs)
+print(f"\nClass Average: {class_avg:.1f}")
+print(f"Top Student  : {classroom[0].name} ({classroom[0].average():.1f})")</textarea>
+          <button class="run-btn" onclick="runProject('code15','run15')">▶ Run Code</button>
+          <div class="ic-output" id="run15"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /adv grid -->
+</section>
+
+</main>
+
+<script>
+// ── EXPAND / COLLAPSE ──
+function toggleCard(id) {
+  let card = document.getElementById(id);
+  let body = document.getElementById('body' + id.replace('card',''));
+  let btn  = card.querySelector('.expand-btn');
+  let isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  card.classList.toggle('expanded');
+  btn.textContent = isOpen ? 'Open Project ▼' : 'Close ▲';
+  if (!isOpen) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── HINTS TOGGLE ──
+function toggleHints(id) {
+  let box = document.getElementById(id);
+  let btn = box.previousElementSibling;
+  box.classList.toggle('open');
+  btn.textContent = box.classList.contains('open') ? '💡 Hide Hints' : '💡 Show Hints';
+}
+
+// ── COPY CODE ──
+function copyCode(btn) {
+  let ta = btn.closest('.code-wrap').querySelector('textarea');
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── FILTER ──
+function filterProjects(level, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.borderColor = '';
+    b.style.color = '';
+  });
+  btn.classList.add('active');
+
+  document.querySelectorAll('.project-card').forEach(card => {
+    if (level === 'all' || card.dataset.level === level) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // hide/show level sections if filtering
+  ['beg','int','adv'].forEach(lv => {
+    let sec = document.getElementById(lv);
+    if (sec) sec.style.display = (level === 'all' || level === lv) ? '' : 'none';
+  });
+}
+
+// ── SCROLL REVEAL ──
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── PYTHON INTERPRETER ──
+function runProject(codeId, outId) {
+  let code = document.getElementById(codeId).value;
+  let out  = document.getElementById(outId);
+  out.classList.add('visible'); out.classList.remove('ic-err'); out.textContent = '';
+  let res = execPy(code);
+  if (res.error) { out.classList.add('ic-err'); out.textContent = 'Error: ' + res.error; }
+  else out.textContent = res.output || '(no output)';
+}
+
+function execPy(code) {
+  let lines = code.split('\n'), vars = {}, fns = {}, classes = {}, output = [], error = null, i = 0;
+  try {
+    // collect defs
+    while (i < lines.length) {
+      let raw = lines[i], t = raw.trim();
+      if (/^class\s+\w+/.test(t)) {
+        let cn = t.match(/^class\s+(\w+)/)[1], methods = {}, j = i + 1;
+        while (j < lines.length) {
+          let bl = lines[j], bt = bl.trim(), ind = bl.length - bl.trimStart().length;
+          if (!bt || bt.startsWith('#')) { j++; continue; }
+          if (ind === 0) break;
+          if (/^def\s+\w+\s*\(.*\):$/.test(bt)) {
+            let mm = bt.slice(0,-1).match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+            if (mm) {
+              let mn = mm[1], ps = mm[2].trim() ? mm[2].split(',').map(p=>{let x=p.trim().split('=');return{name:x[0].trim(),def:x[1]?x[1].trim():undefined};}) : [];
+              let body = [], k = j+1, bi = bl.length - bl.trimStart().length;
+              while (k < lines.length) {
+                let lb = lines[k], tb = lb.trim(), ii = lb.length - lb.trimStart().length;
+                if (!tb || tb.startsWith('#')) { k++; continue; }
+                if (ii <= bi) break;
+                body.push(lb); k++;
+              }
+              methods[mn] = { params: ps, body }; j = k; continue;
+            }
+          }
+          j++;
+        }
+        classes[cn] = { methods }; i = j; continue;
+      }
+      if (/^def\s+\w+\s*\(.*\):$/.test(t)) {
+        let mm = t.slice(0,-1).match(/^def\s+(\w+)\s*\(([^)]*)\)/);
+        if (mm) {
+          let fn = mm[1], ps = mm[2].trim() ? mm[2].split(',').map(p=>{let x=p.trim().split('=');return{name:x[0].trim(),def:x[1]?x[1].trim():undefined};}) : [];
+          let body = [], j = i+1;
+          while (j < lines.length) {
+            let bl = lines[j], bt = bl.trim();
+            if (!bt || bt.startsWith('#')) { j++; continue; }
+            if (bl.length - bl.trimStart().length === 0) break;
+            body.push(bl); j++;
+          }
+          fns[fn] = { params: ps, body }; i = j; continue;
+        }
+      }
+      i++;
+    }
+    // execute
+    i = 0;
+    while (i < lines.length && !error) {
+      let raw = lines[i], t = raw.trim();
+      if (!t || t.startsWith('#')) { i++; continue; }
+      if (/^(class|def)\s+/.test(t)) {
+        let j = i+1;
+        while (j < lines.length) { let bl=lines[j],bt=bl.trim(); if(!bt||bt.startsWith('#')){j++;continue;} if(bl.length-bl.trimStart().length===0)break; j++; }
+        i = j; continue;
+      }
+      if (/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){let r=pIF(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if (/^for\s+.+\s+in\s+.+:$/.test(t)){let r=pFOR(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if (/^while\s+.+:$/.test(t)){let r=pWHILE(lines,i,vars,fns,classes,output);if(r.err){error=r.err;break;}i=r.next;continue;}
+      if (/^try\s*:$/.test(t)){let r=pTRY(lines,i,vars,fns,classes,output);if(r.err&&!r.handled){error=r.err;break;}i=r.next;continue;}
+      if (/^(import|from)\s+/.test(t)){i++;continue;}
+      let r = xLine(t, vars, fns, classes, output);
+      if (r && r.err) { error = r.err; break; }
+      i++;
+    }
+  } catch(e) { error = e.message; }
+  return { output: output.join('\n'), error };
+}
+
+function pTRY(lines,si,vars,fns,classes,out){
+  let tryB=[],excB=[],finB=[],i=si+1,phase='try';
+  while(i<lines.length){let bl=lines[i],bt=bl.trim();if(!bt||bt.startsWith('#')){i++;continue;}let ind=bl.length-bl.trimStart().length;if(ind===0){if(/^except/.test(bt)){phase='except';i++;continue;}if(/^finally\s*:$/.test(bt)){phase='finally';i++;continue;}break;}if(phase==='try')tryB.push(bt);else if(phase==='except')excB.push(bt);else finB.push(bt);i++;}
+  let caught=false;
+  for(let ln of tryB){let r=xLine(ln,vars,fns,classes,out);if(r&&r.err){caught=true;break;}if(r&&r.ret!==undefined)return{ret:r.ret,next:i};}
+  if(caught)for(let ln of excB)xLine(ln,vars,fns,classes,out);
+  for(let ln of finB)xLine(ln,vars,fns,classes,out);
+  return{next:i,handled:caught};
+}
+
+function pIF(lines,si,vars,fns,classes,out){
+  let blocks=[],i=si;
+  while(i<lines.length){let raw=lines[i],t=raw.trim();if(!t||t.startsWith('#')){i++;continue;}
+    let isI=/^if\s+.+:$/.test(t),isEI=/^elif\s+.+:$/.test(t),isE=/^else\s*:$/.test(t);if(!isI&&!isEI&&!isE)break;
+    let cond=isE?null:t.replace(/^(?:if|elif)\s+/,'').replace(/:$/,''),body=[],j=i+1;
+    while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+    blocks.push({cond,body});i=j;}
+  let ran=false;
+  for(let b of blocks){if(ran)break;let ok=b.cond===null?!ran:eC(b.cond,vars,fns,classes);if(ok){ran=true;for(let ln of b.body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.ret!==undefined)return{ret:r.ret,next:i};if(r&&r.err)return{err:r.err,next:i};}}}
+  return{next:i};
+}
+
+function pFOR(lines,si,vars,fns,classes,out){
+  let raw=lines[si],t=raw.trim(),m=t.slice(0,-1).match(/^for\s+(.+?)\s+in\s+(.+)$/);
+  if(!m)return{next:si+1};
+  let vn=m[1].trim(),ie=m[2].trim(),items=rIter(ie,vars,fns,classes),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  for(let item of items){
+    if(vn.includes(',')){let ps=vn.split(',').map(x=>x.trim());if(Array.isArray(item))ps.forEach((p,pi)=>vars[p]=item[pi]);}
+    else vars[vn]=item;
+    let brk=false;
+    for(let ln of body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.ret!==undefined)return{ret:r.ret,next:j};if(r&&r.err)return{err:r.err,next:j};}
+    if(brk)break;
+  }
+  return{next:j};
+}
+
+function pWHILE(lines,si,vars,fns,classes,out){
+  let t=lines[si].trim(),cond=t.slice(6,-1).trim(),body=[],j=si+1;
+  while(j<lines.length){let bl=lines[j],bt=bl.trim();if(!bt||bt.startsWith('#')){j++;continue;}if(bl.length-bl.trimStart().length===0)break;body.push(bt);j++;}
+  let safety=0;
+  while(eC(cond,vars,fns,classes)&&safety<300){safety++;let brk=false;for(let ln of body){let r=xLine(ln,vars,fns,classes,out);if(r&&r.brk){brk=true;break;}if(r&&r.cnt)break;if(r&&r.ret!==undefined)return{ret:r.ret,next:j};if(r&&r.err)return{err:r.err,next:j};}if(brk)break;}
+  return{next:j};
+}
+
+function rIter(expr,vars,fns,classes){
+  expr=expr.trim();
+  let rm=expr.match(/^range\((.+)\)$/);
+  if(rm){let a=rm[1].split(',').map(x=>parseInt(ev(x.trim(),vars,fns,classes)));if(a.length===1)return Array.from({length:a[0]},(_,i)=>i);if(a.length===2){let r=[];for(let i=a[0];i<a[1];i++)r.push(i);return r;}if(a.length===3){let r=[];for(let i=a[0];i<a[1];i+=a[2])r.push(i);return r;}}
+  let em=expr.match(/^enumerate\((.+)\)$/);if(em){let inner=rIter(em[1].trim(),vars,fns,classes);return inner.map((v,i)=>[i,v]);}
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1).split('');
+  if(expr.startsWith('[')&&expr.endsWith(']'))return spA(expr.slice(1,-1)).map(a=>ev(a.trim(),vars,fns,classes));
+  // .items()/.keys()/.values()
+  let dimM=expr.match(/^([a-zA-Z_]\w*)\.(items|keys|values)\(\)$/);
+  if(dimM){let obj=vars[dimM[1]];if(typeof obj==='object'&&!Array.isArray(obj)&&obj&&!obj.__class__){if(dimM[2]==='items')return Object.entries(obj);if(dimM[2]==='keys')return Object.keys(obj);if(dimM[2]==='values')return Object.values(obj);}return[];}
+  // list comprehension [...for... in...]
+  let lcM=expr.match(/^\[(.+)\s+for\s+(\w+)\s+in\s+(.+)\]$/);
+  if(lcM){let expr2=lcM[1],vn=lcM[2],itStr=lcM[3];let items=rIter(itStr,vars,fns,classes);let results=[];for(let item of items){let lv={...vars};lv[vn]=item;results.push(ev(expr2,lv,fns,classes));}return results;}
+  if(vars.hasOwnProperty(expr)){let v=vars[expr];if(Array.isArray(v))return v;if(typeof v==='string')return v.split('');if(v&&typeof v==='object'&&!v.__class__)return Object.keys(v);return[];}
+  return[];
+}
+
+function xLine(line,vars,fns,classes,out){
+  if(!line||line.startsWith('#'))return null;
+  if(line==='break')return{brk:true};
+  if(line==='continue')return{cnt:true};
+  if(line==='pass')return null;
+  if(line==='return')return{ret:null};
+  if(line.startsWith('return '))return{ret:ev(line.slice(7).trim(),vars,fns,classes)};
+  if(/^(import|from)\s+/.test(line))return null;
+
+  // print with end= support
+  if(line.startsWith('print(')){
+    let inn=xP(line,'print');if(inn===null)return{err:'Syntax error in print()'};
+    let endVal='\n';
+    // check for end= kwarg
+    let endM=inn.match(/,\s*end\s*=\s*(.+)$/);
+    if(endM){let endStr=endM[1].trim();endVal=ev(endStr,vars,fns,classes);inn=inn.slice(0,inn.lastIndexOf(',end')||inn.lastIndexOf(', end'));}
+    let args=spA(inn).filter(a=>!a.trim().startsWith('end=')).map(a=>fmt(ev(a.trim(),vars,fns,classes)));
+    let text=args.join(' ');
+    if(endVal===''||endVal==='' ){if(out.length>0){let last=out[out.length-1];out[out.length-1]=last+text;}else out.push(text);}
+    else out.push(text);
+    return null;
+  }
+
+  // del statement
+  if(line.startsWith('del ')){let k=line.slice(4).trim();let dm=k.match(/^(\w+)\[(.+)\]$/);if(dm&&vars[dm[1]]){let key=ev(dm[2].trim(),vars,fns,classes);if(typeof vars[dm[1]]==='object'&&!Array.isArray(vars[dm[1]]))delete vars[dm[1]][String(key)];else{let ii=parseInt(key);vars[dm[1]].splice(ii,1);}}else if(vars.hasOwnProperty(k))delete vars[k];return null;}
+
+  // method call on object
+  let mCall=line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\((.*)\)$/);
+  if(mCall){
+    let objName=mCall[1],method=mCall[2],argStr=mCall[3];
+    let obj=vars[objName];
+    if(obj&&obj.__class__){let cls=classes[obj.__class__];if(cls&&cls.methods[method]){let r=callMethod(obj,cls,method,argStr,vars,fns,classes,out);if(r&&r.err)return r;return null;}}
+    if(Array.isArray(obj)){let a=argStr?ev(argStr,vars,fns,classes):undefined;if(method==='append')obj.push(a);else if(method==='sort'){let km=argStr.match(/key\s*=\s*(.+)/);if(km){let kfn=km[1].trim();if(/^lambda/.test(kfn)){let lm=kfn.match(/^lambda\s+(\w+)\s*:\s*(.+)$/);if(lm){let lv2=lm[1],le=lm[2];obj.sort((a,b)=>{let va=ev(le,{...vars,[lv2]:a},fns,classes),vb=ev(le,{...vars,[lv2]:b},fns,classes);return typeof va==='number'?va-vb:String(va).localeCompare(String(vb));});}}else obj.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));}else obj.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));}else if(method==='reverse')obj.reverse();else if(method==='remove'){let i=obj.indexOf(a);if(i>-1)obj.splice(i,1);}else if(method==='pop')obj.pop();else if(method==='insert'){let args=spA(argStr);obj.splice(parseInt(ev(args[0].trim(),vars,fns,classes)),0,ev(args[1].trim(),vars,fns,classes));}return null;}
+    if(typeof obj==='string')return null;
+    if(typeof obj==='object'&&obj&&!obj.__class__){if(method==='update'){let upd=ev(argStr,vars,fns,classes);if(typeof upd==='object')Object.assign(obj,upd);}return null;}
+    return null;
+  }
+
+  // attr assignment
+  let attrA=line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if(attrA){let obj=vars[attrA[1]];if(obj)obj[attrA[2]]=ev(attrA[3].trim(),vars,fns,classes);return null;}
+
+  // augmented assignment
+  let aug=line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=)\s*(.+)$/);
+  if(aug){let vn=aug[1],op=aug[2],val=ev(aug[3].trim(),vars,fns,classes);if(vars[vn]===undefined)return{err:"'"+vn+"' not defined"};if(op==='+=')vars[vn]+=val;else if(op==='-=')vars[vn]-=val;else if(op==='*=')vars[vn]*=val;else if(op==='/=')vars[vn]/=val;else if(op==='//=')vars[vn]=Math.floor(vars[vn]/val);else if(op==='%=')vars[vn]%=val;return null;}
+
+  // index assignment
+  let idxA=line.match(/^([a-zA-Z_]\w*)\[(.+)\]\s*=\s*(.+)$/);
+  if(idxA){let obj=vars[idxA[1]],key=ev(idxA[2].trim(),vars,fns,classes),val=ev(idxA[3].trim(),vars,fns,classes);if(Array.isArray(obj)){let ii=parseInt(key);obj[ii<0?obj.length+ii:ii]=val;}else if(typeof obj==='object'&&obj)obj[key]=val;return null;}
+
+  // standalone fn call
+  let sc=line.match(/^(\w+)\(([^)]*)\)$/);
+  if(sc&&fns[sc[1]]){callFn(sc[1],sc[2],vars,fns,classes,out);return null;}
+
+  // assignment
+  let asgn=line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if(asgn){vars[asgn[1]]=ev(asgn[2].trim(),vars,fns,classes);return null;}
+  return null;
+}
+
+function callMethod(obj,cls,method,argStr,outerVars,fns,classes,out){
+  let fn=cls.methods[method];if(!fn)return{err:"Method '"+method+"' not found"};
+  let argVals=argStr.trim()?spA(argStr).map(a=>ev(a.trim(),outerVars,fns,classes)):[];
+  fn.params.slice(1).forEach((p,i)=>{if(argVals[i]!==undefined)obj[p.name]=argVals[i];else if(p.def!==undefined)obj[p.name]=ev(p.def,outerVars,fns,classes);});
+  for(let raw of fn.body){
+    let t=raw.trim();if(!t||t.startsWith('#'))continue;
+    let sa=t.match(/^self\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);if(sa){obj[sa[1]]=ev(sa[2].trim(),{...outerVars,self:obj},fns,classes);continue;}
+    let sm=t.match(/^self\.([a-zA-Z_]\w*)\(([^)]*)\)$/);if(sm){let r=callMethod(obj,cls,sm[1],sm[2],{...outerVars,self:obj},fns,classes,out);if(r&&r.err)return r;continue;}
+    // self.attr method calls
+    let smc=t.match(/^self\.(\w+)\.(\w+)\((.*)\)$/);if(smc){let attr=obj[smc[1]];if(Array.isArray(attr)){let a=smc[3]?ev(smc[3],{...outerVars,self:obj},fns,classes):undefined;if(smc[2]==='append')attr.push(a);else if(smc[2]==='remove'){let i=attr.indexOf(a);if(i>-1)attr.splice(i,1);}else if(smc[2]==='sort')attr.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));else if(smc[2]==='pop')attr.pop();}continue;}
+    if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){
+      let bls=fn.body.map(l=>l.trim()),idx=bls.indexOf(t);
+      let merged={...outerVars,self:obj};
+      let r=pIF(bls,idx,merged,fns,classes,out);
+      if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;
+    }
+    if(/^for\s+.+:$/.test(t)){
+      let bls=fn.body,idx=bls.findIndex(l=>l.trim()===t);
+      let merged={...outerVars,self:obj};
+      let r=pFOR(bls,idx,merged,fns,classes,out);
+      if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;
+    }
+    let merged={...outerVars,self:obj};
+    let r=xLine(t,merged,fns,classes,out);
+    Object.keys(merged).forEach(k=>{if(k!=='self'&&vars.hasOwnProperty(k))vars[k]=merged[k];});
+    if(r&&r.ret!==undefined)return{ret:r.ret};if(r&&r.err)return r;
+  }
+  return{ret:null};
+}
+
+function callFn(name,argStr,outerVars,fns,classes,out){
+  let fn=fns[name];if(!fn)return{err:"Function '"+name+"' not defined"};
+  let argVals=argStr.trim()?spA(argStr).map(a=>ev(a.trim(),outerVars,fns,classes)):[];
+  let lv={};fn.params.forEach((p,i)=>{if(argVals[i]!==undefined)lv[p.name]=argVals[i];else if(p.def!==undefined)lv[p.name]=ev(p.def,outerVars,fns,classes);});
+  let merged={...outerVars,...lv};
+  for(let raw of fn.body){
+    let t=raw.trim();if(!t||t.startsWith('#'))continue;
+    if(/^if\s+.+:$/.test(t)||/^elif/.test(t)||/^else\s*:$/.test(t)){let bls=fn.body.map(l=>l.trim()),idx=bls.indexOf(t);let r=pIF(bls,idx,merged,fns,classes,out);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    if(/^for\s+.+:$/.test(t)){let bls=fn.body,idx=bls.findIndex(l=>l.trim()===t);let r=pFOR(bls,idx,merged,fns,classes,out);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    if(/^while\s+.+:$/.test(t)){let bls=fn.body,idx=bls.findIndex(l=>l.trim()===t);let r=pWHILE(bls,idx,merged,fns,classes,out);if(r.ret!==undefined)return{ret:r.ret};if(r.err)return r;continue;}
+    let r=xLine(t,merged,fns,classes,out);if(r&&r.ret!==undefined)return{ret:r.ret};if(r&&r.err)return r;
+  }
+  return{ret:null};
+}
+
+function ev(expr,vars,fns,classes){
+  expr=expr.trim();if(!expr)return'';
+  if((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'")))return expr.slice(1,-1);
+  if(expr==='True')return true;if(expr==='False')return false;if(expr==='None')return null;
+  if(!isNaN(expr)&&expr!=='')return expr.includes('.')?parseFloat(expr):parseInt(expr);
+
+  // dict literal
+  if(expr.startsWith('{')&&expr.endsWith('}')){let inner=expr.slice(1,-1).trim();if(!inner)return{};let obj={};let pairs=smartSplit(inner,',');for(let pair of pairs){let ci=pair.indexOf(':');if(ci>-1){let k=ev(pair.slice(0,ci).trim(),vars,fns,classes),v=ev(pair.slice(ci+1).trim(),vars,fns,classes);obj[String(k)]=v;}}return obj;}
+  // list literal
+  if(expr.startsWith('[')&&expr.endsWith(']')){let inner=expr.slice(1,-1);if(!inner.trim())return[];return spA(inner).map(a=>ev(a.trim(),vars,fns,classes));}
+  // tuple
+  if(expr.startsWith('(')&&expr.endsWith(')')){let inn=expr.slice(1,-1);return spA(inn).map(a=>ev(a.trim(),vars,fns,classes));}
+  // f-string
+  if(expr.startsWith('f"')||expr.startsWith("f'")){let inner=expr.slice(2,-1);return inner.replace(/\{([^}]+)\}/g,(_,e)=>{let fmtM=e.match(/^(.+):\s*([<>^]?)(\d+)\.?(\d*)([fsdf]?)$/);if(fmtM){let v=ev(fmtM[1].trim(),vars,fns,classes);let fw=parseInt(fmtM[3])||0,dec=fmtM[4]?parseInt(fmtM[4]):-1,typ=fmtM[5];let s=dec>=0?parseFloat(v).toFixed(dec):fmt(v);let al=fmtM[2];if(fw>0){if(al==='<')s=s.padEnd(fw);else if(al==='>')s=s.padStart(fw);else s=s.padStart(fw);}return s;}let simFmt=e.match(/^(.+):\s*\.(\d+)f$/);if(simFmt){let v=ev(simFmt[1].trim(),vars,fns,classes);return parseFloat(v).toFixed(parseInt(simFmt[2]));}return fmt(ev(e,vars,fns,classes));});}
+
+  // class constructor
+  let conM=expr.match(/^([A-Z]\w*)\(([^)]*)\)$/);
+  if(conM&&classes[conM[1]]){
+    let cname=conM[1],cls=classes[cname],obj={__class__:cname};
+    if(cls.methods['__init__']){
+      let argVals=conM[2].trim()?spA(conM[2]).map(a=>ev(a.trim(),vars,fns,classes)):[];
+      let initFn=cls.methods['__init__'];
+      initFn.params.slice(1).forEach((p,i)=>{if(argVals[i]!==undefined)obj[p.name]=argVals[i];else if(p.def!==undefined)obj[p.name]=ev(p.def,vars,fns,classes);});
+      for(let raw of initFn.body){let t=raw.trim();if(!t||t.startsWith('#'))continue;let sa=t.match(/^self\.([a-zA-Z_]\w*)\s*=\s*(.+)$/);if(sa)obj[sa[1]]=ev(sa[2].trim(),{...vars,self:obj},fns,classes);}
+    }
+    return obj;
+  }
+
+  // built-ins
+  let intM=expr.match(/^int\((.+)\)$/);if(intM){let v=ev(intM[1].trim(),vars,fns,classes);let n=parseInt(String(v));if(isNaN(n))throw new Error("ValueError: invalid literal for int");return n;}
+  let fltM=expr.match(/^float\((.+)\)$/);if(fltM)return parseFloat(String(ev(fltM[1].trim(),vars,fns,classes)));
+  let strM=expr.match(/^str\((.+)\)$/);if(strM)return fmt(ev(strM[1].trim(),vars,fns,classes));
+  let lenM=expr.match(/^len\((.+)\)$/);if(lenM){let v=ev(lenM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.length:(typeof v==='object'&&v&&!v.__class__?Object.keys(v).length:(typeof v==='string'?v.length:0));}
+  let sumM=expr.match(/^sum\((.+)\)$/);if(sumM){let v=ev(sumM[1].trim(),vars,fns,classes);return Array.isArray(v)?v.reduce((a,b)=>a+b,0):0;}
+  let maxM=expr.match(/^max\((.+?)(,.*key.*)?(\))$/);if(maxM){let inner=maxM[1].trim();let v=ev(inner,vars,fns,classes);if(Array.isArray(v)){let km=expr.match(/key\s*=\s*(.+?)\)$/);if(km){let kfn=km[1].trim();if(/^lambda/.test(kfn)){let lm=kfn.match(/^lambda\s+(\w+)\s*:\s*(.+)$/);if(lm){let lv2=lm[1],le=lm[2];return v.reduce((best,cur)=>{let bv=ev(le,{...vars,[lv2]:best},fns,classes),cv=ev(le,{...vars,[lv2]:cur},fns,classes);return cv>bv?cur:best;});}}}}return Array.isArray(v)?v.reduce((a,b)=>a>b?a:b):v;}
+  let minM=expr.match(/^min\((.+?)(,.*key.*)?(\))$/);if(minM){let inner=minM[1].trim();let v=ev(inner,vars,fns,classes);if(Array.isArray(v)){let km=expr.match(/key\s*=\s*(.+?)\)$/);if(km){let kfn=km[1].trim();if(/^lambda/.test(kfn)){let lm=kfn.match(/^lambda\s+(\w+)\s*:\s*(.+)$/);if(lm){let lv2=lm[1],le=lm[2];return v.reduce((best,cur)=>{let bv=ev(le,{...vars,[lv2]:best},fns,classes),cv=ev(le,{...vars,[lv2]:cur},fns,classes);return cv<bv?cur:best;});}}}}return Array.isArray(v)?v.reduce((a,b)=>a<b?a:b):v;}
+  let typeM=expr.match(/^type\((.+)\)$/);if(typeM){let v=ev(typeM[1].trim(),vars,fns,classes);return typeof v==='boolean'?"<class 'bool'>":typeof v==='number'?(Number.isInteger(v)?"<class 'int'>":"<class 'float'>"):Array.isArray(v)?"<class 'list'>":(v&&v.__class__?"<class '"+v.__class__+"'>":(typeof v==='object'&&v?"<class 'dict'>":"<class 'str'>"));}
+  let sortedM=expr.match(/^sorted\((.+)\)$/);if(sortedM){let v=ev(sortedM[1].trim(),vars,fns,classes);if(Array.isArray(v)){return [...v].sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b)));}}
+
+  // list comprehension
+  let lcM=expr.match(/^\[(.+)\s+for\s+(\w+)\s+in\s+(.+)\]$/);
+  if(lcM){let expr2=lcM[1],vn=lcM[2],itStr=lcM[3];let items=rIter(itStr,vars,fns,classes);return items.map(item=>{let lv={...vars};lv[vn]=item;return ev(expr2,lv,fns,classes);});}
+
+  // string methods
+  let upM=expr.match(/^(.+)\.(upper|lower|strip|title|isalpha|isupper|islower|isdigit)\(\)$/);
+  if(upM){let v=ev(upM[1].trim(),vars,fns,classes);if(typeof v==='string'){if(upM[2]==='upper')return v.toUpperCase();if(upM[2]==='lower')return v.toLowerCase();if(upM[2]==='strip')return v.trim();if(upM[2]==='title')return v.replace(/\b\w/g,c=>c.toUpperCase());if(upM[2]==='isalpha')return /^[a-zA-Z]+$/.test(v);if(upM[2]==='isupper')return v===v.toUpperCase()&&/[a-zA-Z]/.test(v);if(upM[2]==='islower')return v===v.toLowerCase()&&/[a-zA-Z]/.test(v);if(upM[2]==='isdigit')return /^\d+$/.test(v);}return v;}
+  let inM2=expr.match(/^(.+)\s+in\s+"([^"]+)"$|^(.+)\s+in\s+'([^']+)'$/);
+  if(inM2){let needle=ev((inM2[1]||inM2[3]).trim(),vars,fns,classes),hay=inM2[2]||inM2[4];return hay.includes(String(needle));}
+  let repM=expr.match(/^(.+)\.replace\((.+),\s*(.+)\)$/);if(repM){let v=ev(repM[1].trim(),vars,fns,classes),a=ev(repM[2].trim(),vars,fns,classes),b=ev(repM[3].trim(),vars,fns,classes);if(typeof v==='string')return v.split(String(a)).join(String(b));return v;}
+  let spM=expr.match(/^(.+)\.split\((.*)\)$/);if(spM){let v=ev(spM[1].trim(),vars,fns,classes),sep=spM[2].trim()?ev(spM[2].trim(),vars,fns,classes):null;if(typeof v==='string')return sep?v.split(String(sep)):v.trim().split(/\s+/);return[];}
+  let jnM=expr.match(/^(.+)\.join\((.+)\)$/);if(jnM){let sep=ev(jnM[1].trim(),vars,fns,classes),lst=ev(jnM[2].trim(),vars,fns,classes);if(Array.isArray(lst))return lst.map(fmt).join(String(sep));return String(sep);}
+  let ctM=expr.match(/^(.+)\.count\((.+)\)$/);if(ctM){let v=ev(ctM[1].trim(),vars,fns,classes),s=ev(ctM[2].trim(),vars,fns,classes);if(typeof v==='string')return v.split(String(s)).length-1;if(Array.isArray(v))return v.filter(x=>x===s).length;return 0;}
+  let idxFnM=expr.match(/^(.+)\.index\((.+)\)$/);if(idxFnM){let lst=ev(idxFnM[1].trim(),vars,fns,classes),val=ev(idxFnM[2].trim(),vars,fns,classes);if(Array.isArray(lst))return lst.indexOf(val);return -1;}
+
+  // dict .get()
+  let getM=expr.match(/^([a-zA-Z_]\w*)\.get\((.+)\)$/);
+  if(getM){let obj=vars[getM[1]];if(typeof obj==='object'&&!Array.isArray(obj)&&obj){let gArgs=spA(getM[2]);let key=ev(gArgs[0].trim(),vars,fns,classes);let def=gArgs[1]?ev(gArgs[1].trim(),vars,fns,classes):null;return obj.hasOwnProperty(String(key))?obj[String(key)]:def;}return null;}
+
+  // dict .keys()/.values()/.items() as value
+  let dkM=expr.match(/^([a-zA-Z_]\w*)\.(keys|values|items)\(\)$/);
+  if(dkM){let obj=vars[dkM[1]];if(typeof obj==='object'&&!Array.isArray(obj)&&obj){if(dkM[2]==='keys')return Object.keys(obj);if(dkM[2]==='values')return Object.values(obj);if(dkM[2]==='items')return Object.entries(obj);}return[];}
+
+  // obj.attr method call returning value
+  let dotCallM=expr.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)\(([^)]*)\)$/);
+  if(dotCallM){let obj=vars[dotCallM[1]],method=dotCallM[2],argStr=dotCallM[3];if(obj&&obj.__class__){let cls=classes[obj.__class__];if(cls&&cls.methods[method]){let r=callMethod(obj,cls,method,argStr,vars,fns,classes,[]);return r&&r.ret!==undefined?r.ret:null;}}if(typeof obj==='string'){let a=argStr?ev(argStr,vars,fns,classes):undefined;if(method==='split')return a?obj.split(String(a)):obj.trim().split(/\s+/);if(method==='upper')return obj.toUpperCase();if(method==='lower')return obj.toLowerCase();if(method==='strip')return obj.trim();}if(Array.isArray(obj)){if(method==='index'){let val=ev(argStr,vars,fns,classes);return obj.indexOf(val);}if(method==='count'){let val=ev(argStr,vars,fns,classes);return obj.filter(x=>x===val).length;}}return null;}
+
+  // obj.attr
+  let dotM=expr.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]\w*)$/);if(dotM){let obj=vars[dotM[1]];if(obj&&typeof obj==='object')return obj[dotM[2]];}
+
+  // list index / slice
+  let sliceM=expr.match(/^(.+)\[(\-?\d*):(\-?\d*)\]$/);if(sliceM){let v=ev(sliceM[1].trim(),vars,fns,classes);let a=sliceM[2]?parseInt(sliceM[2]):0,b=sliceM[3]?parseInt(sliceM[3]):undefined;if(Array.isArray(v)||typeof v==='string')return v.slice(a,b);}
+  let idxM=expr.match(/^(.+)\[(.+)\]$/);if(idxM){let obj=ev(idxM[1].trim(),vars,fns,classes),key=ev(idxM[2].trim(),vars,fns,classes);if(Array.isArray(obj)){let ii=parseInt(key);return obj[ii<0?obj.length+ii:ii];}if(typeof obj==='string'){let ii=parseInt(key);return obj[ii<0?obj.length+ii:ii];}if(typeof obj==='object'&&obj)return obj[String(key)];}
+
+  // function call
+  let fcM=expr.match(/^(\w+)\(([^)]*)\)$/);if(fcM&&fns[fcM[1]]){let r=callFn(fcM[1],fcM[2],vars,fns,classes,[]);return r&&r.ret!==undefined?r.ret:null;}
+
+  // "x in list/dict" check
+  let inM=expr.match(/^(.+?)\s+in\s+(.+)$/);
+  if(inM){let needle=ev(inM[1].trim(),vars,fns,classes),hayExpr=inM[2].trim(),hay=vars[hayExpr];if(!hay)hay=ev(hayExpr,vars,fns,classes);if(Array.isArray(hay))return hay.includes(needle);if(typeof hay==='object'&&hay)return hay.hasOwnProperty(String(needle));if(typeof hay==='string')return hay.includes(String(needle));return false;}
+
+  // variable
+  if(vars.hasOwnProperty(expr))return vars[expr];
+
+  // string concat
+  if(expr.includes('+')){try{let parts=smartSplit(expr,'+');if(parts.length>1){let evs=parts.map(p=>ev(p.trim(),vars,fns,classes));if(evs.some(p=>typeof p==='string'))return evs.map(fmt).join('');return evs.reduce((a,b)=>a+b,0);}}catch(e){}}
+
+  // string repetition
+  let repStarM=expr.match(/^(.+)\s*\*\s*(\d+)$/);if(repStarM){let v=ev(repStarM[1].trim(),vars,fns,classes);if(typeof v==='string')return v.repeat(parseInt(repStarM[2]));}
+
+  // math
+  try{let res=expr.replace(/[a-zA-Z_]\w*/g,m=>vars.hasOwnProperty(m)?(typeof vars[m]==='boolean'?(vars[m]?'1':'0'):String(vars[m])):'NaN');res=res.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(Math.floor(parseFloat(a)/parseFloat(b))));res=res.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(parseFloat(a)%parseFloat(b)));if(/^[\d\s\+\-\*\/\.\(\)]+$/.test(res.replace(/\*\*/g,'')))return sMath(res);}catch(e){}
+  return expr;
+}
+
+function eC(cond,vars,fns,classes){
+  cond=cond.trim();
+  if(cond.startsWith('not '))return !eC(cond.slice(4).trim(),vars,fns,classes);
+  if(cond.includes(' and '))return cond.split(' and ').every(p=>eC(p.trim(),vars,fns,classes));
+  if(cond.includes(' or '))return cond.split(' or ').some(p=>eC(p.trim(),vars,fns,classes));
+  let ops=['>=','<=','==','!=','>','<'];
+  for(let op of ops){let idx=cond.indexOf(op);if(idx>-1){let L=ev(cond.slice(0,idx).trim(),vars,fns,classes),R=ev(cond.slice(idx+op.length).trim(),vars,fns,classes);if(op==='==')return L==R;if(op==='!=')return L!=R;if(op==='>=')return L>=R;if(op==='<=')return L<=R;if(op==='>')return L>R;if(op==='<')return L<R;}}
+  // "x in y"
+  let inM=cond.match(/^(.+?)\s+in\s+(.+)$/);if(inM){let needle=ev(inM[1].trim(),vars,fns,classes),hayExpr=inM[2].trim(),hay=vars[hayExpr];if(!hay)hay=ev(hayExpr,vars,fns,classes);if(Array.isArray(hay))return hay.includes(needle);if(typeof hay==='object'&&hay)return hay.hasOwnProperty(String(needle));if(typeof hay==='string')return hay.includes(String(needle));return false;}
+  return Boolean(ev(cond,vars,fns,classes));
+}
+
+function xP(line,fn){let s=line.indexOf(fn+'(')+fn.length,d=0,r='';for(let i=s;i<line.length;i++){if(line[i]==='('){if(d>0)r+='(';d++;}else if(line[i]===')'){d--;if(d===0)return r;else r+=')';}else r+=line[i];}return null;}
+function spA(e){return smartSplit(e,',');}
+function smartSplit(s,sep){let a=[],d=0,inS=false,sC='',c='';for(let i=0;i<s.length;i++){let ch=s[i];if(!inS&&(ch==='"'||ch==="'")){inS=true;sC=ch;c+=ch;continue;}if(inS&&ch===sC){inS=false;c+=ch;continue;}if(inS){c+=ch;continue;}if(ch==='{'||ch==='['||ch==='('){d++;c+=ch;}else if(ch==='}'||ch===']'||ch===')'){d--;c+=ch;}else if(ch===sep&&d===0){a.push(c);c='';}else c+=ch;}if(c.trim())a.push(c);return a;}
+function fmt(v){if(v===null)return 'None';if(v===true)return 'True';if(v===false)return 'False';if(v&&v.__class__)return '<'+v.__class__+' object>';if(Array.isArray(v))return '['+v.map(x=>(typeof x==='string'?'"'+x+'"':fmt(x))).join(', ')+']';if(typeof v==='object'&&v!==null)return '{'+Object.entries(v).filter(([k])=>!k.startsWith('__')).map(([k,val])=>'"'+k+'": '+fmt(val)).join(', ')+'}';if(typeof v==='number'&&Number.isFinite(v))return String(Math.round(v*1e10)/1e10);return String(v);}
+function sMath(e){e=e.replace(/\*\*/g,'^').replace(/\s/g,'');return pMath(e);}
+function pMath(s){let p=0;function pk(){return s[p];}function cs(){return s[p++];}function atom(){let ng=false;if(pk()==='-'){ng=true;cs();}if(pk()==='('){cs();let v=add();cs();return ng?-v:v;}let n='';while(p<s.length&&/[\d\.]/.test(pk()))n+=cs();return ng?-parseFloat(n):parseFloat(n);}function pw(){let b=atom();while(pk()==='^'){cs();b=Math.pow(b,atom());}return b;}function mul(){let v=pw();while(pk()==='*'||pk()==='/'){let o=cs();v=o==='*'?v*pw():v/pw();}return v;}function add(){let v=mul();while(pk()==='+'||pk()==='-'){let o=cs();v=o==='+'?v+mul():v-mul();}return v;}try{return add();}catch(e){return NaN;}}
+</script>
+</body>
+</html>

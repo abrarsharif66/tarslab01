@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 4 — NLP Fundamentals</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre-wrap; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* TOKENIZER PLAYGROUND */
+  .tok-viz { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .tok-viz h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 16px; color: var(--accent5); }
+  .tok-input { width: 100%; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; outline: none; resize: vertical; min-height: 70px; transition: border-color 0.2s; }
+  .tok-input:focus { border-color: var(--accent5); }
+  .tok-run-btn { background: var(--accent5); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin-top: 12px; }
+  .tok-run-btn:hover { opacity: 0.85; }
+  .tok-track { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; min-height: 20px; align-items: center; }
+  .tok-chip { display: inline-flex; align-items: center; background: var(--card2); border: 1.5px solid var(--accent5); border-radius: 99px; padding: 5px 14px; font-family: 'Fira Code',monospace; font-size: 0.85rem; color: var(--accent5); font-weight: 700; animation: pop 0.25s ease; }
+  @keyframes pop { 0%{transform:scale(0.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .tok-count { margin-top: 14px; font-size: 0.88rem; color: var(--muted); font-weight: 700; }
+  .tok-count strong { color: var(--accent3); }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre-wrap; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 150px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='day3_pydantic_async.html'">← Day 3</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" onclick="location.href='day5_text_representation.html'">Day 5 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 4 — NLP Fundamentals</span>
+  <span class="hero-emoji">🗣️</span>
+  <h1>Teaching Machines to <em>Read</em> & <em>Understand</em> Language</h1>
+  <p>Before an AI can chat, search, or summarize, it must break human language into pieces it can process. Today we learn the core NLP toolkit.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 3 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>Pydantic validation</div>
+  <div class="recap-chip"><span class="dot"></span>async/await</div>
+  <div class="recap-chip"><span class="dot"></span>pytest</div>
+  <div class="recap-chip"><span class="dot"></span>Streamlit</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. What is NLP</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. Tokenization</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Stem vs Lemma</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. Stopwords</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. POS Tagging</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. NER</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: What is NLP ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧠</div>
+      <div>
+        <div class="section-title">What is NLP & The Roadmap</div>
+        <div class="section-sub">Teaching computers to understand human language</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>So what exactly is NLP?</h3>
+      <p><strong>Natural Language Processing (NLP)</strong> is the part of AI that helps computers read, understand, and work with human language — the messy, everyday words we speak and type, not neat numbers or code.</p>
+      <p>Computers are brilliant with numbers but terrible with words. The word "bank" could mean a river bank or a money bank. "I'm dying to see you" is not literal. NLP is the bridge that turns human language into something a machine can actually process.</p>
+      <div class="analogy-box">
+        <strong>🌍 Analogy:</strong> Imagine teaching a foreign visitor your language. You don't dump a dictionary on them. You go step by step — first single words, then how to chop sentences into words, then the base meaning of each word, then which words actually matter. NLP teaches a machine your language in exactly these small steps.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters — NLP is everywhere</h3>
+      <p>Almost every "smart" text feature you use is powered by NLP. A few examples your students already touch every day:</p>
+      <table class="methods-table">
+        <tr><th>Use case</th><th>What NLP does</th></tr>
+        <tr><td><span class="method-name">Chatbots</span></td><td>Understand your question and reply in plain language</td></tr>
+        <tr><td><span class="method-name">Search engines</span></td><td>Figure out what you really meant, not just the exact words</td></tr>
+        <tr><td><span class="method-name">Sentiment analysis</span></td><td>Decide if a review is positive, negative, or neutral</td></tr>
+        <tr><td><span class="method-name">Translation</span></td><td>Convert text from one language to another</td></tr>
+        <tr><td><span class="method-name">Spam filters</span></td><td>Spot junk email from the words it contains</td></tr>
+        <tr><td><span class="method-name">RAG / LLM apps</span></td><td>Break documents into chunks an AI can search and answer from</td></tr>
+      </table>
+      <div class="tip-box">
+        <strong>💡 Why teach this first:</strong> Everything in this bootcamp — RAG, embeddings, chatbots — sits on top of these basics. Get the pipeline right and the advanced stuff clicks into place.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The NLP Pipeline — raw text to a working model</h3>
+      <p>Text rarely goes straight into a model. It flows through a cleaning and preparation pipeline first. Here is the journey every piece of text takes:</p>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Raw text</strong>Messy input: "The students ARE studying!! 😀 in London."</div></div>
+        <div class="step"><div class="step-body"><strong>Clean</strong>Remove punctuation, fix casing, strip emojis and extra spaces.</div></div>
+        <div class="step"><div class="step-body"><strong>Tokenize</strong>Split the text into pieces (sentences, then words). Section 2.</div></div>
+        <div class="step"><div class="step-body"><strong>Normalize</strong>Reduce words to a base form (stemming / lemmatization) and drop noise words (stopwords). Sections 3 &amp; 4.</div></div>
+        <div class="step"><div class="step-body"><strong>Represent</strong>Turn words into numbers the machine can do math on (next day's topic!).</div></div>
+        <div class="step"><div class="step-body"><strong>Model</strong>Feed the numbers into a model to classify, search, translate, or generate.</div></div>
+      </div>
+      <div class="info-box">
+        <strong>🔭 Today's focus:</strong> We cover the green-field basics — tokenize, normalize, and analyze (POS &amp; NER). Turning words into numbers (representation) is Day 5.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: Tokenization ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">✂️</div>
+      <div>
+        <div class="section-title">Tokenization — Breaking Text into Pieces</div>
+        <div class="section-sub">The very first thing every NLP system does</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is tokenization?</h3>
+      <p><strong>Tokenization</strong> means splitting text into smaller units called <strong>tokens</strong>. A token is usually a word, but it can also be a sentence or even a piece of a word.</p>
+      <p>Why do we need it? A model cannot work on a giant blob of text. It needs bite-sized pieces it can count, compare, and turn into numbers. Tokens are those bites.</p>
+      <div class="analogy-box">
+        <strong>🍫 Analogy:</strong> You can't eat a whole chocolate bar in one bite — you snap it into squares first. Tokenization snaps a sentence into individual word "squares" the machine can chew on one at a time.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sentence and word tokenization with NLTK</h3>
+      <p>NLTK is the classic Python library for learning NLP. <code>sent_tokenize</code> splits text into sentences; <code>word_tokenize</code> splits it into words.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">tokenize.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">nltk</span>
+<span class="kw">from</span> <span class="var">nltk.tokenize</span> <span class="kw">import</span> <span class="var">sent_tokenize</span>, <span class="var">word_tokenize</span>
+
+<span class="var">text</span> <span class="op">=</span> <span class="str">"NLP is fun. Machines can learn language!"</span>
+
+<span class="cmt"># Split into sentences</span>
+<span class="var">sentences</span> <span class="op">=</span> <span class="fn">sent_tokenize</span>(<span class="var">text</span>)
+<span class="fn">print</span>(<span class="var">sentences</span>)
+
+<span class="cmt"># Split into words (note: punctuation becomes its own token)</span>
+<span class="var">words</span> <span class="op">=</span> <span class="fn">word_tokenize</span>(<span class="var">text</span>)
+<span class="fn">print</span>(<span class="var">words</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">['NLP is fun.', 'Machines can learn language!']
+['NLP', 'is', 'fun', '.', 'Machines', 'can', 'learn', 'language', '!']</div>
+      <div class="tip-box">
+        <strong>📌 Notice:</strong> Punctuation like <code>.</code> and <code>!</code> become their own tokens. Splitting on spaces alone would glue "fun." together — that's why we use a proper tokenizer.
+      </div>
+    </div>
+
+    <!-- TOKENIZER PLAYGROUND -->
+    <div class="tok-viz">
+      <h3>🎮 Tokenizer Playground — type a sentence and watch it split!</h3>
+      <textarea class="tok-input" id="tokInput" spellcheck="false" placeholder="Type a sentence here...">NLP turns words into tokens the machine can understand</textarea>
+      <button class="tok-run-btn" onclick="runTokenizer()">✂️ Tokenize!</button>
+      <div class="tok-track" id="tokTrack"></div>
+      <div class="tok-count" id="tokCount"></div>
+    </div>
+
+    <div class="card">
+      <h3>Modern tokenizers: subwords &amp; BPE</h3>
+      <div class="info-box">
+        <strong>🤖 LLM connection:</strong> Large Language Models like GPT and Claude don't split on whole words. They use <strong>subword tokenization</strong> (often a method called <strong>BPE — Byte Pair Encoding</strong>). A rare word like "tokenization" might become two tokens: <code>token</code> + <code>ization</code>. This lets the model handle any word — even ones it has never seen — by combining familiar pieces. It's also why LLM pricing and limits are measured in <em>tokens</em>, not words.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Stemming vs Lemmatization ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-green">🌱</div>
+      <div>
+        <div class="section-title">Stemming vs Lemmatization</div>
+        <div class="section-sub">Reducing words to their base form</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why reduce words at all?</h3>
+      <p>"study", "studies", "studying", and "studied" all carry the same core meaning. To a naive computer they look like 4 totally different words. By reducing them to one base form, we help the machine see they belong together.</p>
+      <div class="analogy-box">
+        <strong>🌳 Analogy:</strong> Different branches grow from one trunk. "Studies", "studying", and "studied" are branches; "study" is the trunk. Both stemming and lemmatization try to find the trunk — they just use different tools to get there.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The key difference</h3>
+      <div class="two-col">
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">✂️ Stemming — crude chopping</h4>
+          <p style="color:var(--muted);font-size:0.88rem;">Cuts off word endings using simple rules. Fast, but the result may not be a real word.</p>
+          <p style="color:var(--muted);font-size:0.88rem;margin-top:8px;font-family:'Fira Code',monospace;">"studies" → "studi"<br>"running" → "run"<br>"happily" → "happili"</p>
+        </div>
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">📖 Lemmatization — dictionary-correct</h4>
+          <p style="color:var(--muted);font-size:0.88rem;">Uses a dictionary to find the real base word (the "lemma"). Slower, but always a valid word.</p>
+          <p style="color:var(--muted);font-size:0.88rem;margin-top:8px;font-family:'Fira Code',monospace;">"studies" → "study"<br>"running" → "run"<br>"better" → "good"</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Both in code — PorterStemmer &amp; WordNetLemmatizer</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">stem_lemma.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">nltk.stem</span> <span class="kw">import</span> <span class="var">PorterStemmer</span>, <span class="var">WordNetLemmatizer</span>
+
+<span class="var">stemmer</span>    <span class="op">=</span> <span class="fn">PorterStemmer</span>()
+<span class="var">lemmatizer</span> <span class="op">=</span> <span class="fn">WordNetLemmatizer</span>()
+
+<span class="var">words</span> <span class="op">=</span> [<span class="str">"studies"</span>, <span class="str">"studying"</span>, <span class="str">"better"</span>]
+
+<span class="kw">for</span> <span class="var">w</span> <span class="kw">in</span> <span class="var">words</span>:
+    <span class="var">s</span> <span class="op">=</span> <span class="var">stemmer</span>.<span class="fn">stem</span>(<span class="var">w</span>)
+    <span class="var">l</span> <span class="op">=</span> <span class="var">lemmatizer</span>.<span class="fn">lemmatize</span>(<span class="var">w</span>, <span class="var">pos</span><span class="op">=</span><span class="str">"v"</span>)  <span class="cmt"># pos="v" = treat as verb</span>
+    <span class="fn">print</span>(<span class="var">w</span>, <span class="str">"-> stem:"</span>, <span class="var">s</span>, <span class="str">"| lemma:"</span>, <span class="var">l</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">studies -> stem: studi | lemma: study
+studying -> stem: studi | lemma: study
+better -> stem: better | lemma: better</div>
+      <div class="tip-box">
+        <strong>🧭 When to use which:</strong> Use <strong>stemming</strong> when speed matters and ugly base words are fine (e.g. quick search indexing). Use <strong>lemmatization</strong> when you need clean, readable, accurate base words (e.g. building a chatbot or analysis report).
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: Stopwords ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🧹</div>
+      <div>
+        <div class="section-title">Stopwords — Removing the Noise</div>
+        <div class="section-sub">Filtering out common low-information words</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What are stopwords?</h3>
+      <p><strong>Stopwords</strong> are super-common words like "the", "is", "a", "and", "of". They appear in almost every sentence, so they carry very little meaning on their own. Removing them lets the model focus on the words that actually matter.</p>
+      <div class="analogy-box">
+        <strong>🔍 Analogy:</strong> When you skim a news headline, your eyes jump to the important words — "stocks", "crash", "today" — and skip over "the", "of", "a". Removing stopwords teaches the machine to skim the same way, focusing on what counts.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Removing stopwords with NLTK</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">stopwords.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">nltk.corpus</span> <span class="kw">import</span> <span class="var">stopwords</span>
+<span class="kw">from</span> <span class="var">nltk.tokenize</span> <span class="kw">import</span> <span class="var">word_tokenize</span>
+
+<span class="var">stop_words</span> <span class="op">=</span> <span class="fn">set</span>(<span class="var">stopwords</span>.<span class="fn">words</span>(<span class="str">"english"</span>))
+
+<span class="var">text</span>   <span class="op">=</span> <span class="str">"This is a simple example of removing the stopwords"</span>
+<span class="var">words</span>  <span class="op">=</span> <span class="fn">word_tokenize</span>(<span class="var">text</span>)
+
+<span class="cmt"># Keep only words that are NOT stopwords</span>
+<span class="var">filtered</span> <span class="op">=</span> [<span class="var">w</span> <span class="kw">for</span> <span class="var">w</span> <span class="kw">in</span> <span class="var">words</span> <span class="kw">if</span> <span class="var">w</span>.<span class="fn">lower</span>() <span class="kw">not in</span> <span class="var">stop_words</span>]
+
+<span class="fn">print</span>(<span class="str">"Original:"</span>, <span class="var">words</span>)
+<span class="fn">print</span>(<span class="str">"Filtered:"</span>, <span class="var">filtered</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Original: ['This', 'is', 'a', 'simple', 'example', 'of', 'removing', 'the', 'stopwords']
+Filtered: ['simple', 'example', 'removing', 'stopwords']</div>
+    </div>
+
+    <div class="card">
+      <h3>When NOT to remove stopwords</h3>
+      <div class="warn-box">
+        <strong>⚠️ Careful — stopwords aren't always noise!</strong><br>
+        Sometimes they change the meaning entirely. "To be or not to be" becomes "be be" without stopwords — meaningless! For sentiment analysis, "not good" vs "good" flips the whole sentence, and "not" is a stopword. Modern LLMs keep stopwords because they need full context. Remove stopwords for simple keyword tasks; keep them when meaning and grammar matter.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: POS Tagging ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🏷️</div>
+      <div>
+        <div class="section-title">POS Tagging — Labeling Word Roles</div>
+        <div class="section-sub">Identifying nouns, verbs, adjectives and more</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is Part-of-Speech tagging?</h3>
+      <p><strong>POS tagging</strong> labels every word with its grammatical role: is it a noun, a verb, an adjective, an adverb? This gives the machine a sense of <em>structure</em> — not just what words are there, but what job each one is doing.</p>
+      <div class="analogy-box">
+        <strong>📝 Analogy:</strong> Remember grammar class — underline the nouns, circle the verbs? POS tagging is the computer doing exactly that homework, automatically, for every word in a sentence.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters</h3>
+      <p>Knowing word roles helps downstream tasks. The word "book" is a noun in "read a book" but a verb in "book a flight" — POS tags tell them apart. It also feeds lemmatization (which needs to know if a word is a verb or noun) and entity detection.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">pos_tag.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">nltk</span>
+<span class="kw">from</span> <span class="var">nltk.tokenize</span> <span class="kw">import</span> <span class="var">word_tokenize</span>
+
+<span class="var">text</span>  <span class="op">=</span> <span class="str">"The quick brown fox runs fast"</span>
+<span class="var">words</span> <span class="op">=</span> <span class="fn">word_tokenize</span>(<span class="var">text</span>)
+
+<span class="cmt"># Tag each word with its part of speech</span>
+<span class="var">tags</span> <span class="op">=</span> <span class="var">nltk</span>.<span class="fn">pos_tag</span>(<span class="var">words</span>)
+<span class="fn">print</span>(<span class="var">tags</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">[('The', 'DT'), ('quick', 'JJ'), ('brown', 'JJ'),
+ ('fox', 'NN'), ('runs', 'VBZ'), ('fast', 'RB')]</div>
+    </div>
+
+    <div class="card">
+      <h3>Common POS tags to know</h3>
+      <table class="methods-table">
+        <tr><th>Tag</th><th>Means</th><th>Example</th></tr>
+        <tr><td><span class="method-name">NN</span></td><td>Noun</td><td><span class="method-ex">fox, city, idea</span></td></tr>
+        <tr><td><span class="method-name">VB</span></td><td>Verb (base form)</td><td><span class="method-ex">run, eat, learn</span></td></tr>
+        <tr><td><span class="method-name">VBZ</span></td><td>Verb (3rd person, -s)</td><td><span class="method-ex">runs, eats</span></td></tr>
+        <tr><td><span class="method-name">JJ</span></td><td>Adjective</td><td><span class="method-ex">quick, brown, happy</span></td></tr>
+        <tr><td><span class="method-name">RB</span></td><td>Adverb</td><td><span class="method-ex">fast, quickly, very</span></td></tr>
+        <tr><td><span class="method-name">DT</span></td><td>Determiner</td><td><span class="method-ex">the, a, this</span></td></tr>
+        <tr><td><span class="method-name">PRP</span></td><td>Pronoun</td><td><span class="method-ex">I, you, she, it</span></td></tr>
+        <tr><td><span class="method-name">IN</span></td><td>Preposition</td><td><span class="method-ex">in, on, of, with</span></td></tr>
+      </table>
+      <div class="tip-box">
+        <strong>📌 Tip:</strong> You don't need to memorize all tags. Just remember the big four — <strong>NN</strong> (noun), <strong>VB</strong> (verb), <strong>JJ</strong> (adjective), <strong>RB</strong> (adverb).
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: NER ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🔎</div>
+      <div>
+        <div class="section-title">Named Entity Recognition (NER)</div>
+        <div class="section-sub">Finding real-world things in text</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is NER?</h3>
+      <p><strong>Named Entity Recognition</strong> finds and labels real-world entities mentioned in text — people, places, organizations, dates, money amounts, and more. It answers: "Who? Where? When? Which company?"</p>
+      <div class="analogy-box">
+        <strong>🖍️ Analogy:</strong> Picture a teacher with three highlighters reading a paragraph — yellow for every person's name, green for every place, pink for every company. NER is the machine doing that highlighting automatically, then telling you what each highlight is.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why it matters — real use cases</h3>
+      <p>NER turns unstructured text into structured data you can act on:</p>
+      <table class="methods-table">
+        <tr><th>Use case</th><th>What NER pulls out</th></tr>
+        <tr><td><span class="method-name">Resume parsing</span></td><td>Names, companies, schools, dates from CVs</td></tr>
+        <tr><td><span class="method-name">Smart search</span></td><td>Knowing "Apple" the company vs the fruit</td></tr>
+        <tr><td><span class="method-name">News monitoring</span></td><td>Which people and organizations are mentioned</td></tr>
+        <tr><td><span class="method-name">Customer support</span></td><td>Pulling order numbers, dates, locations from messages</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>NER with NLTK's ne_chunk</h3>
+      <p>NER needs tokens that are already POS-tagged, then <code>ne_chunk</code> groups them into named entities.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">ner.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">nltk</span>
+<span class="kw">from</span> <span class="var">nltk</span> <span class="kw">import</span> <span class="var">word_tokenize</span>, <span class="var">pos_tag</span>, <span class="var">ne_chunk</span>
+
+<span class="var">text</span> <span class="op">=</span> <span class="str">"Sundar Pichai works at Google in California"</span>
+
+<span class="cmt"># Step 1: tokenize  ->  Step 2: POS tag  ->  Step 3: chunk entities</span>
+<span class="var">words</span>   <span class="op">=</span> <span class="fn">word_tokenize</span>(<span class="var">text</span>)
+<span class="var">tags</span>    <span class="op">=</span> <span class="fn">pos_tag</span>(<span class="var">words</span>)
+<span class="var">tree</span>    <span class="op">=</span> <span class="fn">ne_chunk</span>(<span class="var">tags</span>)
+
+<span class="fn">print</span>(<span class="var">tree</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">(S
+  (PERSON Sundar/NNP Pichai/NNP)
+  works/VBZ
+  at/IN
+  (ORGANIZATION Google/NNP)
+  in/IN
+  (GPE California/NNP))</div>
+      <div class="info-box">
+        <strong>🏷️ Reading the output:</strong> NLTK labels <code>Sundar Pichai</code> as a <strong>PERSON</strong>, <code>Google</code> as an <strong>ORGANIZATION</strong>, and <code>California</code> as a <strong>GPE</strong> (Geo-Political Entity, i.e. a place). The plain words like "works" and "at" stay unlabeled because they aren't entities.
+      </div>
+      <div class="tip-box">
+        <strong>🚀 Beyond NLTK:</strong> In real projects, teams often use <strong>spaCy</strong> or transformer models for NER — they're faster and more accurate. NLTK is perfect for learning the concept.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 4 Test</div>
+        <div class="section-sub">10 questions on NLP fundamentals</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What does NLP help computers do?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>Render 3D graphics faster</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>Read, understand, and work with human language</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>Compress image files</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>Speed up database queries</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What does tokenization do?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>Translates text to another language</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">B</span>Removes all punctuation from text</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">C</span>Splits text into smaller pieces called tokens</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>Counts how many sentences are in a paragraph</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">Which NLTK function splits text into individual words?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>sent_tokenize()</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>word_tokenize()</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>pos_tag()</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>ne_chunk()</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What is the main difference between stemming and lemmatization?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>They are exactly the same thing</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>Stemming crudely chops endings; lemmatization returns a real dictionary word</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>Stemming removes stopwords; lemmatization adds them</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>Lemmatization is faster but less accurate than stemming</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">A stemmer turns "studies" into "studi". Why isn't that a real word?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>The stemmer is broken</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>Stemming uses simple chopping rules, not a dictionary</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>"studi" is actually a valid English word</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>The input text was misspelled</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">Which of these is a typical stopword?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>elephant</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>the</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>running</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>London</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">For which task should you usually KEEP stopwords?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>A quick keyword-only search index</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>Sentiment analysis, where words like "not" flip the meaning</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>Counting unique non-trivial words</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>Listing the rarest words in a document</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">In POS tagging, what does the tag <code>JJ</code> represent?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>A noun</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>A verb</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">C</span>An adjective</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>An adverb</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (FIB) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: The NLP task that finds people, places, and organizations in text is called <strong>Named ______ Recognition</strong>.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          Named <input class="fib-input" id="fib9" placeholder="type word..."> Recognition
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb',['entity','entities'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (FIB) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: Common low-information words like "the", "is", and "a" that we often remove are called <strong>______</strong>.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          They are called <input class="fib-input" id="fib10" placeholder="type word...">
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib10','q10-fb',['stopwords','stop words','stopword'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Great work!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip" style="font-size:0.9rem;"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>
+
+    <!-- CHECKPOINT -->
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 4 Complete!</strong>
+        You can now tokenize text, normalize words with stemming &amp; lemmatization, strip stopwords, tag parts of speech, and extract named entities. Next up: turning these words into numbers — Text Representation!
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "NLP (Natural Language Processing) is the AI field for reading and understanding human language.",
+    q2: "Tokenization splits text into smaller pieces (tokens) — usually words or sentences.",
+    q3: "word_tokenize() splits text into words; sent_tokenize() splits it into sentences.",
+    q4: "Stemming crudely chops word endings, while lemmatization uses a dictionary to find the real base word.",
+    q5: "Stemmers apply simple rule-based chopping with no dictionary, so 'studi' isn't guaranteed to be a real word.",
+    q6: "Stopwords are very common, low-meaning words like 'the', 'is', and 'a'.",
+    q7: "Keep stopwords for sentiment analysis — words like 'not' completely flip the meaning.",
+    q8: "JJ = adjective. NN = noun, VB = verb, RB = adverb.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! NLP master!';            tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';       tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';    tip='Re-read the tokenization and normalization sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';   tip='Go through each section again and try the Tokenizer Playground.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+
+// ── TOKENIZER PLAYGROUND ──
+function runTokenizer() {
+  let text = document.getElementById('tokInput').value;
+  let track = document.getElementById('tokTrack');
+  let countEl = document.getElementById('tokCount');
+  track.innerHTML = '';
+  // split on whitespace AND separate trailing/leading punctuation into their own tokens
+  let raw = text.match(/[A-Za-z0-9']+|[.,!?;:]/g) || [];
+  if (raw.length === 0) {
+    countEl.innerHTML = 'Type a sentence above, then press Tokenize!';
+    return;
+  }
+  raw.forEach((tok, i) => {
+    let chip = document.createElement('span');
+    chip.className = 'tok-chip';
+    chip.style.animationDelay = (i * 0.04) + 's';
+    chip.textContent = tok;
+    track.appendChild(chip);
+  });
+  countEl.innerHTML = 'Token count: <strong>' + raw.length + '</strong>';
+}
+</script>
+</body>
+</html>

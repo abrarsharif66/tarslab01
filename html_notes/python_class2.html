@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 2 - Input, Operators & If/Else</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #f7971e;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+    --highlight: #6c63ff22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    gap: 12px;
+  }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .prev-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .prev-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent5), var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent5); min-width: 36px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 72px 24px 48px;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, #38bdf820, transparent);
+  }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent5); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent5); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* recap strip */
+  .recap-strip {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 24px 40px;
+  }
+  .recap-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* ── LESSON NAV ── */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent5); color: var(--text); }
+  .nav-pill.active { background: var(--accent5); border-color: var(--accent5); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* ── MAIN ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── SECTION ── */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-orange { background: #f7971e22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-green  { background: #43e97b22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* ── CARD ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent4); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent4); }
+  .tip-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent5); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent5); color: var(--accent5); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* ── OUTPUT BOX ── */
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; margin-top: 6px; font-family: 'Fira Code', monospace; font-size: 0.88rem; color: var(--accent3); }
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito', sans-serif; font-weight: 700; }
+
+  /* ── OPERATOR TABLE ── */
+  .op-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+  .op-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .op-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: middle; }
+  .op-table tr:last-child td { border-bottom: none; }
+  .op-table tr:hover td { background: #1e223580; }
+  .op-sym { font-family: 'Fira Code', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent5); }
+  .op-name { font-weight: 700; }
+  .op-ex { font-family: 'Fira Code', monospace; font-size: 0.82rem; color: var(--accent3); }
+  .op-res { font-family: 'Fira Code', monospace; font-size: 0.82rem; color: var(--muted); }
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0; }
+  .cmp-card { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; transition: transform 0.2s; cursor: default; }
+  .cmp-card:hover { transform: translateY(-3px); border-color: var(--accent5); }
+  .cmp-sym { font-family: 'Fira Code', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent5); display: block; margin-bottom: 4px; }
+  .cmp-label { font-size: 0.78rem; color: var(--muted); font-weight: 700; }
+  .cmp-ex { font-family: 'Fira Code', monospace; font-size: 0.72rem; color: var(--accent4); margin-top: 4px; }
+
+  /* ── IF/ELSE FLOWCHART ── */
+  .flowchart { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 20px 0; }
+  .fc-start { background: var(--accent5); color: #0f1117; padding: 10px 28px; border-radius: 99px; font-weight: 800; font-size: 0.9rem; }
+  .fc-arrow { width: 2px; height: 24px; background: var(--border); margin: 0 auto; position: relative; }
+  .fc-arrow::after { content: '▼'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 0.7rem; }
+  .fc-diamond {
+    background: var(--card);
+    border: 2px solid var(--accent4);
+    padding: 12px 24px;
+    transform: rotate(0deg);
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--accent4);
+    text-align: center;
+    position: relative;
+    margin: 10px 0;
+    max-width: 260px;
+  }
+  .fc-branches { display: flex; gap: 40px; align-items: flex-start; margin: 4px 0; width: 100%; justify-content: center; }
+  .fc-branch { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .fc-branch-label { font-size: 0.75rem; font-weight: 800; padding: 2px 10px; border-radius: 99px; margin-bottom: 6px; }
+  .fc-true  { background: #43e97b22; color: var(--success); border: 1px solid #43e97b44; }
+  .fc-false { background: #ff6b6b22; color: var(--fail);    border: 1px solid #ff6b6b44; }
+  .fc-action { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 0.85rem; text-align: center; min-width: 120px; }
+
+  /* ── INTERACTIVE CODE ── */
+  .interactive-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .interactive-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .ic-label { font-size: 0.78rem; color: var(--accent5); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Fira Code', monospace; font-size: 0.9rem; padding: 20px; resize: vertical; min-height: 110px; line-height: 1.8; }
+  .ic-run-btn { display: flex; align-items: center; gap: 6px; background: var(--accent3); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin: 0 16px 16px; }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output { margin: 0 16px 16px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code', monospace; font-size: 0.85rem; min-height: 44px; color: var(--accent3); display: none; white-space: pre-wrap; }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* ── INPUT SIMULATOR ── */
+  .input-sim { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .input-sim-bar { background: #1a1d27; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 0.78rem; color: var(--accent4); font-weight: 700; letter-spacing: 0.06em; }
+  .input-sim-body { padding: 16px 20px; }
+  .input-sim-code { font-family: 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.9; margin-bottom: 14px; }
+  .input-sim-fields { display: flex; flex-direction: column; gap: 10px; }
+  .input-sim-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .input-sim-row label { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent3); min-width: 120px; }
+  .sim-input {
+    flex: 1; min-width: 120px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .sim-input:focus { border-color: var(--accent5); }
+  .sim-run-btn { background: var(--accent5); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+  .sim-run-btn:hover { opacity: 0.85; }
+  .sim-output { margin-top: 12px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 12px 16px; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent3); display: none; white-space: pre; }
+  .sim-output.visible { display: block; }
+
+  /* ── IF-ELSE PLAYGROUND ── */
+  .ifelse-play { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .ifelse-play h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 14px; color: var(--accent5); }
+  .play-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.9rem; }
+  .play-row label { color: var(--muted); font-weight: 700; min-width: 80px; }
+  .play-input { background: var(--card2); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Fira Code', monospace; font-size: 0.9rem; outline: none; width: 120px; transition: border-color 0.2s; }
+  .play-input:focus { border-color: var(--accent5); }
+  .play-select { background: var(--card2); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  .play-check-btn { background: var(--accent); color: #fff; border: none; padding: 9px 22px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: opacity 0.2s; }
+  .play-check-btn:hover { opacity: 0.85; }
+  .play-result { margin-top: 14px; padding: 14px 18px; border-radius: 10px; font-size: 0.95rem; font-weight: 700; display: none; }
+  .play-result.visible { display: block; }
+  .play-result.res-true  { background: #43e97b14; border: 1px solid #43e97b44; color: var(--success); }
+  .play-result.res-false { background: #ff6b6b14; border: 1px solid #ff6b6b44; color: var(--fail); }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent5); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* ── QUIZ ── */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent5); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code', monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent5); background: #38bdf810; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* Fill in blank */
+  .fib-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: 'Fira Code', monospace; font-size: 0.9rem; line-height: 2.4; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent5); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code', monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent5); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* ── SCORE ── */
+  .score-card { background: linear-gradient(135deg, #38bdf822, #43e97b11); border: 1px solid var(--accent5); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent5), var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent5); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* ── DIVIDER ── */
+  .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 48px 0; }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s, transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* inline code */
+  code { font-family: 'Fira Code', monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent5); }
+
+  /* checkpoint */
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  @media (max-width: 600px) {
+    .site-header { flex-wrap: wrap; height: auto; padding: 10px 16px; }
+    .hero { padding: 40px 16px 28px; }
+    pre { font-size: 0.78rem; }
+    .fc-branches { gap: 16px; }
+    .progress-track { width: 90px; }
+    .op-table { font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="header-right">
+    <span class="prev-btn">← Class 1</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="class-badge">Class 2 — Building on the Basics</span>
+  <span class="hero-emoji">🧠</span>
+  <h1>Make Python <em>Think</em> & <em>Decide!</em></h1>
+  <p>Today we teach Python to talk with users, do smart calculations, and make decisions — like a brain that responds to the real world.</p>
+</section>
+
+<!-- RECAP STRIP -->
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Class 1 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>print() — display output</div>
+  <div class="recap-chip"><span class="dot"></span>Variables — store data</div>
+  <div class="recap-chip"><span class="dot"></span>int, float, str, bool</div>
+</div>
+
+<!-- LESSON NAV -->
+<nav class="lesson-nav" id="lessonNav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. User Input</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. Type Conversion</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Operators</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. Comparisons</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. If / Else</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. elif (many choices)</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ─── SECTION 1: input() ─── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⌨️</div>
+      <div>
+        <div class="section-title">Getting Input from the User</div>
+        <div class="section-sub">Making your program interactive</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is input()?</h3>
+      <p>So far, we only used <code>print()</code> — Python talks TO us. With <code>input()</code>, the user can talk BACK to Python. It pauses the program and waits for you to type something.</p>
+      <div class="analogy-box">
+        <strong>📞 Analogy:</strong> Imagine a receptionist at a hospital. They ask "What is your name?" and wait for you to answer. <code>input()</code> is exactly that — Python asks a question and waits for your answer!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>How input() works</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">input_basic.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># input() pauses and waits for user to type</span>
+<span class="var">name</span> <span class="op">=</span> <span class="fn">input</span>(<span class="str">"What is your name? "</span>)
+
+<span class="cmt"># Whatever the user typed is stored in 'name'</span>
+<span class="fn">print</span>(<span class="str">"Hello,"</span>, <span class="var">name</span>)
+<span class="fn">print</span>(<span class="str">"Welcome to Python!"</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output (if user typed "Priya")</div>
+      <div class="output-box">What is your name? Priya<br>Hello, Priya<br>Welcome to Python!</div>
+
+      <div class="tip-box" style="margin-top:16px;">
+        <strong>💡 The text inside input("...") is just a prompt</strong> — it tells the user what to type. The actual answer they type gets stored in the variable on the left side of =
+      </div>
+    </div>
+
+    <!-- INPUT SIMULATOR -->
+    <div class="input-sim">
+      <div class="input-sim-bar">🎮 INTERACTIVE SIMULATOR — Type your answers below!</div>
+      <div class="input-sim-body">
+        <div class="input-sim-code">
+          <span class="var">name</span> <span class="op">=</span> <span class="fn" style="color:#82aaff">input</span>(<span class="str" style="color:#c3e88d">"What is your name? "</span>)<br>
+          <span class="var">city</span> <span class="op">=</span> <span class="fn" style="color:#82aaff">input</span>(<span class="str" style="color:#c3e88d">"Which city are you from? "</span>)<br>
+          <span class="fn" style="color:#82aaff">print</span>(<span class="str" style="color:#c3e88d">"Nice to meet you,"</span>, <span class="var">name</span>, <span class="str" style="color:#c3e88d">"from"</span>, <span class="var">city</span>)
+        </div>
+        <div class="input-sim-fields">
+          <div class="input-sim-row">
+            <label>Your name:</label>
+            <input class="sim-input" id="simName" placeholder="type here..." />
+          </div>
+          <div class="input-sim-row">
+            <label>Your city:</label>
+            <input class="sim-input" id="simCity" placeholder="type here..." />
+          </div>
+          <button class="sim-run-btn" onclick="runSim1()">▶ Run Program</button>
+        </div>
+        <div class="sim-output" id="simOut1"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Asking multiple questions</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">profile.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">name</span>   <span class="op">=</span> <span class="fn">input</span>(<span class="str">"Enter your name: "</span>)
+<span class="var">age</span>    <span class="op">=</span> <span class="fn">input</span>(<span class="str">"Enter your age: "</span>)
+<span class="var">course</span> <span class="op">=</span> <span class="fn">input</span>(<span class="str">"Enter your course: "</span>)
+
+<span class="fn">print</span>(<span class="str">"--- Student Profile ---"</span>)
+<span class="fn">print</span>(<span class="str">"Name   :"</span>, <span class="var">name</span>)
+<span class="fn">print</span>(<span class="str">"Age    :"</span>, <span class="var">age</span>)
+<span class="fn">print</span>(<span class="str">"Course :"</span>, <span class="var">course</span>)</pre>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 2: Type Conversion ─── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🔄</div>
+      <div>
+        <div class="section-title">Type Conversion — The Critical Catch!</div>
+        <div class="section-sub">Why input() always gives you text, and how to fix it</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Big Gotcha with input()</h3>
+      <p><strong>input() ALWAYS returns a string (str)</strong> — even if the user types a number!</p>
+      <div class="warn-box">
+        <strong>⚠️ This is the #1 beginner mistake!</strong> If you type 25, Python stores it as "25" (text), not 25 (number). You cannot do math on text!
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">problem.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">age</span> <span class="op">=</span> <span class="fn">input</span>(<span class="str">"Enter age: "</span>)   <span class="cmt"># user types 18</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">age</span>))    <span class="cmt"># &lt;class 'str'&gt; ← it's TEXT not a number!</span>
+<span class="fn">print</span>(<span class="var">age</span> <span class="op">+</span> <span class="num">1</span>)      <span class="cmt"># ERROR! Can't add number to text</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">&lt;class 'str'&gt;<br><span style="color:var(--fail)">TypeError: can only concatenate str (not "int") to str</span></div>
+    </div>
+
+    <div class="card">
+      <h3>The Fix: int() and float()</h3>
+      <p>Wrap <code>input()</code> with <code>int()</code> or <code>float()</code> to convert the text into a number.</p>
+
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">conversion.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># int() converts text to whole number</span>
+<span class="var">age</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter age: "</span>))
+
+<span class="cmt"># float() converts text to decimal number</span>
+<span class="var">gpa</span> <span class="op">=</span> <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">"Enter GPA: "</span>))
+
+<span class="fn">print</span>(<span class="str">"Age next year:"</span>, <span class="var">age</span> <span class="op">+</span> <span class="num">1</span>)     <span class="cmt"># now math works!</span>
+<span class="fn">print</span>(<span class="str">"GPA doubled:"</span>, <span class="var">gpa</span> <span class="op">*</span> <span class="num">2</span>)</pre>
+      </div>
+
+      <div class="tip-box">
+        <strong>📌 Quick Rule:</strong> If you need the user to type a number and do math with it — always wrap with <code>int()</code> or <code>float()</code>. If it is just text (name, city, etc.) leave it as plain <code>input()</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>All Conversion Functions</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">type_convert.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="fn">int</span>(<span class="str">"42"</span>)       <span class="cmt"># "42" (text) → 42 (integer)</span>
+<span class="fn">float</span>(<span class="str">"3.14"</span>)   <span class="cmt"># "3.14" (text) → 3.14 (decimal)</span>
+<span class="fn">str</span>(<span class="num">100</span>)        <span class="cmt"># 100 (number) → "100" (text)</span>
+<span class="fn">str</span>(<span class="num">3.14</span>)      <span class="cmt"># 3.14 → "3.14" (text)</span>
+
+<span class="cmt"># Practical example: age calculator</span>
+<span class="var">birth_year</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter your birth year: "</span>))
+<span class="var">age</span>        <span class="op">=</span> <span class="num">2025</span> <span class="op">-</span> <span class="var">birth_year</span>
+<span class="fn">print</span>(<span class="str">"You are approximately"</span>, <span class="var">age</span>, <span class="str">"years old"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Interactive try-it -->
+    <div class="input-sim">
+      <div class="input-sim-bar">🎮 AGE CALCULATOR — Try it yourself!</div>
+      <div class="input-sim-body">
+        <div class="input-sim-code">
+          <span class="var">birth_year</span> <span class="op">=</span> <span class="fn" style="color:#82aaff">int</span>(<span class="fn" style="color:#82aaff">input</span>(<span class="str" style="color:#c3e88d">"Enter your birth year: "</span>))<br>
+          <span class="var">age</span> <span class="op">=</span> <span class="num" style="color:#f78c6c">2025</span> <span class="op">-</span> <span class="var">birth_year</span><br>
+          <span class="fn" style="color:#82aaff">print</span>(<span class="str" style="color:#c3e88d">"You are approximately"</span>, <span class="var">age</span>, <span class="str" style="color:#c3e88d">"years old"</span>)
+        </div>
+        <div class="input-sim-fields">
+          <div class="input-sim-row">
+            <label>Birth year:</label>
+            <input class="sim-input" id="simBirthYear" placeholder="e.g. 2003" type="number" />
+          </div>
+          <button class="sim-run-btn" onclick="runSim2()">▶ Run Program</button>
+        </div>
+        <div class="sim-output" id="simOut2"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 3: Operators ─── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-purple">➕</div>
+      <div>
+        <div class="section-title">Operators — Python's Calculator Powers</div>
+        <div class="section-sub">Arithmetic, and a few surprises</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Arithmetic Operators</h3>
+      <p>Python can do all standard math — plus two powerful extras that beginners often miss!</p>
+      <table class="op-table">
+        <tr><th>Symbol</th><th>Operation</th><th>Example</th><th>Result</th></tr>
+        <tr><td><span class="op-sym">+</span></td><td><span class="op-name">Addition</span></td><td><span class="op-ex">10 + 3</span></td><td><span class="op-res">13</span></td></tr>
+        <tr><td><span class="op-sym">-</span></td><td><span class="op-name">Subtraction</span></td><td><span class="op-ex">10 - 3</span></td><td><span class="op-res">7</span></td></tr>
+        <tr><td><span class="op-sym">*</span></td><td><span class="op-name">Multiplication</span></td><td><span class="op-ex">10 * 3</span></td><td><span class="op-res">30</span></td></tr>
+        <tr><td><span class="op-sym">/</span></td><td><span class="op-name">Division</span></td><td><span class="op-ex">10 / 3</span></td><td><span class="op-res">3.333...</span></td></tr>
+        <tr><td><span class="op-sym">//</span></td><td><span class="op-name">Floor Division <em style="color:var(--accent4);font-size:0.75rem">(whole number only)</em></span></td><td><span class="op-ex">10 // 3</span></td><td><span class="op-res">3</span></td></tr>
+        <tr><td><span class="op-sym">%</span></td><td><span class="op-name">Modulus <em style="color:var(--accent4);font-size:0.75rem">(remainder)</em></span></td><td><span class="op-ex">10 % 3</span></td><td><span class="op-res">1</span></td></tr>
+        <tr><td><span class="op-sym">**</span></td><td><span class="op-name">Exponent <em style="color:var(--accent4);font-size:0.75rem">(power)</em></span></td><td><span class="op-ex">2 ** 8</span></td><td><span class="op-res">256</span></td></tr>
+      </table>
+
+      <div class="analogy-box">
+        <strong>🎯 What is Modulus (%) ?</strong> Think of sharing 10 chocolates among 3 friends. Each gets 3 (that is 10 // 3 = 3), and 1 is left over (that is 10 % 3 = 1). Modulus gives you the leftover!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Real-world examples</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">operators.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># Regular math</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">+</span> <span class="num">8</span>)     <span class="cmt"># 23</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">-</span> <span class="num">8</span>)     <span class="cmt"># 7</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">*</span> <span class="num">8</span>)     <span class="cmt"># 120</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">/</span> <span class="num">8</span>)     <span class="cmt"># 1.875</span>
+
+<span class="cmt"># Floor division and modulus</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">//</span> <span class="num">8</span>)    <span class="cmt"># 1  (how many full times 8 fits into 15)</span>
+<span class="fn">print</span>(<span class="num">15</span> <span class="op">%</span> <span class="num">8</span>)     <span class="cmt"># 7  (remainder)</span>
+
+<span class="cmt"># Real use: check if a number is even or odd!</span>
+<span class="var">num</span> <span class="op">=</span> <span class="num">17</span>
+<span class="fn">print</span>(<span class="var">num</span> <span class="op">%</span> <span class="num">2</span>)    <span class="cmt"># 1 = odd (if 0 it would be even)</span>
+
+<span class="cmt"># Power / Exponent</span>
+<span class="fn">print</span>(<span class="num">2</span> <span class="op">**</span> <span class="num">10</span>)    <span class="cmt"># 1024 (2 to the power 10)</span>
+<span class="fn">print</span>(<span class="num">5</span> <span class="op">**</span> <span class="num">2</span>)     <span class="cmt"># 25 (5 squared)</span></pre>
+      </div>
+    </div>
+
+    <!-- Interactive operator playground -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ CALCULATOR PLAYGROUND — Try any math!</span>
+        <span style="font-size:0.78rem;color:var(--muted)">Edit and run!</span>
+      </div>
+      <textarea class="ic-textarea" id="tryOps" spellcheck="false">price = 250
+quantity = 4
+discount = 10
+
+total = price * quantity
+after_discount = total - discount
+print("Items:", quantity)
+print("Total before discount:", total)
+print("After discount:", after_discount)
+print("Average per item:", total // quantity)
+print("Is quantity even?", quantity % 2 == 0)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryOps','outOps')">▶ Run Code</button>
+      <div class="ic-output" id="outOps"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 4: Comparison Operators ─── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚖️</div>
+      <div>
+        <div class="section-title">Comparison Operators — Asking Yes/No Questions</div>
+        <div class="section-sub">These always return True or False</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Python can compare values — and always answers True or False</h3>
+      <div class="analogy-box">
+        <strong>🏫 Analogy:</strong> Think of comparison operators like a teacher checking an answer. "Is 5 equal to 5?" — Yes (True). "Is 3 greater than 10?" — No (False). Python does the same thing!
+      </div>
+
+      <div class="cmp-grid">
+        <div class="cmp-card"><span class="cmp-sym">==</span><div class="cmp-label">Equal to</div><div class="cmp-ex">5 == 5 → True</div></div>
+        <div class="cmp-card"><span class="cmp-sym">!=</span><div class="cmp-label">Not equal</div><div class="cmp-ex">5 != 3 → True</div></div>
+        <div class="cmp-card"><span class="cmp-sym">&gt;</span><div class="cmp-label">Greater than</div><div class="cmp-ex">8 &gt; 3 → True</div></div>
+        <div class="cmp-card"><span class="cmp-sym">&lt;</span><div class="cmp-label">Less than</div><div class="cmp-ex">2 &lt; 9 → True</div></div>
+        <div class="cmp-card"><span class="cmp-sym">&gt;=</span><div class="cmp-label">Greater or equal</div><div class="cmp-ex">5 &gt;= 5 → True</div></div>
+        <div class="cmp-card"><span class="cmp-sym">&lt;=</span><div class="cmp-label">Less or equal</div><div class="cmp-ex">4 &lt;= 6 → True</div></div>
+      </div>
+
+      <div class="warn-box" style="margin-top:16px;">
+        <strong>⚠️ = vs == — Very common mistake!</strong><br>
+        <code>=</code> means "store this value" (assignment)<br>
+        <code>==</code> means "are these equal?" (comparison)<br>
+        <code>age = 18</code> → stores 18 in age<br>
+        <code>age == 18</code> → asks "is age equal to 18?" → True or False
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Comparisons in action</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">comparisons.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">score</span> <span class="op">=</span> <span class="num">75</span>
+<span class="var">pass_mark</span> <span class="op">=</span> <span class="num">50</span>
+
+<span class="fn">print</span>(<span class="var">score</span> <span class="op">></span> <span class="var">pass_mark</span>)     <span class="cmt"># True — 75 is greater than 50</span>
+<span class="fn">print</span>(<span class="var">score</span> <span class="op">==</span> <span class="num">100</span>)         <span class="cmt"># False — 75 is not 100</span>
+<span class="fn">print</span>(<span class="var">score</span> <span class="op">>=</span> <span class="var">pass_mark</span>)    <span class="cmt"># True — 75 is greater or equal to 50</span>
+<span class="fn">print</span>(<span class="var">score</span> <span class="op">!=</span> <span class="num">75</span>)          <span class="cmt"># False — score IS 75</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">True<br>False<br>True<br>False</div>
+    </div>
+
+    <!-- Comparison Playground -->
+    <div class="ifelse-play">
+      <h3>🎮 Comparison Playground — Test it yourself!</h3>
+      <div class="play-row">
+        <label>Number A:</label>
+        <input class="play-input" id="playA" value="75" type="number" />
+      </div>
+      <div class="play-row">
+        <label>Operator:</label>
+        <select class="play-select" id="playOp">
+          <option value="==">== (equal)</option>
+          <option value="!=">!= (not equal)</option>
+          <option value=">"> > (greater than)</option>
+          <option value="<"> &lt; (less than)</option>
+          <option value=">=">>=  (greater or equal)</option>
+          <option value="<="><= (less or equal)</option>
+        </select>
+      </div>
+      <div class="play-row">
+        <label>Number B:</label>
+        <input class="play-input" id="playB" value="50" type="number" />
+      </div>
+      <button class="play-check-btn" onclick="runComparison()">▶ Check Result</button>
+      <div class="play-result" id="playResult"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 5: if / else ─── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-green">🚦</div>
+      <div>
+        <div class="section-title">if / else — Making Decisions</div>
+        <div class="section-sub">Teaching Python to choose between two paths</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is an if statement?</h3>
+      <p>An <code>if</code> statement lets Python make a decision. If something is True, do this. Otherwise (else), do something different.</p>
+      <div class="analogy-box">
+        <strong>🚦 Analogy:</strong> Think of a traffic light. IF the light is green → you drive. ELSE (red or orange) → you stop. Python works exactly the same way — it checks a condition and takes one of two actions!
+      </div>
+    </div>
+
+    <!-- Flowchart -->
+    <div class="card">
+      <h3>How if/else flows</h3>
+      <div class="flowchart">
+        <div class="fc-start">Program starts</div>
+        <div class="fc-arrow"></div>
+        <div class="fc-diamond">Is the condition True?</div>
+        <div class="fc-branches">
+          <div class="fc-branch">
+            <span class="fc-branch-label fc-true">YES (True)</span>
+            <div class="fc-arrow" style="height:16px"></div>
+            <div class="fc-action" style="border-color:#43e97b44;color:var(--success)">Run the if block</div>
+          </div>
+          <div class="fc-branch">
+            <span class="fc-branch-label fc-false">NO (False)</span>
+            <div class="fc-arrow" style="height:16px"></div>
+            <div class="fc-action" style="border-color:#ff6b6b44;color:var(--fail)">Run the else block</div>
+          </div>
+        </div>
+        <div class="fc-arrow" style="height:16px;margin-top:8px"></div>
+        <div class="fc-start" style="background:var(--card2);color:var(--text);border:1px solid var(--border)">Continue program</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Syntax (structure) of if/else</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">if_else_syntax.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="kw">if</span> condition:                <span class="cmt"># line ends with colon :</span>
+    <span class="cmt"># indented code runs if condition is True</span>
+    <span class="fn">print</span>(<span class="str">"Yes, condition is True!"</span>)
+<span class="kw">else</span>:                        <span class="cmt"># else also ends with colon :</span>
+    <span class="cmt"># indented code runs if condition is False</span>
+    <span class="fn">print</span>(<span class="str">"No, condition is False!"</span>)</pre>
+      </div>
+      <div class="tip-box">
+        <strong>📌 Two critical rules:</strong><br>
+        1. The <code>if</code> and <code>else</code> lines must end with a colon <code>:</code><br>
+        2. The code inside must be <strong>indented</strong> (4 spaces or 1 Tab). Python uses indentation to know what belongs inside the if/else block!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Real examples</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">pass_fail.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">score</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter your score: "</span>))
+
+<span class="kw">if</span> <span class="var">score</span> <span class="op">>=</span> <span class="num">50</span>:
+    <span class="fn">print</span>(<span class="str">"Congratulations! You PASSED!"</span>)
+    <span class="fn">print</span>(<span class="str">"Your score:"</span>, <span class="var">score</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Sorry, you did not pass."</span>)
+    <span class="fn">print</span>(<span class="str">"You need"</span>, <span class="num">50</span> <span class="op">-</span> <span class="var">score</span>, <span class="str">"more marks."</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Pass/Fail Simulator -->
+    <div class="input-sim">
+      <div class="input-sim-bar">🎮 PASS/FAIL CHECKER — Enter a score and see what happens!</div>
+      <div class="input-sim-body">
+        <div class="input-sim-code">
+          <span class="kw" style="color:#c792ea">if</span> score <span class="op">&gt;=</span> <span class="num" style="color:#f78c6c">50</span>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn" style="color:#82aaff">print</span>(<span class="str" style="color:#c3e88d">"Congratulations! You PASSED!"</span>)<br>
+          <span class="kw" style="color:#c792ea">else</span>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn" style="color:#82aaff">print</span>(<span class="str" style="color:#c3e88d">"Sorry, you did not pass."</span>)
+        </div>
+        <div class="input-sim-fields">
+          <div class="input-sim-row">
+            <label>Your score:</label>
+            <input class="sim-input" id="simScore" placeholder="0 - 100" type="number" min="0" max="100"/>
+          </div>
+          <button class="sim-run-btn" onclick="runSim3()">▶ Check Result</button>
+        </div>
+        <div class="sim-output" id="simOut3"></div>
+      </div>
+    </div>
+
+    <!-- Try it yourself -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ TRY IT — Even or Odd Checker</span>
+      </div>
+      <textarea class="ic-textarea" id="tryIfElse" spellcheck="false">number = 17
+
+if number % 2 == 0:
+    print(number, "is EVEN")
+else:
+    print(number, "is ODD")
+
+print("Done checking!")</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryIfElse','outIfElse')">▶ Run Code</button>
+      <div class="ic-output" id="outIfElse"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 6: elif ─── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🔀</div>
+      <div>
+        <div class="section-title">elif — Handling Many Choices</div>
+        <div class="section-sub">When there are more than two possibilities</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is elif?</h3>
+      <p><code>elif</code> stands for "else if". It lets you check multiple conditions one by one. Think of it like a multiple-choice system — Python checks each option until one matches.</p>
+      <div class="analogy-box">
+        <strong>🎓 Analogy:</strong> Think of grade boundaries. If marks are 90+ → A. Else if 80+ → B. Else if 70+ → C. Else → Fail. Python checks each level from top to bottom and stops at the first one that is True!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>if / elif / else — Grade Calculator</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">grade_calculator.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">marks</span> <span class="op">=</span> <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter your marks: "</span>))
+
+<span class="kw">if</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">90</span>:
+    <span class="fn">print</span>(<span class="str">"Grade: A — Outstanding!"</span>)
+<span class="kw">elif</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">80</span>:
+    <span class="fn">print</span>(<span class="str">"Grade: B — Very Good!"</span>)
+<span class="kw">elif</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">70</span>:
+    <span class="fn">print</span>(<span class="str">"Grade: C — Good"</span>)
+<span class="kw">elif</span> <span class="var">marks</span> <span class="op">>=</span> <span class="num">50</span>:
+    <span class="fn">print</span>(<span class="str">"Grade: D — Passed"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Grade: F — Failed"</span>)</pre>
+      </div>
+      <div class="tip-box">
+        <strong>📌 Key idea:</strong> Python checks from top to bottom and runs only the FIRST block that is True. As soon as one matches, it skips all the rest!
+      </div>
+    </div>
+
+    <!-- Grade Simulator -->
+    <div class="input-sim">
+      <div class="input-sim-bar">🎮 GRADE CALCULATOR — Enter marks and get your grade!</div>
+      <div class="input-sim-body">
+        <div class="input-sim-fields">
+          <div class="input-sim-row">
+            <label>Your marks:</label>
+            <input class="sim-input" id="simMarks" placeholder="0 - 100" type="number" min="0" max="100"/>
+          </div>
+          <button class="sim-run-btn" onclick="runSim4()">▶ Get Grade</button>
+        </div>
+        <div class="sim-output" id="simOut4"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Another real example — BMI Category</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">bmi_checker.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">bmi</span> <span class="op">=</span> <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">"Enter your BMI: "</span>))
+
+<span class="kw">if</span> <span class="var">bmi</span> <span class="op"><</span> <span class="num">18.5</span>:
+    <span class="fn">print</span>(<span class="str">"Category: Underweight"</span>)
+<span class="kw">elif</span> <span class="var">bmi</span> <span class="op"><</span> <span class="num">25</span>:
+    <span class="fn">print</span>(<span class="str">"Category: Normal weight"</span>)
+<span class="kw">elif</span> <span class="var">bmi</span> <span class="op"><</span> <span class="num">30</span>:
+    <span class="fn">print</span>(<span class="str">"Category: Overweight"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Category: Obese"</span>)</pre>
+      </div>
+    </div>
+
+    <!-- Full try-it playground -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ TRY IT — Build your own Grade System!</span>
+      </div>
+      <textarea class="ic-textarea" id="tryElif" spellcheck="false">marks = 85
+
+if marks >= 90:
+    print("Grade A - Excellent!")
+elif marks >= 80:
+    print("Grade B - Very Good!")
+elif marks >= 70:
+    print("Grade C - Good")
+elif marks >= 50:
+    print("Grade D - Passed")
+else:
+    print("Grade F - Failed")
+
+print("Marks entered:", marks)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryElif','outElif')">▶ Run Code</button>
+      <div class="ic-output" id="outElif"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 7: QUIZ ─── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Class 2 Test</div>
+        <div class="section-sub">12 questions — input, operators, comparisons, if/else</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What does <code>input()</code> always return, no matter what the user types?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>int — a whole number</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>str — a string (text)</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>float — a decimal number</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>bool — True or False</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">What is the output of <code>17 % 5</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>3</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">B</span>2</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">C</span>5</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>17</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">You want to take the user's age as a number and add 1 to it. Which line is correct?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span><code>age = input("Age: ") + 1</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span><code>age = int(input("Age: ")) + 1</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span><code>age = str(input("Age: ")) + 1</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span><code>age = float("Age: ") + 1</code></div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What is the output of <code>print(10 // 3)</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>3.33</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">B</span>1</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">C</span>3</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>0</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What is the difference between <code>=</code> and <code>==</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>They are both the same thing</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">B</span><code>==</code> stores a value, <code>=</code> compares</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">C</span><code>=</code> stores a value, <code>==</code> checks if two things are equal</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span><code>==</code> is only used in print()</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">Look at this code. What does it print if <code>score = 45</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip">
+          <span class="kw">if</span> score <span class="op">>=</span> <span class="num">50</span>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="str">"Passed"</span>)<br>
+          <span class="kw">else</span>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">print</span>(<span class="str">"Failed"</span>)
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>Passed</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>Failed</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>Passed and Failed</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>Nothing — error</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">What is the result of <code>print(2 ** 4)</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>6</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">B</span>8</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">C</span>16</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>24</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">In an <code>if/elif/else</code> chain, how many blocks actually run?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>All of them</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>Only the last one</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">C</span>Only the first one whose condition is True</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>The if and the else always both run</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9: Fill in blank -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank — to convert the string "42" into an integer, we write:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <input class="fib-input" id="fib9" placeholder="???" autocomplete="off" spellcheck="false">
+          <span style="color:var(--text)">(<span class="str" style="color:#c3e88d">"42"</span>)</span>
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb','int','q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">What will <code>print(7 % 2)</code> output?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">A</span>0</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,true)"><span class="opt-indicator">B</span>1</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">C</span>3.5</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">D</span>7</div>
+        </div>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="quiz-card" id="q11">
+      <div class="quiz-header"><div class="quiz-num">11</div><div class="quiz-q">Which line correctly checks if <code>age</code> is 18 or older?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">A</span><code>if age = 18:</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">B</span><code>if age == 18:</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,true)"><span class="opt-indicator">C</span><code>if age >= 18:</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">D</span><code>if age =&gt; 18:</code></div>
+        </div>
+        <div class="quiz-feedback" id="q11-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q12: Fill in blank -->
+    <div class="quiz-card" id="q12">
+      <div class="quiz-header"><div class="quiz-num">12</div><div class="quiz-q">Fill in the blank — the keyword for "else if" in Python is:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span style="color:var(--text)">if score &gt;= 90:<br>&nbsp;&nbsp;&nbsp;&nbsp;print("A")<br></span>
+          <input class="fib-input" id="fib12" placeholder="???" autocomplete="off" spellcheck="false" style="margin-top:4px;">
+          <span style="color:var(--text)"> score &gt;= 80:<br>&nbsp;&nbsp;&nbsp;&nbsp;print("B")</span>
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib12','q12-fb','elif','q12')">Check Answer</button>
+        <div class="quiz-feedback" id="q12-fb"></div>
+      </div>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🎉</span>
+      <div class="score-main" id="scoreMain">0 / 12</div>
+      <div class="score-sub" id="scoreSub">Keep practising!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div>
+      </div>
+      <div style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+  <div class="checkpoint reveal">
+    <div class="checkpoint-icon">🏁</div>
+    <div class="checkpoint-text">
+      <strong>Class 2 Complete!</strong>
+      You learned input(), type conversion, all arithmetic and comparison operators, if/else, and elif. Next class: Loops — for and while — making Python repeat things!
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── STATE ───
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {};
+let quizCorrect  = {};
+let quizTotal    = 12;
+let quizScore    = 0;
+
+// ─── NAV ───
+function scrollToSec(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => {
+    if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); }
+  });
+}
+
+let observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── COPY CODE ───
+function copyCode(btn) {
+  let pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ─── SIMULATORS ───
+function runSim1() {
+  let name = document.getElementById('simName').value.trim() || 'stranger';
+  let city = document.getElementById('simCity').value.trim() || 'somewhere';
+  let out  = document.getElementById('simOut1');
+  out.textContent = "Nice to meet you, " + name + " from " + city;
+  out.classList.add('visible');
+}
+
+function runSim2() {
+  let yr  = parseInt(document.getElementById('simBirthYear').value);
+  let out = document.getElementById('simOut2');
+  if (!yr || yr < 1900 || yr > 2024) {
+    out.textContent = "Please enter a valid birth year (e.g. 2003)";
+    out.classList.add('visible'); return;
+  }
+  let age = 2025 - yr;
+  out.textContent = "You are approximately " + age + " years old";
+  out.classList.add('visible');
+}
+
+function runSim3() {
+  let score = parseInt(document.getElementById('simScore').value);
+  let out   = document.getElementById('simOut3');
+  if (isNaN(score) || score < 0 || score > 100) {
+    out.textContent = "Please enter a score between 0 and 100";
+    out.classList.add('visible'); return;
+  }
+  if (score >= 50) {
+    out.textContent = "Congratulations! You PASSED!\nYour score: " + score;
+  } else {
+    out.textContent = "Sorry, you did not pass.\nYou need " + (50 - score) + " more marks.";
+  }
+  out.classList.add('visible');
+}
+
+function runSim4() {
+  let marks = parseInt(document.getElementById('simMarks').value);
+  let out   = document.getElementById('simOut4');
+  if (isNaN(marks) || marks < 0 || marks > 100) {
+    out.textContent = "Please enter marks between 0 and 100";
+    out.classList.add('visible'); return;
+  }
+  let grade;
+  if      (marks >= 90) grade = "A - Outstanding!";
+  else if (marks >= 80) grade = "B - Very Good!";
+  else if (marks >= 70) grade = "C - Good";
+  else if (marks >= 50) grade = "D - Passed";
+  else                  grade = "F - Failed";
+  out.textContent = "Marks: " + marks + "\nGrade: " + grade;
+  out.classList.add('visible');
+}
+
+function runComparison() {
+  let a  = parseFloat(document.getElementById('playA').value);
+  let b  = parseFloat(document.getElementById('playB').value);
+  let op = document.getElementById('playOp').value;
+  let res;
+  if      (op === '==') res = a == b;
+  else if (op === '!=') res = a != b;
+  else if (op === '>')  res = a > b;
+  else if (op === '<')  res = a < b;
+  else if (op === '>=') res = a >= b;
+  else if (op === '<=') res = a <= b;
+  let el = document.getElementById('playResult');
+  el.classList.add('visible');
+  el.className = 'play-result visible ' + (res ? 'res-true' : 'res-false');
+  el.textContent = a + " " + op + " " + b + "  →  " + res;
+}
+
+// ─── MINI PYTHON INTERPRETER ───
+function runCode(textareaId, outputId) {
+  let code = document.getElementById(textareaId).value;
+  let out  = document.getElementById(outputId);
+  out.classList.add('visible');
+  out.classList.remove('ic-error');
+  out.textContent = '';
+
+  let lines = code.split('\n');
+  let vars  = {};
+  let output = [];
+  let error  = null;
+  let i = 0;
+
+  try {
+    while (i < lines.length) {
+      let raw  = lines[i];
+      let line = raw.trimEnd();
+      let trimmed = line.trim();
+
+      if (!trimmed || trimmed.startsWith('#')) { i++; continue; }
+
+      // if / elif / else block
+      if (/^if\s+.+:$/.test(trimmed) || /^elif\s+.+:$/.test(trimmed) || /^else\s*:$/.test(trimmed)) {
+        let blocks = [];
+        while (i < lines.length) {
+          let bl = lines[i].trimEnd();
+          let bt = bl.trim();
+          if (!bt) { i++; continue; }
+
+          let isIf   = /^if\s+.+:$/.test(bt);
+          let isElif = /^elif\s+.+:$/.test(bt);
+          let isElse = /^else\s*:$/.test(bt);
+
+          if (!isIf && !isElif && !isElse && blocks.length > 0) {
+            let indent = bl.length - bl.trimStart().length;
+            if (indent === 0) break;
+          }
+          if (isIf || isElif || isElse) {
+            let cond = isElse ? null : bt.replace(/^(?:if|elif)\s+/, '').replace(/:$/, '').trim();
+            let body = [];
+            i++;
+            while (i < lines.length) {
+              let bl2 = lines[i].trimEnd();
+              if (!bl2.trim()) { i++; continue; }
+              let ind2 = bl2.length - bl2.trimStart().length;
+              if (ind2 === 0) break;
+              body.push(bl2.trim());
+              i++;
+            }
+            blocks.push({ cond, body });
+          } else break;
+        }
+
+        let ran = false;
+        for (let b of blocks) {
+          if (ran) break;
+          let condVal = b.cond === null ? !ran : evalCondition(b.cond, vars);
+          if (condVal && !ran) {
+            ran = true;
+            for (let bl of b.body) {
+              let r = execLine(bl, vars, output);
+              if (r && r.error) { error = r.error; break; }
+            }
+          }
+        }
+        continue;
+      }
+
+      let r = execLine(trimmed, vars, output);
+      if (r && r.error) { error = r.error; break; }
+      i++;
+    }
+  } catch(e) {
+    error = e.message;
+  }
+
+  if (error) {
+    out.classList.add('ic-error');
+    out.textContent = "Error: " + error;
+  } else {
+    out.textContent = output.join('\n') || '(no output)';
+  }
+}
+
+function execLine(line, vars, output) {
+  if (!line || line.startsWith('#')) return null;
+
+  // print()
+  if (line.startsWith('print(')) {
+    let inner = extractParens(line, 'print');
+    if (inner === null) return { error: "Syntax error in print()" };
+    let args = splitArgs(inner).map(a => formatVal(evaluateValue(a.trim(), vars)));
+    output.push(args.join(' '));
+    return null;
+  }
+
+  // augmented assignment
+  let augM = line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=|\*\*=)\s*(.+)$/);
+  if (augM) {
+    let vn = augM[1], op = augM[2], val = evaluateValue(augM[3].trim(), vars);
+    if (vars[vn] === undefined) return { error: "Variable '" + vn + "' not defined" };
+    if      (op === '+=')  vars[vn] = vars[vn] + val;
+    else if (op === '-=')  vars[vn] = vars[vn] - val;
+    else if (op === '*=')  vars[vn] = vars[vn] * val;
+    else if (op === '/=')  vars[vn] = vars[vn] / val;
+    else if (op === '//=') vars[vn] = Math.floor(vars[vn] / val);
+    else if (op === '%=')  vars[vn] = vars[vn] % val;
+    else if (op === '**=') vars[vn] = Math.pow(vars[vn], val);
+    return null;
+  }
+
+  // assignment
+  let asgn = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if (asgn) {
+    vars[asgn[1]] = evaluateValue(asgn[2].trim(), vars);
+    return null;
+  }
+
+  return null;
+}
+
+function evalCondition(cond, vars) {
+  cond = cond.trim();
+  // not operator
+  if (cond.startsWith('not ')) {
+    return !evalCondition(cond.slice(4).trim(), vars);
+  }
+  // and / or (simple split — left to right, no precedence needed for beginner code)
+  if (cond.includes(' and ')) {
+    let parts = cond.split(' and ');
+    return parts.every(p => evalCondition(p.trim(), vars));
+  }
+  if (cond.includes(' or ')) {
+    let parts = cond.split(' or ');
+    return parts.some(p => evalCondition(p.trim(), vars));
+  }
+  // comparison
+  let ops = ['>=', '<=', '==', '!=', '>', '<'];
+  for (let op of ops) {
+    let idx = cond.indexOf(op);
+    if (idx > -1) {
+      let L = evaluateValue(cond.slice(0, idx).trim(), vars);
+      let R = evaluateValue(cond.slice(idx + op.length).trim(), vars);
+      if (op === '==') return L == R;
+      if (op === '!=') return L != R;
+      if (op === '>=') return L >= R;
+      if (op === '<=') return L <= R;
+      if (op === '>')  return L >  R;
+      if (op === '<')  return L <  R;
+    }
+  }
+  // standalone bool/var
+  let v = evaluateValue(cond, vars);
+  return Boolean(v);
+}
+
+function extractParens(line, fn) {
+  let s = line.indexOf(fn + '(') + fn.length;
+  let depth = 0, res = '';
+  for (let i = s; i < line.length; i++) {
+    if (line[i] === '(') { if (depth > 0) res += '('; depth++; }
+    else if (line[i] === ')') { depth--; if (depth === 0) return res; else res += ')'; }
+    else res += line[i];
+  }
+  return null;
+}
+
+function splitArgs(expr) {
+  let args = [], depth = 0, inStr = false, strChar = '', cur = '';
+  for (let i = 0; i < expr.length; i++) {
+    let c = expr[i];
+    if (!inStr && (c === '"' || c === "'")) { inStr = true; strChar = c; cur += c; continue; }
+    if (inStr && c === strChar) { inStr = false; cur += c; continue; }
+    if (inStr) { cur += c; continue; }
+    if (c === '(' || c === '[') { depth++; cur += c; }
+    else if (c === ')' || c === ']') { depth--; cur += c; }
+    else if (c === ',' && depth === 0) { args.push(cur); cur = ''; }
+    else cur += c;
+  }
+  if (cur.trim()) args.push(cur);
+  return args;
+}
+
+function evaluateValue(expr, vars) {
+  expr = expr.trim();
+  if (!expr) return '';
+
+  // string literal
+  if ((expr.startsWith('"') && expr.endsWith('"')) ||
+      (expr.startsWith("'") && expr.endsWith("'"))) return expr.slice(1, -1);
+
+  if (expr === 'True')  return true;
+  if (expr === 'False') return false;
+  if (expr === 'None')  return null;
+
+  // number
+  if (!isNaN(expr) && expr !== '') {
+    return expr.includes('.') ? parseFloat(expr) : parseInt(expr);
+  }
+
+  // int() / float() / str() conversions
+  let intM = expr.match(/^int\((.+)\)$/);
+  if (intM) { let v = evaluateValue(intM[1].trim(), vars); return parseInt(String(v)); }
+  let fltM = expr.match(/^float\((.+)\)$/);
+  if (fltM) { let v = evaluateValue(fltM[1].trim(), vars); return parseFloat(String(v)); }
+  let strM = expr.match(/^str\((.+)\)$/);
+  if (strM) { let v = evaluateValue(strM[1].trim(), vars); return String(v); }
+
+  // type()
+  let typeM = expr.match(/^type\((.+)\)$/);
+  if (typeM) {
+    let v = evaluateValue(typeM[1].trim(), vars);
+    if (typeof v === 'boolean') return "<class 'bool'>";
+    if (typeof v === 'number')  return Number.isInteger(v) ? "<class 'int'>" : "<class 'float'>";
+    if (typeof v === 'string')  return "<class 'str'>";
+    return "<class 'NoneType'>";
+  }
+
+  // len()
+  let lenM = expr.match(/^len\((.+)\)$/);
+  if (lenM) { let v = evaluateValue(lenM[1].trim(), vars); return typeof v === 'string' ? v.length : 0; }
+
+  // .upper() .lower()
+  let upM = expr.match(/^(.+)\.upper\(\)$/);
+  if (upM) { let v = evaluateValue(upM[1].trim(), vars); return typeof v === 'string' ? v.toUpperCase() : v; }
+  let loM = expr.match(/^(.+)\.lower\(\)$/);
+  if (loM) { let v = evaluateValue(loM[1].trim(), vars); return typeof v === 'string' ? v.toLowerCase() : v; }
+
+  // input() — in try-it editors we substitute a prompt placeholder
+  let inpM = expr.match(/^(?:int\(|float\()?input\((.+)\)(?:\))?$/);
+  if (inpM) return "[user input]";
+
+  // variable reference
+  if (vars.hasOwnProperty(expr)) return vars[expr];
+
+  // string concatenation with +
+  if (expr.includes('+')) {
+    try {
+      let parts = splitOnPlus(expr);
+      if (parts.length > 1) {
+        let ev = parts.map(p => evaluateValue(p.trim(), vars));
+        if (ev.some(p => typeof p === 'string')) {
+          return ev.map(p => formatVal(p)).join('');
+        }
+        return ev.reduce((a, b) => a + b, 0);
+      }
+    } catch(e) {}
+  }
+
+  // math
+  try {
+    let resolved = expr.replace(/[a-zA-Z_]\w*/g, function(m) {
+      if (vars.hasOwnProperty(m)) {
+        let v = vars[m];
+        if (typeof v === 'boolean') return v ? '1' : '0';
+        if (typeof v === 'number')  return String(v);
+        return 'NaN';
+      }
+      return 'NaN';
+    });
+    // floor division //
+    resolved = resolved.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g, function(_, a, b) {
+      return String(Math.floor(parseFloat(a) / parseFloat(b)));
+    });
+    // modulus %
+    resolved = resolved.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g, function(_, a, b) {
+      return String(parseFloat(a) % parseFloat(b));
+    });
+    if (/^[\d\s\+\-\*\/\.\(\)]+$/.test(resolved.replace(/\*\*/g, ''))) {
+      return safeMath(resolved);
+    }
+  } catch(e) {}
+
+  return expr;
+}
+
+function splitOnPlus(expr) {
+  let parts = [], depth = 0, inStr = false, strChar = '', cur = '';
+  for (let i = 0; i < expr.length; i++) {
+    let c = expr[i];
+    if (!inStr && (c === '"' || c === "'")) { inStr = true; strChar = c; cur += c; continue; }
+    if (inStr && c === strChar) { inStr = false; cur += c; continue; }
+    if (inStr) { cur += c; continue; }
+    if (c === '(' || c === '[') { depth++; cur += c; }
+    else if (c === ')' || c === ']') { depth--; cur += c; }
+    else if (c === '+' && depth === 0) { parts.push(cur); cur = ''; }
+    else cur += c;
+  }
+  if (cur) parts.push(cur);
+  return parts;
+}
+
+function formatVal(val) {
+  if (val === null)  return 'None';
+  if (val === true)  return 'True';
+  if (val === false) return 'False';
+  // print integer-valued floats cleanly
+  if (typeof val === 'number' && Number.isFinite(val)) {
+    if (Number.isInteger(val)) return String(val);
+    return String(Math.round(val * 1e10) / 1e10);
+  }
+  return String(val);
+}
+
+function safeMath(expr) {
+  expr = expr.replace(/\*\*/g, '^').replace(/\s/g, '');
+  return parseMathExpr(expr);
+}
+
+function parseMathExpr(s) {
+  let pos = 0;
+  function peek() { return s[pos]; }
+  function consume() { return s[pos++]; }
+  function parseAtom() {
+    let neg = false;
+    if (peek() === '-') { neg = true; consume(); }
+    if (peek() === '(') {
+      consume();
+      let v = parseAdd();
+      consume();
+      return neg ? -v : v;
+    }
+    let n = '';
+    while (pos < s.length && /[\d\.]/.test(peek())) n += consume();
+    let v = parseFloat(n);
+    return neg ? -v : v;
+  }
+  function parsePow() {
+    let b = parseAtom();
+    while (peek() === '^') { consume(); b = Math.pow(b, parseAtom()); }
+    return b;
+  }
+  function parseMul() {
+    let v = parsePow();
+    while (peek() === '*' || peek() === '/') {
+      let op = consume();
+      let r = parsePow();
+      v = op === '*' ? v * r : v / r;
+    }
+    return v;
+  }
+  function parseAdd() {
+    let v = parseMul();
+    while (peek() === '+' || peek() === '-') {
+      let op = consume();
+      v = op === '+' ? v + parseMul() : v - parseMul();
+    }
+    return v;
+  }
+  try { return parseAdd(); } catch(e) { return NaN; }
+}
+
+// ─── QUIZ ───
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId + '-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = getPositiveFeedback();
+    quizCorrect[qId] = true;
+    quizScore++;
+    spawnConfetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = getWrongFeedback(qId);
+  }
+  checkAllAnswered();
+}
+
+function checkFIB(inputId, fbId, answer, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  if (val === answer.toLowerCase()) {
+    inp.classList.add('correct');
+    fb.classList.add('fb-correct');
+    fb.textContent = getPositiveFeedback();
+    quizCorrect[qId] = true;
+    quizScore++;
+    spawnConfetti(inp);
+  } else {
+    inp.classList.add('wrong');
+    fb.classList.add('fb-wrong');
+    fb.textContent = "Not quite! The answer is: " + answer;
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkAllAnswered();
+}
+
+function getPositiveFeedback() {
+  let msgs = [
+    "Excellent! You got it right!",
+    "Perfect! Great job!",
+    "Spot on! You are getting it!",
+    "Correct! You are on fire!",
+    "Well done! Keep going!",
+  ];
+  return "✅ " + msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function getWrongFeedback(qId) {
+  let hints = {
+    q1:  "input() always gives back text (str), even if you type numbers. Use int() or float() to convert.",
+    q2:  "17 % 5 means: 17 divided by 5 = 3 remainder 2. So the answer is 2.",
+    q3:  "You need int() to convert the text from input() into a real number before adding.",
+    q4:  "// is floor division — it keeps only the whole number part. 10 / 3 = 3.33, but 10 // 3 = 3.",
+    q5:  "= stores a value (x = 5). == asks a question (x == 5 → True or False).",
+    q6:  "45 is less than 50, so the if condition is False and the else block runs.",
+    q7:  "** is the power operator. 2 ** 4 = 2 x 2 x 2 x 2 = 16.",
+    q8:  "Only the first block whose condition is True will run. Python skips the rest.",
+    q10: "7 % 2 means remainder of 7 divided by 2. 7 = 3*2 + 1, so remainder is 1.",
+    q11: ">= means greater than OR equal to. age >= 18 is correct for 18 or older.",
+  };
+  return "Not quite. " + (hints[qId] || "Review this section and try again!");
+}
+
+function checkAllAnswered() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  let pct = Math.round((quizScore / quizTotal) * 100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if (pct === 100) {
+    emoji = '🏆'; sub = 'Perfect! You nailed every question!';
+    tip = 'You have fully mastered Class 2 concepts. Ready for loops!';
+  } else if (pct >= 80) {
+    emoji = '🌟'; sub = 'Excellent work! Almost perfect!';
+    tip = 'Review the questions you missed and you will get 100 next time!';
+  } else if (pct >= 60) {
+    emoji = '👍'; sub = 'Good effort! A bit more practice needed.';
+    tip = 'Go back through the sections on operators and if/else.';
+  } else {
+    emoji = '💪'; sub = 'Keep going — every expert was a beginner once!';
+    tip = 'Re-read the lessons carefully and try the interactive simulators again.';
+  }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent = sub;
+  document.getElementById('scoreTip').textContent = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6);
+  updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered = {}; quizCorrect = {}; quizScore = 0;
+  for (let i = 1; i <= quizTotal; i++) {
+    let card = document.getElementById('q' + i);
+    if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('correct', 'wrong', 'disabled');
+      let ind = o.querySelector('.opt-indicator');
+      if (ind) ind.textContent = ind.dataset.orig || ind.textContent.replace(/[✓✗]/g, '');
+    });
+    card.querySelectorAll('.quiz-feedback').forEach(f => {
+      f.classList.remove('show', 'fb-correct', 'fb-wrong');
+      f.textContent = '';
+    });
+    card.querySelectorAll('.fib-input').forEach(inp => {
+      inp.value = ''; inp.disabled = false;
+      inp.classList.remove('correct', 'wrong');
+    });
+    card.querySelectorAll('.fib-btn').forEach(b => b.disabled = false);
+  }
+  document.getElementById('scoreCard').style.display = 'none';
+  document.getElementById('sec7').scrollIntoView({ behavior: 'smooth' });
+}
+
+function spawnConfetti(el) {
+  let rect = el.getBoundingClientRect();
+  let colors = ['#38bdf8','#43e97b','#f7971e','#ff6b6b','#ffd700','#6c63ff'];
+  for (let i = 0; i < 14; i++) {
+    let p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = "left:" + (rect.left + Math.random()*rect.width) + "px;top:" + rect.top + "px;background:" + colors[i % colors.length] + ";transform:rotate(" + (Math.random()*360) + "deg)";
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2200);
+  }
+}
+
+function bigConfetti() {
+  let colors = ['#38bdf8','#43e97b','#f7971e','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for (let i = 0; i < 70; i++) {
+    setTimeout(() => {
+      let p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.cssText = "left:" + (Math.random()*100) + "vw;top:-20px;background:" + colors[Math.floor(Math.random()*colors.length)] + ";animation-duration:" + (1.5 + Math.random()) + "s";
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2600);
+    }, i * 35);
+  }
+}
+</script>
+</body>
+</html>

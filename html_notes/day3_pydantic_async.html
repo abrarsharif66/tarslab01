@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 — Pydantic, Async & Tooling</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; overflow-x: auto; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; overflow-x: auto; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='python_class6.html'">← Python 6</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" onclick="location.href='day4_nlp_fundamentals.html'">Day 4 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 3 — Pydantic, Async & Tooling</span>
+  <span class="hero-emoji">🛡️</span>
+  <h1>Trust Your <em>Data</em>, Speed Up Your <em>App</em></h1>
+  <p>Today we make data safe with Pydantic, run many things at once with async, and pick up the everyday tools — Git, pytest, and Streamlit — that real GenAI engineers use.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 2 Recap (Python OOP):</div>
+  <div class="recap-chip"><span class="dot"></span>Classes &amp; objects</div>
+  <div class="recap-chip"><span class="dot"></span>Inheritance</div>
+  <div class="recap-chip"><span class="dot"></span>Exceptions</div>
+  <div class="recap-chip"><span class="dot"></span>Decorators</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. Why Pydantic?</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. BaseModel &amp; Types</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Validation &amp; Errors</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. async / await</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. Concurrency</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Tooling</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: Why Pydantic ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🛂</div>
+      <div>
+        <div class="section-title">Why Pydantic? — Data You Can Trust</div>
+        <div class="section-sub">Validate and clean messy data before it breaks your app</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The problem: data from the outside world is dirty</h3>
+      <p>Your program is happy as long as the data inside it is clean. But the moment data comes from <em>outside</em> — a user typing into a form, JSON from an API, a config file — you have no guarantees. The age field might arrive as the text <code>"25"</code> instead of a number. A required email might be missing entirely. One bad value and your app crashes deep inside, with a confusing error.</p>
+      <p>This matters a lot in GenAI apps: you constantly receive JSON from LLM tool calls, web APIs, and user prompts. You need a reliable gate that checks every piece of data before you use it.</p>
+      <div class="analogy-box">
+        <strong>🛂 Analogy — Passport control at an airport:</strong> Before anyone enters the country, an officer checks their passport: Is it real? Is it the right format? Are they who they claim to be? Only valid travelers get through. Pydantic is that officer for your data — it inspects every field, rejects anything wrong, and lets only clean, correct data into your program.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What Pydantic actually does</h3>
+      <p>Pydantic is a Python library that does two jobs at once: it <strong>validates</strong> data (checks it follows your rules) and <strong>converts</strong> it into proper typed Python objects you can use safely.</p>
+      <table class="methods-table">
+        <tr><th>Without Pydantic</th><th>With Pydantic</th></tr>
+        <tr><td>You write manual <code>if</code> checks everywhere</td><td>Rules are declared once, in one place</td></tr>
+        <tr><td><code>"25"</code> stays a string, surprises you later</td><td><code>"25"</code> becomes the integer <code>25</code></td></tr>
+        <tr><td>Missing fields crash randomly</td><td>You get one clear error immediately</td></tr>
+        <tr><td>No autocomplete on raw dicts</td><td>Real objects with editor autocomplete</td></tr>
+      </table>
+      <div class="tip-box">
+        <strong>💡 Why it matters:</strong> Pydantic powers FastAPI and many LLM frameworks. When you ask an LLM for "structured output", a Pydantic model is usually what describes the shape you want back. Learning it now pays off all week.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: BaseModel & field types ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-purple">🧱</div>
+      <div>
+        <div class="section-title">BaseModel &amp; Field Types</div>
+        <div class="section-sub">Describe the shape of your data with simple type hints</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Define a model by subclassing BaseModel</h3>
+      <p>You create a model by making a class that inherits from <code>BaseModel</code> (remember inheritance from Day 2!). Each attribute gets a type hint — <code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code>, <code>list</code> — and Pydantic enforces it for you.</p>
+      <div class="analogy-box">
+        <strong>📋 Analogy — A form template:</strong> A model is like a blank form that says "Name: ____ (text), Age: ____ (number)". Anyone filling it in must put the right kind of answer in each box. The template defines what valid looks like.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">models.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>
+
+<span class="cmt"># A model is a class that inherits from BaseModel</span>
+<span class="kw">class</span> <span class="fn">User</span>(<span class="var">BaseModel</span>):
+    <span class="var">name</span>: <span class="var">str</span>
+    <span class="var">age</span>: <span class="var">int</span>
+    <span class="var">height</span>: <span class="var">float</span>
+    <span class="var">is_active</span>: <span class="var">bool</span> <span class="op">=</span> <span class="kw">True</span>      <span class="cmt"># default value</span>
+
+<span class="cmt"># Create an instance from raw data</span>
+<span class="var">u</span> <span class="op">=</span> <span class="fn">User</span>(<span class="var">name</span><span class="op">=</span><span class="str">"Aisha"</span>, <span class="var">age</span><span class="op">=</span><span class="str">"25"</span>, <span class="var">height</span><span class="op">=</span><span class="num">1.65</span>)
+
+<span class="fn">print</span>(<span class="var">u</span>)
+<span class="fn">print</span>(<span class="var">u</span>.<span class="var">age</span>, <span class="fn">type</span>(<span class="var">u</span>.<span class="var">age</span>))   <span class="cmt"># note: age came in as text "25"</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">name='Aisha' age=25 height=1.65 is_active=True
+25 &lt;class 'int'&gt;</div>
+      <div class="tip-box">
+        <strong>✨ Type coercion:</strong> We passed <code>age="25"</code> as text, but Pydantic automatically converted it to the integer <code>25</code>. This is called <em>coercion</em> — it tidies up sensible inputs so you do not have to.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Optional fields, lists, and nested models</h3>
+      <p>Use <code>Optional[...]</code> for a field that may be missing (it can be <code>None</code>), <code>list[...]</code> for collections, and you can even put one model <em>inside</em> another for nested data — exactly the shape real API JSON has.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">nested.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>
+<span class="kw">from</span> <span class="var">typing</span> <span class="kw">import</span> <span class="var">Optional</span>
+
+<span class="kw">class</span> <span class="fn">Address</span>(<span class="var">BaseModel</span>):
+    <span class="var">city</span>: <span class="var">str</span>
+    <span class="var">country</span>: <span class="var">str</span>
+
+<span class="kw">class</span> <span class="fn">Profile</span>(<span class="var">BaseModel</span>):
+    <span class="var">name</span>: <span class="var">str</span>
+    <span class="var">nickname</span>: <span class="var">Optional</span>[<span class="var">str</span>] <span class="op">=</span> <span class="kw">None</span>   <span class="cmt"># may be missing</span>
+    <span class="var">hobbies</span>: <span class="var">list</span>[<span class="var">str</span>] <span class="op">=</span> []         <span class="cmt"># a list of strings</span>
+    <span class="var">address</span>: <span class="var">Address</span>                   <span class="cmt"># a nested model!</span>
+
+<span class="var">p</span> <span class="op">=</span> <span class="fn">Profile</span>(
+    <span class="var">name</span><span class="op">=</span><span class="str">"Omar"</span>,
+    <span class="var">hobbies</span><span class="op">=</span>[<span class="str">"chess"</span>, <span class="str">"coding"</span>],
+    <span class="var">address</span><span class="op">=</span>{<span class="str">"city"</span>: <span class="str">"Cairo"</span>, <span class="str">"country"</span>: <span class="str">"Egypt"</span>},
+)
+
+<span class="cmt"># Turn the whole object back into a plain dict</span>
+<span class="fn">print</span>(<span class="var">p</span>.<span class="fn">model_dump</span>())</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">{'name': 'Omar', 'nickname': None, 'hobbies': ['chess', 'coding'], 'address': {'city': 'Cairo', 'country': 'Egypt'}}</div>
+      <div class="info-box">
+        <strong>ℹ️ model_dump():</strong> In Pydantic v2, <code>.model_dump()</code> converts your object back into a normal Python dictionary — perfect for saving to a database or sending as JSON. Notice it even converted the nested <code>address</code> dict into a real <code>Address</code> object and back automatically.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Validation & errors ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-red">🚨</div>
+      <div>
+        <div class="section-title">Validation &amp; Errors</div>
+        <div class="section-sub">What happens with bad data, and how to add your own rules</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Bad data raises a ValidationError</h3>
+      <p>If data does not fit the model and cannot be sensibly converted, Pydantic does not silently continue — it raises a <code>ValidationError</code> that tells you exactly which field was wrong and why.</p>
+      <div class="analogy-box">
+        <strong>🔍 Analogy — A quality inspector on a factory line:</strong> A faulty product never makes it to customers. The inspector pulls it off the line and writes a clear report: "Box 3, lid is cracked." Pydantic does the same — it stops bad data early and tells you precisely what failed.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">validation_error.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>, <span class="var">ValidationError</span>
+
+<span class="kw">class</span> <span class="fn">User</span>(<span class="var">BaseModel</span>):
+    <span class="var">name</span>: <span class="var">str</span>
+    <span class="var">age</span>: <span class="var">int</span>
+
+<span class="kw">try</span>:
+    <span class="var">u</span> <span class="op">=</span> <span class="fn">User</span>(<span class="var">name</span><span class="op">=</span><span class="str">"Sara"</span>, <span class="var">age</span><span class="op">=</span><span class="str">"twenty"</span>)   <span class="cmt"># not a number!</span>
+<span class="kw">except</span> <span class="var">ValidationError</span> <span class="kw">as</span> <span class="var">e</span>:
+    <span class="fn">print</span>(<span class="var">e</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">1 validation error for User
+age
+  Input should be a valid integer, unable to parse
+  string as an integer [type=int_parsing, input_value='twenty']</div>
+      <div class="warn-box">
+        <strong>⚠️ Catch it!</strong> A <code>ValidationError</code> is a normal Python exception. Wrap risky data in <code>try / except</code> (remember Day 2!) so a single bad input gives a friendly message instead of crashing your whole app.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Adding constraints with Field(...)</h3>
+      <p>Type hints check the <em>kind</em> of value. <code>Field(...)</code> lets you add extra rules — minimum/maximum numbers, string lengths, and defaults — without writing any <code>if</code> statements.</p>
+      <table class="methods-table">
+        <tr><th>Constraint</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><span class="method-name">gt / ge</span></td><td>Greater than / greater-or-equal</td><td><span class="method-ex">Field(gt=0)</span></td></tr>
+        <tr><td><span class="method-name">lt / le</span></td><td>Less than / less-or-equal</td><td><span class="method-ex">Field(lt=120)</span></td></tr>
+        <tr><td><span class="method-name">min_length</span></td><td>Shortest allowed string/list</td><td><span class="method-ex">Field(min_length=3)</span></td></tr>
+        <tr><td><span class="method-name">max_length</span></td><td>Longest allowed string/list</td><td><span class="method-ex">Field(max_length=20)</span></td></tr>
+        <tr><td><span class="method-name">default</span></td><td>Value used when none is given</td><td><span class="method-ex">Field(default=0)</span></td></tr>
+      </table>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">constraints.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>, <span class="var">Field</span>
+
+<span class="kw">class</span> <span class="fn">Product</span>(<span class="var">BaseModel</span>):
+    <span class="var">name</span>: <span class="var">str</span> <span class="op">=</span> <span class="fn">Field</span>(<span class="var">min_length</span><span class="op">=</span><span class="num">3</span>, <span class="var">max_length</span><span class="op">=</span><span class="num">40</span>)
+    <span class="var">price</span>: <span class="var">float</span> <span class="op">=</span> <span class="fn">Field</span>(<span class="var">gt</span><span class="op">=</span><span class="num">0</span>)          <span class="cmt"># must be positive</span>
+    <span class="var">stock</span>: <span class="var">int</span> <span class="op">=</span> <span class="fn">Field</span>(<span class="var">default</span><span class="op">=</span><span class="num">0</span>, <span class="var">ge</span><span class="op">=</span><span class="num">0</span>)  <span class="cmt"># 0 or more</span>
+
+<span class="var">good</span> <span class="op">=</span> <span class="fn">Product</span>(<span class="var">name</span><span class="op">=</span><span class="str">"Notebook"</span>, <span class="var">price</span><span class="op">=</span><span class="num">4.50</span>)
+<span class="fn">print</span>(<span class="var">good</span>.<span class="fn">model_dump</span>())</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">{'name': 'Notebook', 'price': 4.5, 'stock': 0}</div>
+    </div>
+
+    <div class="card">
+      <h3>Custom rules with @field_validator</h3>
+      <p>When a rule is too specific for <code>Field</code> (like "an email must contain an @"), write your own check with the <code>@field_validator</code> decorator — yes, another decorator from Day 2 in action!</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">custom_validator.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>, <span class="var">field_validator</span>
+
+<span class="kw">class</span> <span class="fn">Account</span>(<span class="var">BaseModel</span>):
+    <span class="var">email</span>: <span class="var">str</span>
+
+    <span class="op">@</span><span class="fn">field_validator</span>(<span class="str">"email"</span>)
+    <span class="op">@</span><span class="fn">classmethod</span>
+    <span class="kw">def</span> <span class="fn">must_have_at</span>(<span class="var">cls</span>, <span class="var">value</span>):
+        <span class="kw">if</span> <span class="str">"@"</span> <span class="kw">not in</span> <span class="var">value</span>:
+            <span class="kw">raise</span> <span class="fn">ValueError</span>(<span class="str">"email must contain @"</span>)
+        <span class="kw">return</span> <span class="var">value</span>
+
+<span class="fn">print</span>(<span class="fn">Account</span>(<span class="var">email</span><span class="op">=</span><span class="str">"hi@x.com"</span>))   <span class="cmt"># ok</span>
+<span class="fn">Account</span>(<span class="var">email</span><span class="op">=</span><span class="str">"oops"</span>)               <span class="cmt"># raises ValidationError</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">email='hi@x.com'
+pydantic_core._pydantic_core.ValidationError: 1 validation
+error for Account
+email
+  Value error, email must contain @</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: async / await ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⚡</div>
+      <div>
+        <div class="section-title">async / await Basics</div>
+        <div class="section-sub">Do useful work while you wait instead of standing idle</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Synchronous vs asynchronous</h3>
+      <p>Normal ("synchronous") code does one thing at a time, top to bottom. If a line has to <em>wait</em> — for a website to reply, for a file to load, for an LLM to answer — your whole program just sits there frozen, doing nothing useful.</p>
+      <p>Asynchronous code is smarter: when something is waiting, it lets <em>other</em> work happen in the meantime, then comes back when the answer is ready.</p>
+      <div class="analogy-box">
+        <strong>🍳 Analogy — Cooking dinner:</strong> A beginner cook starts the rice, then <em>stares at the pot</em> for 15 minutes until it is done, and only then starts chopping vegetables. A smart cook starts the rice boiling, and <em>while it cooks</em> chops the veg and heats the pan. Same kitchen, far less wasted time. Async lets one program "cook several things at once".
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The three keywords you need</h3>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>async def</strong> Marks a function as a <em>coroutine</em> — a special function that is allowed to pause and resume.</div></div>
+        <div class="step"><div class="step-body"><strong>await</strong> Pauses at a slow step and hands control back so other work can run. It waits <em>without blocking</em> everything else.</div></div>
+        <div class="step"><div class="step-body"><strong>asyncio.run(main())</strong> The starter button — it runs your top-level async function and manages all the pausing/resuming behind the scenes.</div></div>
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">async_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">asyncio</span>
+
+<span class="kw">async</span> <span class="kw">def</span> <span class="fn">make_tea</span>():
+    <span class="fn">print</span>(<span class="str">"Boiling water..."</span>)
+    <span class="kw">await</span> <span class="var">asyncio</span>.<span class="fn">sleep</span>(<span class="num">2</span>)        <span class="cmt"># pause, let others run</span>
+    <span class="fn">print</span>(<span class="str">"Tea is ready! ☕"</span>)
+
+<span class="kw">async</span> <span class="kw">def</span> <span class="fn">main</span>():
+    <span class="kw">await</span> <span class="fn">make_tea</span>()
+
+<span class="var">asyncio</span>.<span class="fn">run</span>(<span class="fn">main</span>())          <span class="cmt"># the starter button</span></pre>
+      </div>
+      <div class="output-label">▶ Output (with a 2-second pause between lines)</div>
+      <div class="output-box">Boiling water...
+Tea is ready! ☕</div>
+      <div class="warn-box">
+        <strong>⚠️ Common beginner trap:</strong> You can only use <code>await</code> <em>inside</em> an <code>async def</code> function. And calling an async function without <code>await</code> does not run it — it just creates a coroutine object that sits there doing nothing.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Blocking vs async — see the difference</h3>
+      <div class="two-col">
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">😴 Blocking (one at a time)</h4>
+          <pre style="font-size:0.78rem;padding:0;background:none">0s  start task A
+    ⏳ wait... (idle)
+3s  task A done
+    start task B
+    ⏳ wait... (idle)
+6s  task B done
+
+Total: 6 seconds</pre>
+        </div>
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">⚡ Async (overlap the waits)</h4>
+          <pre style="font-size:0.78rem;padding:0;background:none">0s  start A AND B
+    ⏳ both waiting
+       together...
+3s  A done, B done
+
+Total: ~3 seconds</pre>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>💡 The key idea:</strong> Async does not make a single task faster. It stops you from <em>wasting time waiting</em> — many waits can overlap, so the total time shrinks dramatically.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: Concurrency for API calls ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-green">🌐</div>
+      <div>
+        <div class="section-title">Concurrency for API Calls</div>
+        <div class="section-sub">Fire many requests at once with asyncio.gather</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why this matters for LLM &amp; web apps</h3>
+      <p>GenAI apps spend most of their life <em>waiting on the network</em> — calling an LLM, fetching web pages, querying a database. If you do these one after another, the waits stack up. With async you can launch them all together and wait once.</p>
+      <div class="analogy-box">
+        <strong>🍽️ Analogy — A waiter taking orders:</strong> A slow waiter takes Table 1's order, walks to the kitchen, waits, comes back, then goes to Table 2. A good waiter collects orders from <em>all</em> tables first, then hands them to the kitchen together. Same kitchen, everyone is served much sooner.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>asyncio.gather — run them all together</h3>
+      <p><code>asyncio.gather(...)</code> takes several coroutines, starts them all at once, and waits for every one to finish. The total time is roughly the time of the <em>slowest single</em> call — not the sum of all of them.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">gather.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">asyncio</span>
+
+<span class="kw">async</span> <span class="kw">def</span> <span class="fn">ask_llm</span>(<span class="var">prompt</span>):
+    <span class="fn">print</span>(<span class="str">"Sending:"</span>, <span class="var">prompt</span>)
+    <span class="kw">await</span> <span class="var">asyncio</span>.<span class="fn">sleep</span>(<span class="num">1</span>)        <span class="cmt"># pretend the API takes 1s</span>
+    <span class="kw">return</span> <span class="str">f"Answer to {prompt}"</span>
+
+<span class="kw">async</span> <span class="kw">def</span> <span class="fn">main</span>():
+    <span class="var">prompts</span> <span class="op">=</span> [<span class="str">"q1"</span>, <span class="str">"q2"</span>, <span class="str">"q3"</span>, <span class="str">"q4"</span>, <span class="str">"q5"</span>,
+               <span class="str">"q6"</span>, <span class="str">"q7"</span>, <span class="str">"q8"</span>, <span class="str">"q9"</span>, <span class="str">"q10"</span>]
+
+    <span class="cmt"># Start all 10 calls at once, wait for all of them</span>
+    <span class="var">answers</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">asyncio</span>.<span class="fn">gather</span>(
+        <span class="op">*</span>[<span class="fn">ask_llm</span>(<span class="var">p</span>) <span class="kw">for</span> <span class="var">p</span> <span class="kw">in</span> <span class="var">prompts</span>]
+    )
+    <span class="fn">print</span>(<span class="fn">len</span>(<span class="var">answers</span>), <span class="str">"answers in ~1 second!"</span>)
+
+<span class="var">asyncio</span>.<span class="fn">run</span>(<span class="fn">main</span>())</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Sending: q1
+Sending: q2
+... (all sent immediately)
+Sending: q10
+10 answers in ~1 second!</div>
+    </div>
+
+    <div class="card">
+      <h3>One-by-one vs all-at-once</h3>
+      <div class="two-col">
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">🐌 Sequential</h4>
+          <p style="font-size:0.85rem;color:var(--muted)">10 calls &times; 1 second each, done one after another.</p>
+          <div class="output-box" style="color:var(--accent2)">Total: ~10 seconds</div>
+        </div>
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">🚀 Concurrent (gather)</h4>
+          <p style="font-size:0.85rem;color:var(--muted)">10 calls launched together, all waiting at the same time.</p>
+          <div class="output-box">Total: ~1 second</div>
+        </div>
+      </div>
+      <div class="tip-box">
+        <strong>💡 Real LLM use case:</strong> Imagine summarizing 50 documents. Sequentially that might take minutes; with <code>gather</code> you fire all 50 LLM calls at once and get them back in roughly the time of one. This is the single biggest speed-up in most GenAI pipelines. (In production you add a small limit so you do not flood the API with all 50 at literally the same instant.)
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Tooling ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🧰</div>
+      <div>
+        <div class="section-title">Tooling: Git, Structure, Testing, Streamlit</div>
+        <div class="section-sub">The everyday tools of a real GenAI engineer</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Git — your project's time machine</h3>
+      <p>Git saves snapshots of your code so you can go back, see history, and collaborate. Four commands cover almost everything you need at the start.</p>
+      <div class="analogy-box">
+        <strong>💾 Analogy — Save points in a video game:</strong> Git "commits" are save points. If you mess up, you reload an earlier save instead of restarting the whole game.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">terminal</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">git</span> init                 <span class="cmt"># start tracking this folder</span>
+<span class="var">git</span> add .                <span class="cmt"># stage all changed files</span>
+<span class="var">git</span> commit <span class="op">-</span>m <span class="str">"first version"</span>   <span class="cmt"># save a snapshot</span>
+<span class="var">git</span> push                 <span class="cmt"># upload to GitHub</span></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A sensible project structure</h3>
+      <p>A clean folder layout makes any project easy to navigate — for you, your teammates, and future-you.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">project tree</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">my_genai_app/</span>
+├── <span class="var">app.py</span>            <span class="cmt"># Streamlit UI</span>
+├── <span class="var">src/</span>              <span class="cmt"># your real code</span>
+│   ├── <span class="var">models.py</span>     <span class="cmt"># Pydantic models</span>
+│   └── <span class="var">llm.py</span>        <span class="cmt"># async API calls</span>
+├── <span class="var">tests/</span>            <span class="cmt"># pytest tests</span>
+│   └── <span class="var">test_llm.py</span>
+├── <span class="var">requirements.txt</span>  <span class="cmt"># dependencies</span>
+└── <span class="var">README.md</span></pre>
+      </div>
+      <div class="info-box">
+        <strong>ℹ️ Tip:</strong> Add a <code>.gitignore</code> file so secrets and junk (like <code>.env</code> and <code>__pycache__/</code>) never get committed. Never push API keys to GitHub.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>pytest — proof your code works</h3>
+      <p>A test is a tiny function (name starts with <code>test_</code>) that uses <code>assert</code> to say "this should be true". Run <code>pytest</code> and it finds and runs them all, reporting pass or fail.</p>
+      <div class="analogy-box">
+        <strong>🚦 Analogy — A smoke alarm:</strong> Tests quietly watch your code. The moment something breaks, they go off — so you find bugs before your users do.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">test_math.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">def</span> <span class="fn">add</span>(<span class="var">a</span>, <span class="var">b</span>):
+    <span class="kw">return</span> <span class="var">a</span> <span class="op">+</span> <span class="var">b</span>
+
+<span class="cmt"># pytest finds any function starting with test_</span>
+<span class="kw">def</span> <span class="fn">test_add</span>():
+    <span class="kw">assert</span> <span class="fn">add</span>(<span class="num">2</span>, <span class="num">3</span>) <span class="op">==</span> <span class="num">5</span>      <span class="cmt"># must be true to pass</span>
+    <span class="kw">assert</span> <span class="fn">add</span>(<span class="op">-</span><span class="num">1</span>, <span class="num">1</span>) <span class="op">==</span> <span class="num">0</span></pre>
+      </div>
+      <div class="output-label">▶ Output (run: pytest)</div>
+      <div class="output-box">test_math.py .                       [100%]
+1 passed in 0.01s</div>
+    </div>
+
+    <div class="card">
+      <h3>Streamlit — a web app from a Python script</h3>
+      <p>Streamlit turns a plain Python file into an interactive web app — no HTML, CSS, or JavaScript needed. It is the fastest way to put a friendly face on your GenAI project.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">app.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">streamlit</span> <span class="kw">as</span> <span class="var">st</span>
+
+<span class="var">st</span>.<span class="fn">title</span>(<span class="str">"My First AI App 🤖"</span>)
+<span class="var">st</span>.<span class="fn">write</span>(<span class="str">"Ask me anything below:"</span>)
+
+<span class="var">name</span> <span class="op">=</span> <span class="var">st</span>.<span class="fn">text_input</span>(<span class="str">"Your name"</span>)
+<span class="kw">if</span> <span class="var">name</span>:
+    <span class="var">st</span>.<span class="fn">write</span>(<span class="str">f"Hello, {name}! 👋"</span>)</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">terminal</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">streamlit</span> run app.py    <span class="cmt"># opens the app in your browser</span></pre>
+      </div>
+      <div class="tip-box">
+        <strong>💡 Why it matters:</strong> By the end of the bootcamp you will wrap your LLM logic in a Streamlit app so anyone — not just programmers — can use what you built. <code>st.title</code>, <code>st.write</code>, and <code>st.text_input</code> already get you a working demo.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 3 Test</div>
+        <div class="section-sub">10 questions on Pydantic, async, and tooling</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What is the main job of Pydantic?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>To make Python code run faster</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>To validate data and convert it into typed Python objects</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>To build user interfaces</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>To store data in a database</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">How do you define a Pydantic model?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>Create a function decorated with @model</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">B</span>Make a dictionary with type hints</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">C</span>Make a class that inherits from BaseModel</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>Call pydantic.create()</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">For a field typed as <code>age: int</code>, what does Pydantic do with the input <code>"25"</code> (text)?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>Keeps it as the string "25"</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>Coerces it into the integer 25</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>Deletes the field</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>Crashes immediately</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What does Pydantic raise when data does not fit the model?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>TypeError</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">B</span>KeyError</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">C</span>ValidationError</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>Nothing — it ignores bad data</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">Which <code>Field(...)</code> constraint forces a number to be greater than 0?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">A</span>Field(gt=0)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">B</span>Field(min=0)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>Field(positive=True)</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>Field(max_length=0)</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">What does the <code>await</code> keyword do?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>Stops the whole program until done</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>Pauses at a slow step without blocking, so other work can run</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>Makes a single task run faster</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>Defines a new class</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">You run 10 API calls (1 second each). Using <code>asyncio.gather</code>, roughly how long does it take?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>About 10 seconds</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>About 1 second</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>About 100 seconds</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>It never finishes</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">In pytest, how does a test function check that something is true?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>With a return True statement</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">B</span>With the assert keyword</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">C</span>With a print() call</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>With an if/else block</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (FIB) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the function that turns a Pydantic object back into a plain dictionary is <code>obj.______()</code></div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span class="var">data</span> <span class="op">=</span> user.<input class="fib-input" id="fib9" placeholder="?" />()
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb',['model_dump','model_dump()'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (FIB) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: the command to launch a Streamlit app is <code>streamlit ______ app.py</code></div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          streamlit <input class="fib-input" id="fib10" placeholder="?" /> app.py
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib10','q10-fb',['run'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Great work!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <!-- CHECKPOINT -->
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 3 Complete!</strong>
+        You can now validate data with Pydantic (BaseModel, Field, validators), run work concurrently with async/await &amp; asyncio.gather, and use the core tools — Git, pytest, and Streamlit. Next up: Day 4 — NLP Fundamentals!
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "Pydantic validates incoming data AND converts it into typed Python objects.",
+    q2: "A Pydantic model is a class that inherits from BaseModel.",
+    q3: "Pydantic coerces the text \"25\" into the integer 25 because the field is typed as int.",
+    q4: "Bad data that cannot be coerced raises a ValidationError with a clear message.",
+    q5: "Field(gt=0) means 'greater than 0', so the value must be positive.",
+    q6: "await pauses at a slow step without blocking, letting other work run meanwhile.",
+    q7: "asyncio.gather runs all 10 calls at once, so total time is about 1 second, not 10.",
+    q8: "pytest tests use the assert keyword to check a condition is true.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! Pydantic & async master!';   tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';          tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';       tip='Re-read the Pydantic and async sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';      tip='Go through each section again and study the code examples.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+</script>
+</body></html>

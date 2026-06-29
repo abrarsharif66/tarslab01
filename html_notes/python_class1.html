@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 1 — Let's Start Coding!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #f7971e;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --yellow: #ffd700;
+    --code-bg: #12151f;
+    --highlight: #6c63ff22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .logo { font-size: 1.3rem; font-weight: 900; }
+  .logo span { color: var(--accent); }
+  .progress-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .progress-track {
+    width: 160px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 72px 24px 56px;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, #6c63ff18, transparent);
+  }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 540px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 4px 14px;
+    border-radius: 99px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  /* ── LESSON NAV ── */
+  .lesson-nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 24px 48px;
+  }
+  .nav-pill {
+    padding: 8px 18px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* ── MAIN LAYOUT ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── SECTION ── */
+  .lesson-section {
+    margin-bottom: 56px;
+    scroll-margin-top: 80px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .section-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .icon-purple { background: #6c63ff22; }
+  .icon-orange { background: #f7971e22; }
+  .icon-green  { background: #43e97b22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-blue   { background: #38bdf822; }
+
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub   { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p  { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+
+  .analogy-box {
+    background: #f7971e12;
+    border-left: 3px solid var(--accent4);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.95rem;
+  }
+  .analogy-box strong { color: var(--accent4); }
+
+  .tip-box {
+    background: #6c63ff12;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.95rem;
+  }
+  .tip-box strong { color: var(--accent); }
+
+  /* ── CODE BLOCK ── */
+  .code-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 16px 0;
+    position: relative;
+  }
+  .code-topbar {
+    background: #1a1d27;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .d1 { background: #ff5f57; }
+  .d2 { background: #febc2e; }
+  .d3 { background: #28c840; }
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+  .code-copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: all 0.2s;
+  }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .kw  { color: #c792ea; }   /* keywords */
+  .fn  { color: #82aaff; }   /* functions */
+  .str { color: #c3e88d; }   /* strings */
+  .num { color: #f78c6c; }   /* numbers */
+  .cmt { color: #546e7a; font-style: italic; }  /* comments */
+  .var { color: #ffcb6b; }   /* variables */
+
+  /* ── OUTPUT BOX ── */
+  .output-box {
+    background: #0a0d14;
+    border: 1px dashed #2e3350;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-top: 6px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.88rem;
+    color: var(--accent3);
+  }
+  .output-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+  }
+
+  /* ── DATA TYPES VISUAL ── */
+  .dtype-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .dtype-card {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: default;
+  }
+  .dtype-card:hover { transform: translateY(-4px); }
+  .dtype-card.dt-int   { border-top: 3px solid #82aaff; }
+  .dtype-card.dt-float { border-top: 3px solid #f78c6c; }
+  .dtype-card.dt-str   { border-top: 3px solid #c3e88d; }
+  .dtype-card.dt-bool  { border-top: 3px solid #c792ea; }
+  .dtype-icon { font-size: 2rem; margin-bottom: 8px; }
+  .dtype-name { font-weight: 900; font-size: 1rem; margin-bottom: 4px; }
+  .dtype-ex   { font-family: 'Fira Code', monospace; font-size: 0.78rem; color: var(--muted); }
+  .dtype-desc { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+
+  /* ── VARIABLE VISUALIZER ── */
+  .var-viz {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .var-name-box {
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px 0 0 10px;
+    font-family: 'Fira Code', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .var-arrow {
+    background: var(--surface);
+    padding: 10px 8px;
+    font-size: 1rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    color: var(--accent4);
+    font-weight: 700;
+  }
+  .var-val-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: none;
+    padding: 10px 16px;
+    border-radius: 0 10px 10px 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 80px;
+  }
+  .var-type-tag {
+    margin-left: 10px;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+  }
+  .tag-int   { background: #82aaff22; color: #82aaff; }
+  .tag-str   { background: #c3e88d22; color: #c3e88d; }
+  .tag-float { background: #f78c6c22; color: #f78c6c; }
+  .tag-bool  { background: #c792ea22; color: #c792ea; }
+
+  /* ── INTERACTIVE TYPER ── */
+  .interactive-code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .interactive-topbar {
+    background: #1a1d27;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .ic-label { font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    padding: 20px;
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.8;
+  }
+  .ic-run-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent3);
+    color: #0f1117;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin: 0 16px 16px;
+  }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output {
+    margin: 0 16px 16px;
+    background: #0a0d14;
+    border: 1px dashed #2e3350;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    min-height: 44px;
+    color: var(--accent3);
+    display: none;
+  }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* ── QUIZ ── */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .quiz-header {
+    background: var(--card2);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .quiz-num {
+    background: var(--accent);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.92rem;
+    font-weight: 600;
+    user-select: none;
+  }
+  .quiz-option:hover { border-color: var(--accent); background: var(--highlight); }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* ── FILL IN BLANK QUIZ ── */
+  .fib-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
+  .fib-input {
+    background: var(--code-bg);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 4px 10px;
+    color: var(--accent3);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    width: 120px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: opacity 0.2s;
+  }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* ── DRAG DROP QUIZ ── */
+  .drag-area {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .drag-chip {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    cursor: grab;
+    user-select: none;
+    font-weight: 600;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .drag-chip:active { cursor: grabbing; transform: scale(0.97); }
+  .drag-chip.used { opacity: 0.35; pointer-events: none; }
+  .drop-zone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    line-height: 2.2;
+  }
+  .drop-slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    height: 36px;
+    border: 2px dashed var(--accent);
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .drop-slot.filled { border-style: solid; background: var(--highlight); color: var(--text); }
+  .drop-slot.correct-slot { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .drop-slot.wrong-slot   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+
+  /* ── SCORE SUMMARY ── */
+  .score-card {
+    background: linear-gradient(135deg, #6c63ff22, #43e97b11);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s;
+  }
+  .restart-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    pointer-events: none;
+    animation: confetti-fall 2s ease-out forwards;
+    z-index: 9999;
+    border-radius: 2px;
+  }
+  @keyframes confetti-fall {
+    0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+
+  /* ── CHECKPOINT BADGES ── */
+  .checkpoint {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .site-header { flex-direction: column; height: auto; padding: 12px 16px; gap: 8px; }
+    .hero { padding: 40px 16px 32px; }
+    pre { font-size: 0.8rem; }
+    .dtype-grid { grid-template-columns: 1fr 1fr; }
+    .progress-track { width: 110px; }
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s, transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Step circles */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    display: flex; align-items: flex-start; gap: 14px;
+    counter-increment: step;
+    padding: 14px 18px;
+    background: var(--card2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .step::before {
+    content: counter(step);
+    background: var(--accent);
+    color: #fff;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* Tab system for mini-try-it */
+  .tab-group { margin: 16px 0; }
+  .tab-btns { display: flex; gap: 6px; margin-bottom: -1px; }
+  .tab-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    background: var(--card2);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--code-bg); color: var(--text); border-color: var(--border); }
+  .tab-content {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 0 12px 12px 12px;
+    padding: 20px;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    display: none;
+  }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="progress-bar-wrap">
+    <span>Progress</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span id="progress-label">0%</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <span class="class-badge">Class 1 — Absolute Beginner</span>
+  <span class="hero-emoji">🚀</span>
+  <h1>Welcome to Your First <em>Python</em> Class!</h1>
+  <p>No experience needed. We'll go step by step — like learning to cook, but instead of food, we make software!</p>
+</section>
+
+<!-- LESSON NAV -->
+<nav class="lesson-nav" id="lessonNav">
+  <button class="nav-pill active" onclick="scrollTo('sec1')">1. What is Programming?</button>
+  <button class="nav-pill" onclick="scrollTo('sec2')">2. Why Python?</button>
+  <button class="nav-pill" onclick="scrollTo('sec3')">3. print()</button>
+  <button class="nav-pill" onclick="scrollTo('sec4')">4. Variables</button>
+  <button class="nav-pill" onclick="scrollTo('sec5')">5. Data Types</button>
+  <button class="nav-pill" onclick="scrollTo('sec6')">6. Quiz Time!</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ─── SECTION 1: What is Programming ─── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-purple">💡</div>
+      <div>
+        <div class="section-title">What is Programming?</div>
+        <div class="section-sub">Understanding the big picture first</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Think of it like giving instructions to a very smart but very literal robot 🤖</h3>
+      <p>A computer does <em>exactly</em> what you tell it — nothing more, nothing less. Programming is just writing those instructions in a language the computer understands.</p>
+      <div class="analogy-box">
+        <strong>🍳 Real-World Analogy:</strong> Imagine writing a recipe for someone who has never cooked before. You can't say "cook the pasta until it's done" — you have to say "boil 2 litres of water, add 100g pasta, wait exactly 10 minutes." Computers are like that chef — they need every detail spelled out!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What can you build with programming?</h3>
+      <div class="dtype-grid" style="margin-top:12px;">
+        <div class="dtype-card dt-int"><div class="dtype-icon">🌐</div><div class="dtype-name">Websites</div><div class="dtype-desc">Like Google, Instagram, YouTube</div></div>
+        <div class="dtype-card dt-str"><div class="dtype-icon">📱</div><div class="dtype-name">Apps</div><div class="dtype-desc">Mobile & desktop apps</div></div>
+        <div class="dtype-card dt-float"><div class="dtype-icon">🤖</div><div class="dtype-name">AI & Robots</div><div class="dtype-desc">ChatGPT, self-driving cars</div></div>
+        <div class="dtype-card dt-bool"><div class="dtype-icon">🎮</div><div class="dtype-name">Games</div><div class="dtype-desc">From Minecraft to Fortnite</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a Programming Language?</h3>
+      <p>Just like humans speak Hindi, English, or Telugu, computers have their own languages. <strong>Python</strong> is one of those languages — and it's perfect for beginners because it reads almost like plain English!</p>
+      <div class="steps" style="margin-top:14px;">
+        <div class="step"><div class="step-body"><strong>You write code</strong>Instructions you type in Python</div></div>
+        <div class="step"><div class="step-body"><strong>Python reads it</strong>The Python interpreter translates it</div></div>
+        <div class="step"><div class="step-body"><strong>Computer executes</strong>Your instructions run and something happens!</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 2: Why Python ─── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🐍</div>
+      <div>
+        <div class="section-title">Why Python?</div>
+        <div class="section-sub">The most beginner-friendly language in the world</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Compare Python to other languages</h3>
+      <p>Let's say you want to print "Hello, World!" on the screen. Here's how it looks in different languages:</p>
+
+      <div class="tab-group" id="langTab">
+        <div class="tab-btns">
+          <button class="tab-btn active" onclick="showTab('langTab', 'py')">🐍 Python</button>
+          <button class="tab-btn" onclick="showTab('langTab', 'java')">☕ Java</button>
+          <button class="tab-btn" onclick="showTab('langTab', 'cpp')">⚙️ C++</button>
+        </div>
+        <div class="tab-content active" id="langTab-py">
+<span class="fn">print</span>(<span class="str">"Hello, World!"</span>)</div>
+        <div class="tab-content" id="langTab-java">
+<span class="kw">public class</span> <span class="var">Main</span> {<br>
+&nbsp;&nbsp;<span class="kw">public static void</span> <span class="fn">main</span>(String[] args) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;System.out.<span class="fn">println</span>(<span class="str">"Hello, World!"</span>);<br>
+&nbsp;&nbsp;}<br>
+}</div>
+        <div class="tab-content" id="langTab-cpp">
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span><br>
+<span class="kw">using namespace</span> std;<br>
+<span class="kw">int</span> <span class="fn">main</span>() {<br>
+&nbsp;&nbsp;cout &lt;&lt; <span class="str">"Hello, World!"</span> &lt;&lt; endl;<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="num">0</span>;<br>
+}</div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💜 See the difference?</strong> Python is just <em>one line</em>. Java and C++ need 6+ lines to do the exact same thing. That's why Python is loved by beginners and professionals alike!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Who uses Python?</h3>
+      <div class="dtype-grid">
+        <div class="dtype-card dt-str"><div class="dtype-icon">🏢</div><div class="dtype-name">Google</div><div class="dtype-desc">Their search engine uses Python</div></div>
+        <div class="dtype-card dt-int"><div class="dtype-icon">🎬</div><div class="dtype-name">Netflix</div><div class="dtype-desc">Recommendations & streaming</div></div>
+        <div class="dtype-card dt-float"><div class="dtype-icon">🚀</div><div class="dtype-name">NASA</div><div class="dtype-desc">Space mission calculations</div></div>
+        <div class="dtype-card dt-bool"><div class="dtype-icon">🧠</div><div class="dtype-name">OpenAI</div><div class="dtype-desc">ChatGPT is built with Python</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 3: print() ─── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-green">📢</div>
+      <div>
+        <div class="section-title">Your First Command: <code style="color:var(--accent3)">print()</code></div>
+        <div class="section-sub">Making Python talk to you</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What does print() do?</h3>
+      <p><code style="color:var(--accent3)">print()</code> tells Python to display something on your screen. Think of it as Python's way of speaking out loud!</p>
+      <div class="analogy-box">
+        <strong>📣 Analogy:</strong> Imagine print() as a megaphone. Whatever you put inside the brackets — Python shouts it out on the screen!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Basic print() examples</h3>
+
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">hello.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># This is your very first Python program!</span>
+<span class="cmt"># Lines starting with # are comments — Python ignores them</span>
+<span class="cmt"># They are notes for humans reading the code</span>
+
+<span class="fn">print</span>(<span class="str">"Hello, World!"</span>)
+<span class="fn">print</span>(<span class="str">"My name is Abdul"</span>)
+<span class="fn">print</span>(<span class="str">"I am learning Python 🐍"</span>)
+<span class="fn">print</span>(<span class="num">42</span>)       <span class="cmt"># You can print numbers too!</span>
+<span class="fn">print</span>(<span class="num">3.14</span>)     <span class="cmt"># And decimal numbers</span></pre>
+      </div>
+
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Hello, World!<br>My name is Abdul<br>I am learning Python 🐍<br>42<br>3.14</div>
+    </div>
+
+    <div class="card">
+      <h3>Printing with Math</h3>
+      <p>Python can calculate math inside print() automatically!</p>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">math_print.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="fn">print</span>(<span class="num">5</span> + <span class="num">3</span>)       <span class="cmt"># Addition</span>
+<span class="fn">print</span>(<span class="num">10</span> - <span class="num">4</span>)      <span class="cmt"># Subtraction</span>
+<span class="fn">print</span>(<span class="num">6</span> * <span class="num">7</span>)       <span class="cmt"># Multiplication</span>
+<span class="fn">print</span>(<span class="num">15</span> / <span class="num">3</span>)      <span class="cmt"># Division</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">8<br>6<br>42<br>5.0</div>
+    </div>
+
+    <!-- TRY IT YOURSELF -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ TRY IT YOURSELF</span>
+        <span style="font-size:0.78rem;color:var(--muted)">Edit the code & click Run!</span>
+      </div>
+      <textarea class="ic-textarea" id="tryPrint" spellcheck="false">print("Hello! My name is ___")
+print("I am learning Python!")
+print(2 + 2)
+print("My favourite number is", 7)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryPrint', 'outPrint')">▶ Run Code</button>
+      <div class="ic-output" id="outPrint"></div>
+    </div>
+
+    <div class="tip-box">
+      <strong>📌 Important Rules for print():</strong><br><br>
+      ✅ Text must always be inside <strong>quotes</strong> — "like this" or 'like this'<br>
+      ✅ Numbers do NOT need quotes — print(42) not print("42")<br>
+      ❌ Don't forget the brackets! print "hello" will give an error<br>
+      ✅ Python is case-sensitive: <code>print</code> works, <code>Print</code> does NOT
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 4: Variables ─── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-red">📦</div>
+      <div>
+        <div class="section-title">Variables — Storing Information</div>
+        <div class="section-sub">Like labelled boxes that hold data</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a Variable?</h3>
+      <p>A variable is like a <strong>labelled box</strong> where you store information. You give the box a name, put something inside, and can use it later.</p>
+      <div class="analogy-box">
+        <strong>📦 Analogy:</strong> Think of your house. You have boxes labelled "Books", "Clothes", "Shoes". You can open any box by its name, use what's inside, or replace it with something new. Variables work exactly like this!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Creating Variables</h3>
+      <p>The <code style="color:var(--accent4)">=</code> sign means "store this value inside this variable". It's called the <strong>assignment operator</strong>.</p>
+
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">variables.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="cmt"># Creating variables</span>
+<span class="var">name</span> = <span class="str">"Riya"</span>          <span class="cmt"># storing text</span>
+<span class="var">age</span>  = <span class="num">20</span>             <span class="cmt"># storing a number</span>
+<span class="var">city</span> = <span class="str">"Hyderabad"</span>     <span class="cmt"># storing text</span>
+<span class="var">gpa</span>  = <span class="num">8.5</span>            <span class="cmt"># storing a decimal number</span>
+
+<span class="cmt"># Using variables</span>
+<span class="fn">print</span>(<span class="var">name</span>)
+<span class="fn">print</span>(<span class="var">age</span>)
+<span class="fn">print</span>(<span class="str">"I live in"</span>, <span class="var">city</span>)
+<span class="fn">print</span>(<span class="str">"My GPA is"</span>, <span class="var">gpa</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Riya<br>20<br>I live in Hyderabad<br>My GPA is 8.5</div>
+    </div>
+
+    <!-- Visual variable boxes -->
+    <div class="card">
+      <h3>Visualizing Variables in Memory</h3>
+      <p style="margin-bottom:16px;">When Python runs that code, it creates these "boxes" in memory:</p>
+
+      <div class="var-viz"><div class="var-name-box">name</div><div class="var-arrow">→</div><div class="var-val-box">"Riya"</div><span class="var-type-tag tag-str">str</span></div>
+      <div class="var-viz"><div class="var-name-box">age</div><div class="var-arrow">→</div><div class="var-val-box">20</div><span class="var-type-tag tag-int">int</span></div>
+      <div class="var-viz"><div class="var-name-box">city</div><div class="var-arrow">→</div><div class="var-val-box">"Hyderabad"</div><span class="var-type-tag tag-str">str</span></div>
+      <div class="var-viz"><div class="var-name-box">gpa</div><div class="var-arrow">→</div><div class="var-val-box">8.5</div><span class="var-type-tag tag-float">float</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Variables Can Change! (That's why they're called variables)</h3>
+      <div class="code-wrap">
+        <div class="code-topbar">
+          <div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="code-label">change_variable.py</span>
+          <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><span class="var">score</span> = <span class="num">0</span>
+<span class="fn">print</span>(<span class="str">"Score at start:"</span>, <span class="var">score</span>)
+
+<span class="var">score</span> = <span class="num">10</span>
+<span class="fn">print</span>(<span class="str">"Score after level 1:"</span>, <span class="var">score</span>)
+
+<span class="var">score</span> = <span class="var">score</span> + <span class="num">5</span>    <span class="cmt"># add 5 to existing score</span>
+<span class="fn">print</span>(<span class="str">"Score after level 2:"</span>, <span class="var">score</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Score at start: 0<br>Score after level 1: 10<br>Score after level 2: 15</div>
+    </div>
+
+    <div class="card">
+      <h3>Naming Rules for Variables</h3>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>✅ Use letters, numbers, underscores</strong><code style="font-family:'Fira Code';color:var(--accent3)">my_name, score1, user_age</code></div></div>
+        <div class="step"><div class="step-body"><strong>❌ Cannot start with a number</strong><code style="font-family:'Fira Code';color:var(--fail)">1score</code> ← This will give an error!</div></div>
+        <div class="step"><div class="step-body"><strong>❌ No spaces allowed</strong>Use underscore instead: <code style="font-family:'Fira Code';color:var(--accent3)">my_name</code> not <code style="font-family:'Fira Code';color:var(--fail)">my name</code></div></div>
+        <div class="step"><div class="step-body"><strong>⚠️ Case matters!</strong><code style="font-family:'Fira Code';color:var(--accent3)">Name</code> and <code style="font-family:'Fira Code';color:var(--accent3)">name</code> are two different variables</div></div>
+      </div>
+    </div>
+
+    <!-- TRY IT -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ TRY IT YOURSELF — Make Your Profile!</span>
+      </div>
+      <textarea class="ic-textarea" id="tryVar" spellcheck="false">name = "Your Name"
+age = 18
+city = "Your City"
+hobby = "Your Hobby"
+
+print("Name:", name)
+print("Age:", age)
+print("City:", city)
+print("Hobby:", hobby)
+print("Hello! I am", name, "from", city)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryVar', 'outVar')">▶ Run Code</button>
+      <div class="ic-output" id="outVar"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 5: Data Types ─── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🗂️</div>
+      <div>
+        <div class="section-title">Data Types — The 4 Main Kinds of Data</div>
+        <div class="section-sub">Different types of information Python understands</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>Just like real life has different types of things — words, whole numbers, decimal numbers, yes/no answers — Python has different <strong>data types</strong> to handle each one.</p>
+    </div>
+
+    <!-- 4 Data type cards -->
+    <div class="dtype-grid" style="margin-bottom:24px;">
+      <div class="dtype-card dt-int">
+        <div class="dtype-icon">🔢</div>
+        <div class="dtype-name">int</div>
+        <div class="dtype-ex">42, -5, 0, 1000</div>
+        <div class="dtype-desc">Whole numbers, no decimals</div>
+      </div>
+      <div class="dtype-card dt-float">
+        <div class="dtype-icon">📊</div>
+        <div class="dtype-name">float</div>
+        <div class="dtype-ex">3.14, 9.99, -0.5</div>
+        <div class="dtype-desc">Numbers with a decimal point</div>
+      </div>
+      <div class="dtype-card dt-str">
+        <div class="dtype-icon">📝</div>
+        <div class="dtype-name">str</div>
+        <div class="dtype-ex">"hello", "Riya", "123"</div>
+        <div class="dtype-desc">Text — always in quotes</div>
+      </div>
+      <div class="dtype-card dt-bool">
+        <div class="dtype-icon">⚡</div>
+        <div class="dtype-name">bool</div>
+        <div class="dtype-ex">True, False</div>
+        <div class="dtype-desc">Only two values — yes or no!</div>
+      </div>
+    </div>
+
+    <!-- Detailed breakdown -->
+    <div class="card">
+      <h3>🔢 int — Integer (Whole Numbers)</h3>
+      <p>Used for counting things, ages, scores — anything that doesn't need a decimal.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">int_type.py</span></div>
+        <pre><span class="var">students</span> = <span class="num">30</span>
+<span class="var">year</span> = <span class="num">2024</span>
+<span class="var">temperature</span> = <span class="num">-5</span>     <span class="cmt"># can be negative!</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">students</span>))  <span class="cmt"># type() tells us the data type</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">&lt;class 'int'&gt;</div>
+    </div>
+
+    <div class="card">
+      <h3>📊 float — Floating Point (Decimal Numbers)</h3>
+      <p>Used for prices, measurements, averages — anything with a decimal point.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">float_type.py</span></div>
+        <pre><span class="var">price</span>  = <span class="num">99.99</span>
+<span class="var">height</span> = <span class="num">5.7</span>
+<span class="var">pi</span>     = <span class="num">3.14159</span>
+
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">price</span>))   <span class="cmt"># &lt;class 'float'&gt;</span>
+<span class="fn">print</span>(<span class="var">price</span> * <span class="num">2</span>)    <span class="cmt"># Math works on floats too!</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">&lt;class 'float'&gt;<br>199.98</div>
+    </div>
+
+    <div class="card">
+      <h3>📝 str — String (Text)</h3>
+      <p>Used for names, messages, sentences — any text. Always wrapped in quotes!</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">str_type.py</span></div>
+        <pre><span class="var">name</span>    = <span class="str">"Rahul"</span>
+<span class="var">message</span> = <span class="str">'Hello everyone!'</span>  <span class="cmt"># single quotes work too</span>
+<span class="var">number_as_text</span> = <span class="str">"42"</span>  <span class="cmt"># "42" is TEXT, not a number!</span>
+
+<span class="cmt"># Joining strings with +</span>
+<span class="var">greeting</span> = <span class="str">"Good morning, "</span> + <span class="var">name</span>
+<span class="fn">print</span>(<span class="var">greeting</span>)
+
+<span class="cmt"># String has many tricks!</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">name</span>))        <span class="cmt"># length of the string</span>
+<span class="fn">print</span>(<span class="var">name</span>.<span class="fn">upper</span>())    <span class="cmt"># make it UPPERCASE</span>
+<span class="fn">print</span>(<span class="var">name</span>.<span class="fn">lower</span>())    <span class="cmt"># make it lowercase</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Good morning, Rahul<br>5<br>RAHUL<br>rahul</div>
+    </div>
+
+    <div class="card">
+      <h3>⚡ bool — Boolean (True or False)</h3>
+      <p>The simplest data type! Only two possible values: <code style="color:var(--accent3)">True</code> or <code style="color:var(--fail)">False</code>. Used for yes/no decisions.</p>
+      <div class="analogy-box">
+        <strong>💡 Analogy:</strong> A light switch! It's either ON (True) or OFF (False). Nothing in between.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">bool_type.py</span></div>
+        <pre><span class="var">is_student</span> = <span class="kw">True</span>
+<span class="var">has_laptop</span> = <span class="kw">False</span>
+<span class="var">is_raining</span> = <span class="kw">True</span>
+
+<span class="fn">print</span>(<span class="var">is_student</span>)
+<span class="fn">print</span>(<span class="var">has_laptop</span>)
+
+<span class="cmt"># Comparison gives us a boolean!</span>
+<span class="fn">print</span>(<span class="num">5</span> > <span class="num">3</span>)     <span class="cmt"># Is 5 greater than 3? True!</span>
+<span class="fn">print</span>(<span class="num">2</span> > <span class="num">10</span>)    <span class="cmt"># Is 2 greater than 10? False!</span>
+<span class="fn">print</span>(<span class="num">5</span> == <span class="num">5</span>)    <span class="cmt"># Is 5 equal to 5? True!</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">True<br>False<br>True<br>False<br>True</div>
+    </div>
+
+    <div class="card">
+      <h3>Checking Data Types with type()</h3>
+      <p><code style="color:var(--accent3)">type()</code> is a built-in function that tells you what data type something is.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">check_types.py</span></div>
+        <pre><span class="fn">print</span>(<span class="fn">type</span>(<span class="num">100</span>))       <span class="cmt"># int</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="num">3.14</span>))      <span class="cmt"># float</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="str">"hello"</span>))  <span class="cmt"># str</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="kw">True</span>))      <span class="cmt"># bool</span>
+
+<span class="var">my_var</span> = <span class="str">"Python"</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">my_var</span>))   <span class="cmt"># str</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">&lt;class 'int'&gt;<br>&lt;class 'float'&gt;<br>&lt;class 'str'&gt;<br>&lt;class 'bool'&gt;<br>&lt;class 'str'&gt;</div>
+    </div>
+
+    <!-- TRY IT -->
+    <div class="interactive-code">
+      <div class="interactive-topbar">
+        <span class="ic-label">✏️ TRY IT YOURSELF — Explore Data Types!</span>
+      </div>
+      <textarea class="ic-textarea" id="tryTypes" spellcheck="false">name = "Your Name"
+age = 20
+gpa = 8.5
+is_present = True
+
+print(type(name))
+print(type(age))
+print(type(gpa))
+print(type(is_present))
+print("---")
+print("Hello, I am", name)
+print("My age is", age, "and GPA is", gpa)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryTypes', 'outTypes')">▶ Run Code</button>
+      <div class="ic-output" id="outTypes"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ─── SECTION 6: QUIZ ─── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! Test Your Knowledge</div>
+        <div class="section-sub">10 questions — answer them all to get your score</div>
+      </div>
+    </div>
+
+    <!-- Q1: MCQ -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header">
+        <div class="quiz-num">1</div>
+        <div class="quiz-q">What does the <code>print()</code> function do in Python?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1', this, false)"><span class="opt-indicator">A</span>Saves your file to the computer</div>
+          <div class="quiz-option" onclick="answerMCQ('q1', this, true)"><span class="opt-indicator">B</span>Displays output on the screen</div>
+          <div class="quiz-option" onclick="answerMCQ('q1', this, false)"><span class="opt-indicator">C</span>Prints a physical copy using a printer</div>
+          <div class="quiz-option" onclick="answerMCQ('q1', this, false)"><span class="opt-indicator">D</span>Deletes a variable</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2: MCQ -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header">
+        <div class="quiz-num">2</div>
+        <div class="quiz-q">What is the output of this code?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="fn">print</span>(<span class="num">3</span> + <span class="num">7</span>)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2', this, false)"><span class="opt-indicator">A</span>"3 + 7"</div>
+          <div class="quiz-option" onclick="answerMCQ('q2', this, false)"><span class="opt-indicator">B</span>3 + 7</div>
+          <div class="quiz-option" onclick="answerMCQ('q2', this, true)"><span class="opt-indicator">C</span>10</div>
+          <div class="quiz-option" onclick="answerMCQ('q2', this, false)"><span class="opt-indicator">D</span>An error</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3: MCQ -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header">
+        <div class="quiz-num">3</div>
+        <div class="quiz-q">Which of these is a valid variable name in Python?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3', this, false)"><span class="opt-indicator">A</span><code>1score</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3', this, false)"><span class="opt-indicator">B</span><code>my score</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3', this, true)"><span class="opt-indicator">C</span><code>my_score</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q3', this, false)"><span class="opt-indicator">D</span><code>my-score</code></div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4: MCQ -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header">
+        <div class="quiz-num">4</div>
+        <div class="quiz-q">What data type is the value <code>"Hello"</code>?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4', this, false)"><span class="opt-indicator">A</span>int</div>
+          <div class="quiz-option" onclick="answerMCQ('q4', this, false)"><span class="opt-indicator">B</span>bool</div>
+          <div class="quiz-option" onclick="answerMCQ('q4', this, false)"><span class="opt-indicator">C</span>float</div>
+          <div class="quiz-option" onclick="answerMCQ('q4', this, true)"><span class="opt-indicator">D</span>str</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5: MCQ -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header">
+        <div class="quiz-num">5</div>
+        <div class="quiz-q">Look at this code. What does it print?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="var">x</span> = <span class="num">5</span><br><span class="var">x</span> = <span class="var">x</span> + <span class="num">3</span><br><span class="fn">print</span>(<span class="var">x</span>)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5', this, false)"><span class="opt-indicator">A</span>5</div>
+          <div class="quiz-option" onclick="answerMCQ('q5', this, false)"><span class="opt-indicator">B</span>3</div>
+          <div class="quiz-option" onclick="answerMCQ('q5', this, true)"><span class="opt-indicator">C</span>8</div>
+          <div class="quiz-option" onclick="answerMCQ('q5', this, false)"><span class="opt-indicator">D</span>x + 3</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6: MCQ -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header">
+        <div class="quiz-num">6</div>
+        <div class="quiz-q">What is the data type of <code>True</code> and <code>False</code>?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6', this, false)"><span class="opt-indicator">A</span>int</div>
+          <div class="quiz-option" onclick="answerMCQ('q6', this, false)"><span class="opt-indicator">B</span>str</div>
+          <div class="quiz-option" onclick="answerMCQ('q6', this, true)"><span class="opt-indicator">C</span>bool</div>
+          <div class="quiz-option" onclick="answerMCQ('q6', this, false)"><span class="opt-indicator">D</span>float</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7: Fill in the blank -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header">
+        <div class="quiz-num">7</div>
+        <div class="quiz-q">Fill in the blank — to display "Hello" on screen, we write:</div>
+      </div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <input class="fib-input" id="fib7" placeholder="???" autocomplete="off" spellcheck="false">
+          <span style="color:var(--text)">(<span class="str" style="color:#c3e88d">"Hello"</span>)</span>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="fib-btn" onclick="checkFIB('fib7','q7-fb','print','q7')">Check Answer</button>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8: Fill in the blank -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header">
+        <div class="quiz-num">8</div>
+        <div class="quiz-q">Fill in the blank — to find the data type of a variable, we use:</div>
+      </div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <input class="fib-input" id="fib8" placeholder="???" autocomplete="off" spellcheck="false">
+          <span style="color:var(--text)">(<span class="var" style="color:#ffcb6b">my_variable</span>)</span>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="fib-btn" onclick="checkFIB('fib8','q8-fb','type','q8')">Check Answer</button>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9: MCQ Code reading -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header">
+        <div class="quiz-num">9</div>
+        <div class="quiz-q">What data type is <code>price = 49.99</code>?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q9', this, false)"><span class="opt-indicator">A</span>int — it's a number</div>
+          <div class="quiz-option" onclick="answerMCQ('q9', this, true)"><span class="opt-indicator">B</span>float — it has a decimal point</div>
+          <div class="quiz-option" onclick="answerMCQ('q9', this, false)"><span class="opt-indicator">C</span>str — numbers can be text</div>
+          <div class="quiz-option" onclick="answerMCQ('q9', this, false)"><span class="opt-indicator">D</span>bool — it's a price</div>
+        </div>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10: MCQ -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header">
+        <div class="quiz-num">10</div>
+        <div class="quiz-q">Which line of code will cause an ERROR?</div>
+      </div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q10', this, false)"><span class="opt-indicator">A</span><code>print("hello")</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q10', this, false)"><span class="opt-indicator">B</span><code>x = 10</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q10', this, true)"><span class="opt-indicator">C</span><code>1name = "Ali"</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q10', this, false)"><span class="opt-indicator">D</span><code>print(3 + 4)</code></div>
+        </div>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🎉</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Keep practising!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>
+  </section>
+
+  <!-- CHECKPOINT -->
+  <div class="section-divider"></div>
+  <div class="checkpoint reveal">
+    <div class="checkpoint-icon">🏁</div>
+    <div class="checkpoint-text">
+      <strong>Class 1 Complete!</strong>
+      You've learned what programming is, why Python is awesome, how to use print(), variables, and the 4 main data types. Next class: User Input, Operators & Conditionals!
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── SCROLL & PROGRESS ───
+let totalSections = 6;
+let completedSections = new Set();
+let quizAnswered = {};
+let quizCorrect = {};
+let quizTotal = 10;
+let quizScore = 0;
+
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateProgress() {
+  let done = completedSections.size;
+  let pct = Math.round((done / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => {
+    if (pills[idx]) {
+      pills[idx].classList.add('done');
+      pills[idx].classList.remove('active');
+    }
+  });
+}
+
+// Intersection observer for reveal & nav
+let observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let id = e.target.id;
+      let idx = ['sec1','sec2','sec3','sec4','sec5','sec6'].indexOf(id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─── TABS ───
+function showTab(groupId, key) {
+  let group = document.getElementById(groupId);
+  group.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(groupId + '-' + key).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── COPY CODE ───
+function copyCode(btn) {
+  let pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ─── SIMPLE PYTHON INTERPRETER (subset) ───
+function runCode(textareaId, outputId) {
+  let code = document.getElementById(textareaId).value;
+  let out = document.getElementById(outputId);
+  out.classList.add('visible');
+  out.classList.remove('ic-error');
+  out.innerHTML = '';
+
+  let lines = code.split('\n');
+  let vars = {};
+  let output = [];
+  let error = null;
+
+  try {
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+      if (!line || line.startsWith('#')) continue;
+
+      // Handle print()
+      if (line.startsWith('print(')) {
+        let inner = extractParens(line, 'print');
+        if (inner === null) { error = `Line ${i+1}: Syntax error in print()`; break; }
+        let result = evaluateExpr(inner, vars);
+        output.push(result);
+        continue;
+      }
+
+      // Handle assignment: var = value
+      let assignMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+      if (assignMatch) {
+        let varName = assignMatch[1];
+        let val = evaluateValue(assignMatch[2].trim(), vars);
+        vars[varName] = val;
+        continue;
+      }
+
+      // augmented assignment: var += val
+      let augMatch = line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=)\s*(.+)$/);
+      if (augMatch) {
+        let vn = augMatch[1], op = augMatch[2], val = evaluateValue(augMatch[3].trim(), vars);
+        if (vars[vn] === undefined) { error = `Line ${i+1}: Variable '${vn}' not defined`; break; }
+        if      (op === '+=') vars[vn] = vars[vn] + val;
+        else if (op === '-=') vars[vn] = vars[vn] - val;
+        else if (op === '*=') vars[vn] = vars[vn] * val;
+        else if (op === '/=') vars[vn] = vars[vn] / val;
+        continue;
+      }
+    }
+  } catch(e) {
+    error = e.message;
+  }
+
+  if (error) {
+    out.classList.add('ic-error');
+    out.innerHTML = '❌ ' + error;
+  } else {
+    out.innerHTML = output.join('\n') || '(no output)';
+  }
+}
+
+function extractParens(line, fn) {
+  let start = line.indexOf(fn + '(');
+  if (start === -1) return null;
+  let depth = 0, s = start + fn.length;
+  let result = '';
+  for (let i = s; i < line.length; i++) {
+    if (line[i] === '(') { if (depth > 0) result += '('; depth++; }
+    else if (line[i] === ')') { depth--; if (depth === 0) return result; else result += ')'; }
+    else result += line[i];
+  }
+  return null;
+}
+
+function evaluateExpr(expr, vars) {
+  // handle comma-separated print args
+  let args = splitArgs(expr);
+  let parts = args.map(a => formatVal(evaluateValue(a.trim(), vars)));
+  return parts.join(' ');
+}
+
+function splitArgs(expr) {
+  let args = [], depth = 0, cur = '', inStr = false, strChar = '';
+  for (let i = 0; i < expr.length; i++) {
+    let c = expr[i];
+    if (!inStr && (c === '"' || c === "'")) { inStr = true; strChar = c; cur += c; continue; }
+    if (inStr && c === strChar) { inStr = false; cur += c; continue; }
+    if (inStr) { cur += c; continue; }
+    if (c === '(' || c === '[') { depth++; cur += c; }
+    else if (c === ')' || c === ']') { depth--; cur += c; }
+    else if (c === ',' && depth === 0) { args.push(cur); cur = ''; }
+    else cur += c;
+  }
+  if (cur.trim()) args.push(cur);
+  return args;
+}
+
+function evaluateValue(expr, vars) {
+  expr = expr.trim();
+  if (!expr) return '';
+
+  // String literal
+  if ((expr.startsWith('"') && expr.endsWith('"')) ||
+      (expr.startsWith("'") && expr.endsWith("'"))) {
+    return expr.slice(1, -1);
+  }
+  // Bool
+  if (expr === 'True') return true;
+  if (expr === 'False') return false;
+  // None
+  if (expr === 'None') return null;
+  // Number
+  if (!isNaN(expr) && expr !== '') return parseFloat(expr) % 1 === 0 && !expr.includes('.') ? parseInt(expr) : parseFloat(expr);
+
+  // type() call
+  let typeMatch = expr.match(/^type\((.+)\)$/);
+  if (typeMatch) {
+    let inner = evaluateValue(typeMatch[1].trim(), vars);
+    if (typeof inner === 'number') return inner % 1 === 0 ? "<class 'int'>" : "<class 'float'>";
+    if (typeof inner === 'string') return "<class 'str'>";
+    if (typeof inner === 'boolean') return "<class 'bool'>";
+    return "<class 'NoneType'>";
+  }
+
+  // len() call
+  let lenMatch = expr.match(/^len\((.+)\)$/);
+  if (lenMatch) {
+    let inner = evaluateValue(lenMatch[1].trim(), vars);
+    return typeof inner === 'string' ? inner.length : 0;
+  }
+
+  // .upper() .lower()
+  let upperMatch = expr.match(/^(.+)\.upper\(\)$/);
+  if (upperMatch) { let v = evaluateValue(upperMatch[1].trim(), vars); return typeof v === 'string' ? v.toUpperCase() : v; }
+  let lowerMatch = expr.match(/^(.+)\.lower\(\)$/);
+  if (lowerMatch) { let v = evaluateValue(lowerMatch[1].trim(), vars); return typeof v === 'string' ? v.toLowerCase() : v; }
+
+  // Variable reference
+  if (vars.hasOwnProperty(expr)) return vars[expr];
+
+  // String concatenation with + (check before numeric math)
+  if (expr.includes('+')) {
+    try {
+      let parts = splitOnPlus(expr);
+      if (parts.length > 1) {
+        let evaluated = parts.map(p => evaluateValue(p.trim(), vars));
+        if (evaluated.some(p => typeof p === 'string')) {
+          return evaluated.map(p => String(p === null ? 'None' : p === true ? 'True' : p === false ? 'False' : p)).join('');
+        }
+        return evaluated.reduce((a, b) => a + b, 0);
+      }
+    } catch(e) {}
+  }
+
+  // Safe math expression — resolve vars then compute
+  try {
+    let resolved = expr.replace(/[a-zA-Z_]\w*/g, function(m) {
+      if (vars.hasOwnProperty(m)) {
+        let v = vars[m];
+        if (typeof v === 'string') return JSON.stringify(v);
+        if (v === true) return '1'; if (v === false) return '0';
+        return String(v);
+      }
+      return 'NaN';
+    });
+    // Replace Python ** with Math.pow equivalent via safeMath
+    if (/^[\d\s\+\-\*\/\%\.\(\)]+$/.test(resolved.replace(/\*\*/g, ''))) {
+      return safeMath(resolved);
+    }
+  } catch(e) {}
+
+  return expr;
+}
+
+function splitOnPlus(expr) {
+  // Split on + but not inside strings or parens
+  let parts = [], depth = 0, inStr = false, strChar = '', cur = '';
+  for (let i = 0; i < expr.length; i++) {
+    let c = expr[i];
+    if (!inStr && (c === '"' || c === "'")) { inStr = true; strChar = c; cur += c; continue; }
+    if (inStr && c === strChar) { inStr = false; cur += c; continue; }
+    if (inStr) { cur += c; continue; }
+    if (c === '(' || c === '[') { depth++; cur += c; }
+    else if (c === ')' || c === ']') { depth--; cur += c; }
+    else if (c === '+' && depth === 0) { parts.push(cur); cur = ''; }
+    else cur += c;
+  }
+  if (cur) parts.push(cur);
+  return parts;
+}
+
+function safeMath(expr) {
+  // Replace ** with ^, then parse safely
+  expr = expr.replace(/\*\*/g, '^');
+  return parseMathExpr(expr.replace(/\s/g, ''));
+}
+
+function parseMathExpr(s) {
+  let pos = 0;
+  function peek() { return s[pos]; }
+  function consume() { return s[pos++]; }
+  function parseNum() {
+    let neg = false;
+    if (peek() === '-') { neg = true; consume(); }
+    if (peek() === '(') {
+      consume();
+      let v = parseAdd();
+      consume(); // ')'
+      return neg ? -v : v;
+    }
+    let n = '';
+    while (pos < s.length && /[\d\.]/.test(peek())) n += consume();
+    return neg ? -parseFloat(n) : parseFloat(n);
+  }
+  function parsePow() {
+    let base = parseNum();
+    while (peek() === '^') { consume(); base = Math.pow(base, parseNum()); }
+    return base;
+  }
+  function parseMul() {
+    let v = parsePow();
+    while (peek() === '*' || peek() === '/' || peek() === '%') {
+      let op = consume();
+      let r = parsePow();
+      if (op === '*') v *= r; else if (op === '/') v /= r; else v %= r;
+    }
+    return v;
+  }
+  function parseAdd() {
+    let v = parseMul();
+    while (peek() === '+' || peek() === '-') {
+      let op = consume();
+      let r = parseMul();
+      if (op === '+') v += r; else v -= r;
+    }
+    return v;
+  }
+  try { return parseAdd(); } catch(e) { return NaN; }
+}
+
+function formatVal(val) {
+  if (val === null) return 'None';
+  if (val === true) return 'True';
+  if (val === false) return 'False';
+  return String(val);
+}
+
+// ─── QUIZ MCQ ───
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+
+  let card = document.getElementById(qId);
+  card.querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+
+  let fb = document.getElementById(qId + '-fb');
+  fb.classList.add('show');
+
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = getPositiveFeedback();
+    quizCorrect[qId] = true;
+    quizScore++;
+    spawnConfetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = getWrongFeedback(qId);
+
+    // Highlight correct
+    card.querySelectorAll('.quiz-option').forEach(o => {
+      o.addEventListener('mouseenter', () => {});
+    });
+  }
+
+  checkAllAnswered();
+}
+
+function checkFIB(inputId, fbId, answer, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+
+  if (val === answer.toLowerCase()) {
+    inp.classList.add('correct');
+    fb.classList.add('fb-correct');
+    fb.textContent = getPositiveFeedback();
+    quizCorrect[qId] = true;
+    quizScore++;
+    spawnConfetti(inp);
+  } else {
+    inp.classList.add('wrong');
+    fb.classList.add('fb-wrong');
+    fb.textContent = `Not quite! The answer is: ${answer}()`;
+  }
+  inp.disabled = true;
+  document.querySelector(`button[onclick*="${inputId}"]`).disabled = true;
+  checkAllAnswered();
+}
+
+function getPositiveFeedback() {
+  let msgs = [
+    "🎉 Excellent! You got it right!",
+    "✅ Perfect! Great job!",
+    "🌟 Spot on! You are getting it!",
+    "🔥 Correct! You are on fire!",
+    "💪 Well done! Keep going!",
+  ];
+  return msgs[Math.floor(Math.random() * msgs.length)];
+}
+
+function getWrongFeedback(qId) {
+  let hints = {
+    q1: "print() shows output on screen — think of it as Python's megaphone!",
+    q2: "Python calculates math inside print(). 3 + 7 = 10, so it prints 10.",
+    q3: "Variable names can only use letters, numbers, and underscores — no spaces or hyphens, and cannot start with a number.",
+    q4: "Any text inside quotes is a string (str).",
+    q5: "x starts as 5, then x = x + 3 means x = 5 + 3 = 8.",
+    q6: "True and False are boolean (bool) values — like a yes/no switch!",
+    q9: "49.99 has a decimal point, so it is a float.",
+    q10: "Variable names cannot start with a number. 1name is invalid!",
+  };
+  return "❌ Not quite. " + (hints[qId] || "Review this section and try again!");
+}
+
+function checkAllAnswered() {
+  let answered = Object.keys(quizAnswered).length;
+  if (answered >= quizTotal) {
+    setTimeout(showScore, 600);
+  }
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  let pct = Math.round((quizScore / quizTotal) * 100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+
+  let emoji, sub, tip;
+  if (pct === 100) {
+    emoji = '🏆'; sub = 'Perfect Score! You are a Python pro already!';
+    tip = 'Outstanding! You have mastered every concept in Class 1!';
+  } else if (pct >= 80) {
+    emoji = '🌟'; sub = 'Excellent! You clearly understood the lesson!';
+    tip = 'Great work! Review the questions you missed and you will be perfect!';
+  } else if (pct >= 60) {
+    emoji = '👍'; sub = 'Good effort! A little more practice and you will ace it!';
+    tip = 'Re-read the sections where you got answers wrong. You are almost there!';
+  } else {
+    emoji = '💪'; sub = 'Keep practising — every expert was once a beginner!';
+    tip = 'Go back through the lessons, try the code examples, and attempt the quiz again!';
+  }
+
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent = sub;
+  document.getElementById('scoreTip').textContent = tip;
+
+  if (pct >= 80) bigConfetti();
+
+  completedSections.add(5);
+  updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered = {}; quizCorrect = {}; quizScore = 0;
+  for (let i = 1; i <= 10; i++) {
+    let card = document.getElementById('q' + i);
+    if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o => {
+      o.classList.remove('correct','wrong','disabled');
+      o.querySelector('.opt-indicator').textContent = o.querySelector('.opt-indicator').dataset.orig || o.querySelector('.opt-indicator').textContent;
+    });
+    card.querySelectorAll('.quiz-feedback').forEach(f => {
+      f.classList.remove('show','fb-correct','fb-wrong');
+      f.textContent = '';
+    });
+    card.querySelectorAll('.fib-input').forEach(inp => {
+      inp.value = ''; inp.disabled = false;
+      inp.classList.remove('correct','wrong');
+    });
+    card.querySelectorAll('button[onclick*="checkFIB"]').forEach(b => b.disabled = false);
+  }
+  document.getElementById('scoreCard').style.display = 'none';
+  document.getElementById('sec6').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── CONFETTI ───
+function spawnConfetti(el) {
+  let rect = el.getBoundingClientRect();
+  let colors = ['#6c63ff','#43e97b','#f7971e','#ff6b6b','#ffd700'];
+  for (let i = 0; i < 12; i++) {
+    let p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${rect.left + Math.random()*rect.width}px;top:${rect.top}px;background:${colors[i%colors.length]};transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2100);
+  }
+}
+
+function bigConfetti() {
+  let colors = ['#6c63ff','#43e97b','#f7971e','#ff6b6b','#ffd700','#fff'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      let p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.cssText = `left:${Math.random()*100}vw;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()}s`;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2500);
+    }, i * 40);
+  }
+}
+</script>
+</body>
+</html>

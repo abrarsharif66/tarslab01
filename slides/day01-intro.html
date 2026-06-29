@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TARS Lab Academy · Day 1 — Intro & Python Core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tars-theme.css" />
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="brand">
+  <div class="mark"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div>
+    <div class="name"><b>TARS</b> LAB ACADEMY</div>
+    <div class="sub">GENERATIVE AI ENGINEER BOOTCAMP</div>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · TITLE -->
+  <section class="slide title-slide">
+    <span class="kicker">45-Day Bootcamp · Day 01</span>
+    <h1>Become a<br><span class="accent">Generative AI</span> Engineer.</h1>
+    <p class="lead">From Python fundamentals to production-grade RAG, agents, fine-tuning, evaluation, security and LLMOps — built one day at a time.</p>
+    <div class="meta">
+      <span class="pill on">12 Phases</span>
+      <span class="pill on">45 Days</span>
+      <span class="pill on">Build every single day</span>
+    </div>
+  </section>
+
+  <!-- 2 · WELCOME -->
+  <section class="slide">
+    <span class="kicker">Welcome</span>
+    <h2>Welcome to <span class="accent">TARS Lab Academy</span></h2>
+    <p class="lead">We don't teach you to watch. We teach you to <span class="accent">ship</span>. Every day pairs a focused concept with a real build, so by Day 45 you have a portfolio — not just notes.</p>
+    <div class="grid g3">
+      <div class="card"><div class="ic">🎯</div><h3>Outcome-first</h3><p>Each day ends with something running on your machine.</p></div>
+      <div class="card"><div class="ic">🧱</div><h3>Foundations → Frontier</h3><p>Python today; multi-agent systems & LLMOps later.</p></div>
+      <div class="card"><div class="ic">🛠️</div><h3>Industry tools</h3><p>LangChain, LangGraph, RAG, AutoGen, MCP, Docker, K8s.</p></div>
+    </div>
+  </section>
+
+  <!-- 3 · WHY NOW -->
+  <section class="slide">
+    <span class="kicker">Why this, why now</span>
+    <h2>The most in-demand engineering skill of the decade</h2>
+    <p class="lead">Generative AI moved from research labs to every product team. Companies need engineers who can take an LLM from a demo to a reliable, secure, monitored system.</p>
+    <div class="num-row">
+      <div class="num"><b>RAG</b><small>Knowledge-grounded apps</small></div>
+      <div class="num"><b>Agents</b><small>Tools, memory, reasoning</small></div>
+      <div class="num"><b>Eval</b><small>Trust &amp; quality gates</small></div>
+      <div class="num"><b>Ops</b><small>Deploy, scale, observe</small></div>
+    </div>
+  </section>
+
+  <!-- 4 · WHAT YOU'LL BE ABLE TO DO -->
+  <section class="slide">
+    <span class="kicker">By Day 45 you can</span>
+    <h2>What you'll be able to build</h2>
+    <ul class="clean">
+      <li>Design and ship <span class="accent">hybrid RAG</span> systems with reranking and GraphRAG.</li>
+      <li>Build <span class="accent">autonomous agents</span> with LangGraph, CrewAI and AutoGen.</li>
+      <li>Fine-tune open models with <span class="accent">LoRA / QLoRA</span> on custom data.</li>
+      <li>Evaluate, guardrail and <span class="accent">secure</span> LLM apps for production.</li>
+      <li>Deploy with <span class="accent">FastAPI, Docker, Kubernetes</span> and full observability.</li>
+    </ul>
+  </section>
+
+  <!-- 5 · THE MAP -->
+  <section class="slide">
+    <span class="kicker">The 45-day map</span>
+    <h2>12 phases, one journey</h2>
+    <div class="phase-list">
+      <div class="phase"><span class="pn">P1</span><span class="pt">Foundations (Python)</span><span class="pd">D1–3</span></div>
+      <div class="phase"><span class="pn">P2</span><span class="pt">How LLMs Work</span><span class="pd">D4–7</span></div>
+      <div class="phase"><span class="pn">P3</span><span class="pt">Building LLM Apps</span><span class="pd">D8–11</span></div>
+      <div class="phase"><span class="pn">P4</span><span class="pt">Advanced RAG</span><span class="pd">D12–16</span></div>
+      <div class="phase"><span class="pn">P5</span><span class="pt">AI Agents</span><span class="pd">D17–21</span></div>
+      <div class="phase"><span class="pn">P6</span><span class="pt">Multi-Agent (AutoGen)</span><span class="pd">D22–25</span></div>
+      <div class="phase"><span class="pn">P7</span><span class="pt">MCP &amp; Coding Tools</span><span class="pd">D26–29</span></div>
+      <div class="phase"><span class="pn">P8</span><span class="pt">Fine-Tuning</span><span class="pd">D30–32</span></div>
+      <div class="phase"><span class="pn">P9</span><span class="pt">Evaluation</span><span class="pd">D33–35</span></div>
+      <div class="phase"><span class="pn">P10</span><span class="pt">Security &amp; Guardrails</span><span class="pd">D36–38</span></div>
+      <div class="phase"><span class="pn">P11</span><span class="pt">LLMOps &amp; Production</span><span class="pd">D39–42</span></div>
+      <div class="phase"><span class="pn">P12</span><span class="pt">Capstone &amp; Career</span><span class="pd">D43–45</span></div>
+    </div>
+  </section>
+
+  <!-- 6 · HOW EACH DAY WORKS -->
+  <section class="slide">
+    <span class="kicker">The rhythm</span>
+    <h2>How every day works</h2>
+    <div class="grid g3">
+      <div class="card"><div class="ic">📖</div><h3>1 · Learn</h3><p>A tight concept block — theory + intuition, no fluff.</p></div>
+      <div class="card"><div class="ic">⌨️</div><h3>2 · Code along</h3><p>A guided notebook you run line by line with us.</p></div>
+      <div class="card"><div class="ic">🔨</div><h3>3 · Build</h3><p>A daily challenge you finish on your own.</p></div>
+    </div>
+    <p class="lead">Today's notebook: <span class="accent mono">Day01_Python_Core_and_Environments.ipynb</span></p>
+  </section>
+
+  <!-- 7 · DIVIDER -->
+  <section class="slide divider">
+    <span class="kicker">Phase 1 · Foundations</span>
+    <div class="big">Day 01</div>
+    <h2 style="margin-top:18px">Python Core &amp; Environments</h2>
+    <p class="lead">The language every GenAI tool speaks — and the workspace you'll live in for 45 days.</p>
+  </section>
+
+  <!-- 8 · DAY 1 AGENDA -->
+  <section class="slide">
+    <span class="kicker">Today's agenda</span>
+    <h2>What we cover in Day 1</h2>
+    <div class="grid g2">
+      <div class="card"><div class="ic">⚙️</div><h3>Environments</h3><p>VS Code · Conda · UV · virtual environments.</p></div>
+      <div class="card"><div class="ic">🔤</div><h3>Language core</h3><p>Syntax, variables, datatypes, operators.</p></div>
+      <div class="card"><div class="ic">🔁</div><h3>Control flow</h3><p>Conditionals &amp; loops.</p></div>
+      <div class="card"><div class="ic">📦</div><h3>Data structures</h3><p>Lists, comprehensions, tuples, sets, dicts.</p></div>
+    </div>
+  </section>
+
+  <!-- 9 · WHY PYTHON -->
+  <section class="slide">
+    <span class="kicker">Foundation</span>
+    <h2>Why Python for GenAI?</h2>
+    <ul class="clean">
+      <li><span class="accent">It's the lingua franca</span> — PyTorch, Transformers, LangChain, every SDK is Python-first.</li>
+      <li><span class="accent">Readable &amp; fast to prototype</span> — go from idea to running code in minutes.</li>
+      <li><span class="accent">Massive ecosystem</span> — data, ML, web, deployment, all in one language.</li>
+      <li><span class="accent">Glue for everything</span> — call APIs, orchestrate agents, serve models.</li>
+    </ul>
+  </section>
+
+  <!-- 10 · ENVIRONMENTS -->
+  <section class="slide">
+    <span class="kicker">Setup</span>
+    <h2>Your workspace: VS Code · Conda · UV</h2>
+    <div class="grid g3">
+      <div class="card"><div class="ic">🧩</div><h3>VS Code</h3><p>Editor + Python &amp; Jupyter extensions. Where you write and run everything.</p></div>
+      <div class="card"><div class="ic">🐍</div><h3>Conda</h3><p>Manages Python versions + heavyweight ML packages cleanly.</p></div>
+      <div class="card"><div class="ic">⚡</div><h3>UV</h3><p>Ultra-fast package &amp; project manager — pip, but seconds not minutes.</p></div>
+    </div>
+  </section>
+
+  <!-- 11 · VENVS -->
+  <section class="slide">
+    <span class="kicker">Isolation</span>
+    <h2>Virtual environments — and why they matter</h2>
+    <p class="lead">Every project gets its own sandbox of dependencies, so versions never collide. This is non-negotiable in AI work.</p>
+    <div class="code">
+<span class="c"># Conda</span><br>
+conda create <span class="p">-n</span> <span class="s">genai</span> python=3.11 <span class="p">-y</span><br>
+conda activate <span class="s">genai</span><br><br>
+<span class="c"># UV (fast alternative)</span><br>
+uv venv && <span class="k">source</span> .venv/bin/activate<br>
+uv pip install <span class="s">numpy pandas streamlit</span>
+    </div>
+  </section>
+
+  <!-- 12 · LANGUAGE CORE -->
+  <section class="slide">
+    <span class="kicker">Language core</span>
+    <h2>Variables, datatypes &amp; operators</h2>
+    <div class="code">
+name <span class="k">=</span> <span class="s">"TARS"</span>          <span class="c"># str</span><br>
+days <span class="k">=</span> <span class="p">45</span>               <span class="c"># int</span><br>
+progress <span class="k">=</span> <span class="p">2.2</span>         <span class="c"># float</span><br>
+shipping <span class="k">=</span> <span class="p">True</span>        <span class="c"># bool</span><br><br>
+<span class="c"># operators: + - * / // % **   and / or / not   == != &lt; &gt;</span><br>
+done <span class="k">=</span> (days <span class="k">==</span> <span class="p">45</span>) <span class="k">and</span> shipping
+    </div>
+    <p class="lead">Dynamic typing, but types still matter — we'll add validation on Day 3 with Pydantic.</p>
+  </section>
+
+  <!-- 13 · CONTROL FLOW -->
+  <section class="slide">
+    <span class="kicker">Control flow</span>
+    <h2>Conditionals &amp; loops</h2>
+    <div class="code">
+<span class="k">for</span> day <span class="k">in</span> range(<span class="p">1</span>, <span class="p">46</span>):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">if</span> day <span class="k">&lt;=</span> <span class="p">3</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phase <span class="k">=</span> <span class="s">"Foundations"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">elif</span> day <span class="k">&lt;=</span> <span class="p">7</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;phase <span class="k">=</span> <span class="s">"How LLMs Work"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">else</span>:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="k">continue</span>
+    </div>
+  </section>
+
+  <!-- 14 · DATA STRUCTURES -->
+  <section class="slide">
+    <span class="kicker">Data structures</span>
+    <h2>Lists · Tuples · Sets · Dicts</h2>
+    <div class="grid g4">
+      <div class="card"><div class="ic">📋</div><h3>List</h3><p>Ordered, mutable.<br><span class="mono accent">[1, 2, 3]</span></p></div>
+      <div class="card"><div class="ic">📌</div><h3>Tuple</h3><p>Ordered, fixed.<br><span class="mono accent">(x, y)</span></p></div>
+      <div class="card"><div class="ic">🎲</div><h3>Set</h3><p>Unique, unordered.<br><span class="mono accent">{1, 2}</span></p></div>
+      <div class="card"><div class="ic">🗂️</div><h3>Dict</h3><p>Key → value.<br><span class="mono accent">{"k": 1}</span></p></div>
+    </div>
+    <div class="code">
+squares <span class="k">=</span> [n<span class="k">**</span><span class="p">2</span> <span class="k">for</span> n <span class="k">in</span> range(<span class="p">10</span>) <span class="k">if</span> n <span class="k">%</span> <span class="p">2</span> <span class="k">==</span> <span class="p">0</span>]   <span class="c"># comprehension</span>
+    </div>
+  </section>
+
+  <!-- 15 · BUILD -->
+  <section class="slide">
+    <span class="kicker">🔨 Today's build</span>
+    <h2>Data-manipulation exercises</h2>
+    <p class="lead">Open the notebook and work through it with us — then finish the challenge cells solo.</p>
+    <ul class="clean">
+      <li>Clean and transform a list of student records.</li>
+      <li>Use comprehensions to filter, map and aggregate.</li>
+      <li>De-duplicate with sets; index with dicts.</li>
+      <li><span class="accent">Stretch:</span> compute per-phase day counts from the syllabus.</li>
+    </ul>
+  </section>
+
+  <!-- 16 · CLOSE -->
+  <section class="slide divider">
+    <span class="kicker">Day 1 complete</span>
+    <div class="big accent">Let's build.</div>
+    <p class="lead">Next: <span class="accent">Day 2 — Python OOP &amp; Advanced.</span> Functions, classes, decorators, generators &amp; a small OOP CLI project.</p>
+    <p class="lead" style="margin-top:8px">Questions? Bring them to the notebook session.</p>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>TARS Lab Academy <span class="dot">·</span> GenAI Engineer Bootcamp</span>
+  <span><span id="counter">01</span> / <span id="total">16</span></span>
+</div>
+
+<div class="nav-hint">Use <kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> · <kbd>F</kbd> fullscreen</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let i = 0;
+  const counter = document.getElementById('counter');
+  const total = document.getElementById('total');
+  const progress = document.getElementById('progress');
+  total.textContent = String(slides.length).padStart(2, '0');
+
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    counter.textContent = String(i + 1).padStart(2, '0');
+    progress.style.width = ((i + 1) / slides.length * 100) + '%';
+  }
+  function next() { show(i + 1); }
+  function prev() { show(i - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+  // click right half = next, left half = prev
+  document.getElementById('deck').addEventListener('click', (e) => {
+    (e.clientX > window.innerWidth / 2) ? next() : prev();
+  });
+  show(0);
+</script>
+</body>
+</html>

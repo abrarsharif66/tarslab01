@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Class 3 - Loops & Lists</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; }
+
+  /* INTERACTIVE CODE */
+  .interactive-code { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .interactive-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .ic-label { font-size: 0.78rem; color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+  .ic-textarea { width: 100%; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; padding: 20px; resize: vertical; min-height: 110px; line-height: 1.8; }
+  .ic-run-btn { display: flex; align-items: center; gap: 6px; background: var(--accent3); color: #0f1117; border: none; padding: 10px 22px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; margin: 0 16px 16px; }
+  .ic-run-btn:hover { opacity: 0.85; }
+  .ic-output { margin: 0 16px 16px; background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; min-height: 44px; color: var(--accent3); display: none; white-space: pre-wrap; }
+  .ic-output.visible { display: block; }
+  .ic-error { color: var(--fail); }
+
+  /* LOOP VISUALIZER */
+  .loop-viz { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .loop-viz h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 16px; color: var(--accent); }
+  .loop-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .loop-input { background: var(--card2); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.9rem; outline: none; width: 80px; transition: border-color 0.2s; }
+  .loop-input:focus { border-color: var(--accent); }
+  .loop-label { font-size: 0.88rem; color: var(--muted); font-weight: 700; }
+  .loop-run-btn { background: var(--accent); color: #0f1117; border: none; padding: 9px 20px; border-radius: 10px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: opacity 0.2s; }
+  .loop-run-btn:hover { opacity: 0.85; }
+  .loop-track { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; min-height: 48px; align-items: center; }
+  .loop-box { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Fira Code',monospace; font-weight: 700; font-size: 0.9rem; opacity: 0; transition: all 0.3s; }
+  .loop-box.active { opacity: 1; background: var(--accent); border-color: var(--accent); color: #0f1117; transform: scale(1.1); }
+  .loop-box.done { opacity: 1; background: var(--card2); border-color: var(--accent3); color: var(--accent3); transform: scale(1); }
+
+  /* LIST VISUALIZER */
+  .list-viz { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin: 16px 0; }
+  .list-viz h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 16px; color: var(--accent4); }
+  .list-slots { display: flex; gap: 0; overflow-x: auto; margin-bottom: 12px; }
+  .list-slot { display: flex; flex-direction: column; align-items: center; min-width: 70px; }
+  .list-slot-val { background: var(--accent4); color: #fff; padding: 12px 10px; font-family: 'Fira Code',monospace; font-weight: 700; font-size: 0.88rem; border: 1px solid #6c63ff66; min-width: 60px; text-align: center; transition: background 0.3s; }
+  .list-slot:first-child .list-slot-val { border-radius: 10px 0 0 10px; }
+  .list-slot:last-child .list-slot-val { border-radius: 0 10px 10px 0; }
+  .list-slot-idx { font-size: 0.72rem; color: var(--accent5); font-family: 'Fira Code',monospace; margin-top: 4px; font-weight: 700; }
+  .list-slot-neg { font-size: 0.68rem; color: var(--muted); font-family: 'Fira Code',monospace; margin-top: 1px; }
+  .list-slot.highlight .list-slot-val { background: var(--accent); }
+
+  .list-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .list-ctrl-input { background: var(--card2); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Fira Code',monospace; font-size: 0.88rem; outline: none; width: 110px; transition: border-color 0.2s; }
+  .list-ctrl-input:focus { border-color: var(--accent4); }
+  .list-ctrl-btn { padding: 8px 16px; border-radius: 8px; border: none; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: opacity 0.2s; }
+  .list-ctrl-btn:hover { opacity: 0.85; }
+  .btn-append { background: var(--accent3); color: #0f1117; }
+  .btn-remove { background: var(--fail); color: #fff; }
+  .btn-reset  { background: var(--card2); color: var(--muted); border: 1px solid var(--border); }
+  .list-log { margin-top: 10px; font-family: 'Fira Code',monospace; font-size: 0.82rem; color: var(--muted); min-height: 22px; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🐍 <span>Python</span>Learn</div>
+  <div class="header-right">
+    <span class="nav-btn">← Class 2</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Class 3 — Loops & Lists</span>
+  <span class="hero-emoji">🔁</span>
+  <h1>Make Python <em>Repeat</em> & <em>Remember!</em></h1>
+  <p>Today Python stops doing things once — it repeats tasks automatically and stores collections of data. This is where real programs begin!</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Class 2 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>input() — get user data</div>
+  <div class="recap-chip"><span class="dot"></span>Operators — math & comparison</div>
+  <div class="recap-chip"><span class="dot"></span>if / elif / else — decisions</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. for Loop</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. while Loop</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. break & continue</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. Lists</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. List Methods</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Loops + Lists</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: for loop ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🔄</div>
+      <div>
+        <div class="section-title">The for Loop — Repeat for Every Item</div>
+        <div class="section-sub">When you know exactly how many times to repeat</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a loop and why do we need it?</h3>
+      <p>Imagine you need to print "Good morning!" 100 times. Without a loop, you would write 100 print statements. With a loop, you write it once and Python repeats it!</p>
+      <div class="analogy-box">
+        <strong>📋 Analogy:</strong> Think of a school attendance register. The teacher calls each student's name one by one — going through the full list. A <code>for</code> loop does the same: it goes through a collection of items, one by one, doing something each time!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>for loop with range()</h3>
+      <p><code>range(n)</code> generates numbers from 0 up to (but not including) n. It is the most common way to repeat something a fixed number of times.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">for_range.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Print numbers 0 to 4</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)
+
+<span class="cmt"># range(start, stop) — from 1 to 5</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="str">"Student number:"</span>, <span class="var">i</span>)
+
+<span class="cmt"># range(start, stop, step) — every 2nd number</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">10</span>, <span class="num">2</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)     <span class="cmt"># 0 2 4 6 8</span></pre>
+      </div>
+      <div class="output-label">▶ Output (first loop)</div>
+      <div class="output-box">0
+1
+2
+3
+4</div>
+
+      <div class="tip-box">
+        <strong>📌 Remember:</strong> range(5) gives 0,1,2,3,4 — it starts at 0 and stops BEFORE 5. If you want 1 to 5, use range(1, 6).
+      </div>
+    </div>
+
+    <!-- LOOP VISUALIZER -->
+    <div class="loop-viz">
+      <h3>🎮 Loop Visualizer — Watch it run step by step!</h3>
+      <div class="loop-controls">
+        <span class="loop-label">range(</span>
+        <input class="loop-input" id="loopStart" value="1" type="number" min="0" max="20" placeholder="start">
+        <span class="loop-label">,</span>
+        <input class="loop-input" id="loopEnd" value="8" type="number" min="1" max="20" placeholder="stop">
+        <span class="loop-label">)</span>
+        <button class="loop-run-btn" onclick="runLoopViz()">▶ Animate!</button>
+      </div>
+      <div class="loop-track" id="loopTrack"></div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-top:8px;" id="loopMsg"></div>
+    </div>
+
+    <div class="card">
+      <h3>for loop over text (strings)</h3>
+      <p>A for loop can go through each character in a string too!</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">for_string.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">for</span> <span class="var">letter</span> <span class="kw">in</span> <span class="str">"Python"</span>:
+    <span class="fn">print</span>(<span class="var">letter</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">P
+y
+t
+h
+o
+n</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Multiplication Table</span></div>
+      <textarea class="ic-textarea" id="tryFor" spellcheck="false">number = 5
+
+print("Multiplication table of", number)
+for i in range(1, 11):
+    result = number * i
+    print(number, "x", i, "=", result)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryFor','outFor')">▶ Run Code</button>
+      <div class="ic-output" id="outFor"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: while loop ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⏳</div>
+      <div>
+        <div class="section-title">The while Loop — Repeat Until Done</div>
+        <div class="section-sub">When you don't know exactly how many times to repeat</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a while loop?</h3>
+      <p>A <code>while</code> loop keeps running AS LONG AS a condition is True. The moment the condition becomes False, it stops.</p>
+      <div class="analogy-box">
+        <strong>🎵 Analogy:</strong> Think of a song on repeat. It keeps playing WHILE you haven't pressed stop. The moment you press stop (condition becomes False), it stops. A while loop works the same way!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>while loop syntax and examples</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">while_loop.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Count from 1 to 5</span>
+<span class="var">count</span> <span class="op">=</span> <span class="num">1</span>
+
+<span class="kw">while</span> <span class="var">count</span> <span class="op"><=</span> <span class="num">5</span>:
+    <span class="fn">print</span>(<span class="str">"Count is:"</span>, <span class="var">count</span>)
+    <span class="var">count</span> <span class="op">=</span> <span class="var">count</span> <span class="op">+</span> <span class="num">1</span>   <span class="cmt"># IMPORTANT: update the variable!</span>
+
+<span class="fn">print</span>(<span class="str">"Loop finished!"</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Count is: 1
+Count is: 2
+Count is: 3
+Count is: 4
+Count is: 5
+Loop finished!</div>
+
+      <div class="warn-box">
+        <strong>⚠️ Infinite Loop — The Most Common Mistake!</strong><br>
+        If you forget to update the variable inside the loop, the condition never becomes False and the loop runs forever! Always make sure something changes each time the loop runs.
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="compare-box green-box">
+        <h4 style="color:var(--accent3)">✅ Correct — count updates</h4>
+        <pre style="font-size:0.8rem;padding:0;background:none"><span class="var">count</span> <span class="op">=</span> <span class="num">1</span>
+<span class="kw">while</span> <span class="var">count</span> <span class="op"><=</span> <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="var">count</span>)
+    <span class="var">count</span> <span class="op">+=</span> <span class="num">1</span>  <span class="cmt"># updates!</span></pre>
+      </div>
+      <div class="compare-box orange-box">
+        <h4 style="color:var(--fail)">❌ Infinite Loop — never stops!</h4>
+        <pre style="font-size:0.8rem;padding:0;background:none"><span class="var">count</span> <span class="op">=</span> <span class="num">1</span>
+<span class="kw">while</span> <span class="var">count</span> <span class="op"><=</span> <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="var">count</span>)
+    <span class="cmt"># forgot count += 1 !</span></pre>
+      </div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Countdown Timer</span></div>
+      <textarea class="ic-textarea" id="tryWhile" spellcheck="false">countdown = 5
+
+while countdown > 0:
+    print(countdown, "...")
+    countdown = countdown - 1
+
+print("Blast off! 🚀")</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryWhile','outWhile')">▶ Run Code</button>
+      <div class="ic-output" id="outWhile"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: break & continue ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-red">⛔</div>
+      <div>
+        <div class="section-title">break & continue — Loop Controls</div>
+        <div class="section-sub">Skip an iteration or stop the loop early</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>break — Exit the loop immediately</h3>
+      <p><code>break</code> is like an emergency exit. The moment Python hits it, the loop stops completely — even if there are more items left.</p>
+      <div class="analogy-box">
+        <strong>🚨 Analogy:</strong> You are searching through a stack of papers for a specific document. The moment you FIND it, you stop searching. That is break — stop as soon as the job is done!
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">break_ex.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span>):
+    <span class="kw">if</span> <span class="var">i</span> <span class="op">==</span> <span class="num">5</span>:
+        <span class="fn">print</span>(<span class="str">"Found 5! Stopping."</span>)
+        <span class="kw">break</span>           <span class="cmt"># exit loop immediately</span>
+    <span class="fn">print</span>(<span class="var">i</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">1
+2
+3
+4
+Found 5! Stopping.</div>
+    </div>
+
+    <div class="card">
+      <h3>continue — Skip this iteration, keep going</h3>
+      <p><code>continue</code> skips the rest of the current loop iteration and jumps to the next one. The loop keeps going!</p>
+      <div class="analogy-box">
+        <strong>⏭️ Analogy:</strong> You are reading a book and skipping pages you have already read. You do not stop reading — you just skip that one page and continue with the next!
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">continue_ex.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Print all numbers except multiples of 3</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span>):
+    <span class="kw">if</span> <span class="var">i</span> <span class="op">%</span> <span class="num">3</span> <span class="op">==</span> <span class="num">0</span>:
+        <span class="kw">continue</span>        <span class="cmt"># skip multiples of 3</span>
+    <span class="fn">print</span>(<span class="var">i</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">1
+2
+4
+5
+7
+8</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — break and continue</span></div>
+      <textarea class="ic-textarea" id="tryBreak" spellcheck="false">print("--- break example ---")
+for i in range(1, 8):
+    if i == 4:
+        break
+    print(i)
+
+print("--- continue example ---")
+for i in range(1, 8):
+    if i == 4:
+        continue
+    print(i)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryBreak','outBreak')">▶ Run Code</button>
+      <div class="ic-output" id="outBreak"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: Lists ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📋</div>
+      <div>
+        <div class="section-title">Lists — Storing Many Values at Once</div>
+        <div class="section-sub">Python's most used data structure</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a List?</h3>
+      <p>So far every variable stored ONE value. A list stores MANY values in a single variable — in order, all together.</p>
+      <div class="analogy-box">
+        <strong>🛒 Analogy:</strong> Think of a shopping list. Instead of having a separate sticky note for each item (milk, eggs, bread), you write them all on ONE list in order. A Python list does exactly this for data!
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Creating and accessing lists</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">lists_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># Create a list with square brackets [ ]</span>
+<span class="var">fruits</span> <span class="op">=</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"mango"</span>, <span class="str">"grape"</span>]
+<span class="var">scores</span> <span class="op">=</span> [<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>, <span class="num">88</span>]
+<span class="var">mixed</span>  <span class="op">=</span> [<span class="str">"Ali"</span>, <span class="num">20</span>, <span class="kw">True</span>, <span class="num">9.5</span>]  <span class="cmt"># can mix types!</span>
+
+<span class="cmt"># Access by index (position) — starts at 0!</span>
+<span class="fn">print</span>(<span class="var">fruits</span>[<span class="num">0</span>])    <span class="cmt"># apple  (first item)</span>
+<span class="fn">print</span>(<span class="var">fruits</span>[<span class="num">1</span>])    <span class="cmt"># banana (second item)</span>
+<span class="fn">print</span>(<span class="var">fruits</span>[<span class="num">3</span>])    <span class="cmt"># grape  (fourth item)</span>
+
+<span class="cmt"># Negative index — count from the end!</span>
+<span class="fn">print</span>(<span class="var">fruits</span>[<span class="op">-</span><span class="num">1</span>])   <span class="cmt"># grape  (last item)</span>
+<span class="fn">print</span>(<span class="var">fruits</span>[<span class="op">-</span><span class="num">2</span>])   <span class="cmt"># mango  (second from end)</span>
+
+<span class="cmt"># Length of a list</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">fruits</span>))  <span class="cmt"># 4</span></pre>
+      </div>
+    </div>
+
+    <!-- LIST VISUALIZER -->
+    <div class="list-viz">
+      <h3>🎮 List Visualizer — See indexes visually!</h3>
+      <div class="list-slots" id="listSlots"></div>
+      <div class="list-controls">
+        <input class="list-ctrl-input" id="listAddVal" placeholder="type a value..." />
+        <button class="list-ctrl-btn btn-append" onclick="listAppend()">+ Append</button>
+        <button class="list-ctrl-btn btn-remove" onclick="listPop()">- Pop Last</button>
+        <button class="list-ctrl-btn btn-reset"  onclick="listReset()">Reset</button>
+      </div>
+      <div class="list-log" id="listLog"></div>
+    </div>
+
+    <div class="card">
+      <h3>Modifying list items</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">list_modify.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">students</span> <span class="op">=</span> [<span class="str">"Riya"</span>, <span class="str">"Ali"</span>, <span class="str">"Priya"</span>]
+
+<span class="cmt"># Change an item</span>
+<span class="var">students</span>[<span class="num">1</span>] <span class="op">=</span> <span class="str">"Ahmed"</span>
+<span class="fn">print</span>(<span class="var">students</span>)    <span class="cmt"># ["Riya", "Ahmed", "Priya"]</span>
+
+<span class="cmt"># Check if item exists in list</span>
+<span class="fn">print</span>(<span class="str">"Riya"</span> <span class="kw">in</span> <span class="var">students</span>)   <span class="cmt"># True</span>
+<span class="fn">print</span>(<span class="str">"Ali"</span>  <span class="kw">in</span> <span class="var">students</span>)   <span class="cmt"># False (replaced)</span></pre>
+      </div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Build your own list</span></div>
+      <textarea class="ic-textarea" id="tryList" spellcheck="false">cities = ["Hyderabad", "Mumbai", "Delhi", "Chennai"]
+
+print("All cities:", cities)
+print("First city:", cities[0])
+print("Last city:", cities[-1])
+print("Total cities:", len(cities))
+
+cities[1] = "Bengaluru"
+print("Updated list:", cities)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryList','outList')">▶ Run Code</button>
+      <div class="ic-output" id="outList"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: List Methods ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-green">🛠️</div>
+      <div>
+        <div class="section-title">List Methods — Built-in Superpowers</div>
+        <div class="section-sub">Things you can do to a list with a single command</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The most useful list methods</h3>
+      <table class="methods-table">
+        <tr><th>Method</th><th>What it does</th><th>Example</th></tr>
+        <tr><td><span class="method-name">.append(x)</span></td><td>Add item x to the end</td><td><span class="method-ex">fruits.append("kiwi")</span></td></tr>
+        <tr><td><span class="method-name">.insert(i, x)</span></td><td>Insert x at position i</td><td><span class="method-ex">fruits.insert(1, "pear")</span></td></tr>
+        <tr><td><span class="method-name">.remove(x)</span></td><td>Remove first occurrence of x</td><td><span class="method-ex">fruits.remove("apple")</span></td></tr>
+        <tr><td><span class="method-name">.pop()</span></td><td>Remove and return last item</td><td><span class="method-ex">last = fruits.pop()</span></td></tr>
+        <tr><td><span class="method-name">.sort()</span></td><td>Sort the list in place</td><td><span class="method-ex">fruits.sort()</span></td></tr>
+        <tr><td><span class="method-name">.reverse()</span></td><td>Reverse the list in place</td><td><span class="method-ex">fruits.reverse()</span></td></tr>
+        <tr><td><span class="method-name">.count(x)</span></td><td>Count occurrences of x</td><td><span class="method-ex">fruits.count("apple")</span></td></tr>
+        <tr><td><span class="method-name">.index(x)</span></td><td>Find position of x</td><td><span class="method-ex">fruits.index("mango")</span></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Methods in action</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">list_methods.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">scores</span> <span class="op">=</span> [<span class="num">85</span>, <span class="num">72</span>, <span class="num">91</span>, <span class="num">68</span>, <span class="num">95</span>]
+<span class="fn">print</span>(<span class="str">"Original:"</span>, <span class="var">scores</span>)
+
+<span class="var">scores</span>.<span class="fn">append</span>(<span class="num">88</span>)
+<span class="fn">print</span>(<span class="str">"After append 88:"</span>, <span class="var">scores</span>)
+
+<span class="var">scores</span>.<span class="fn">sort</span>()
+<span class="fn">print</span>(<span class="str">"After sort:"</span>, <span class="var">scores</span>)
+
+<span class="var">scores</span>.<span class="fn">reverse</span>()
+<span class="fn">print</span>(<span class="str">"After reverse:"</span>, <span class="var">scores</span>)
+
+<span class="fn">print</span>(<span class="str">"Highest score:"</span>, <span class="var">scores</span>[<span class="num">0</span>])
+<span class="fn">print</span>(<span class="str">"Lowest score:"</span>, <span class="var">scores</span>[<span class="op">-</span><span class="num">1</span>])
+<span class="fn">print</span>(<span class="str">"Total students:"</span>, <span class="fn">len</span>(<span class="var">scores</span>))</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Original: [85, 72, 91, 68, 95]
+After append 88: [85, 72, 91, 68, 95, 88]
+After sort: [68, 72, 85, 88, 91, 95]
+After reverse: [95, 91, 88, 85, 72, 68]
+Highest score: 95
+Lowest score: 68
+Total students: 6</div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Play with list methods!</span></div>
+      <textarea class="ic-textarea" id="tryMethods" spellcheck="false">names = ["Zara", "Ali", "Priya", "Rahul"]
+print("Start:", names)
+
+names.append("Sneha")
+print("After append:", names)
+
+names.sort()
+print("After sort:", names)
+
+names.remove("Ali")
+print("After removing Ali:", names)
+
+print("Total names:", len(names))
+print("First name:", names[0])</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryMethods','outMethods')">▶ Run Code</button>
+      <div class="ic-output" id="outMethods"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Loops + Lists ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚡</div>
+      <div>
+        <div class="section-title">Loops + Lists = Power Combo!</div>
+        <div class="section-sub">The most common pattern in real Python programs</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Looping through a list</h3>
+      <p>A <code>for</code> loop can go through every item in a list automatically. This is one of the most used patterns in Python!</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">loop_list.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">students</span> <span class="op">=</span> [<span class="str">"Riya"</span>, <span class="str">"Ali"</span>, <span class="str">"Priya"</span>, <span class="str">"Rahul"</span>]
+
+<span class="cmt"># Loop through the list</span>
+<span class="kw">for</span> <span class="var">student</span> <span class="kw">in</span> <span class="var">students</span>:
+    <span class="fn">print</span>(<span class="str">"Good morning,"</span>, <span class="var">student</span>)
+
+<span class="cmt"># With index using enumerate()</span>
+<span class="kw">for</span> <span class="var">i</span>, <span class="var">student</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">students</span>):
+    <span class="fn">print</span>(<span class="var">i</span> <span class="op">+</span> <span class="num">1</span>, <span class="str">"."</span>, <span class="var">student</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output (first loop)</div>
+      <div class="output-box">Good morning, Riya
+Good morning, Ali
+Good morning, Priya
+Good morning, Rahul</div>
+    </div>
+
+    <div class="card">
+      <h3>Real example — Calculate class average</h3>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">average.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">scores</span> <span class="op">=</span> [<span class="num">78</span>, <span class="num">92</span>, <span class="num">85</span>, <span class="num">67</span>, <span class="num">95</span>, <span class="num">88</span>]
+<span class="var">total</span>  <span class="op">=</span> <span class="num">0</span>
+
+<span class="kw">for</span> <span class="var">score</span> <span class="kw">in</span> <span class="var">scores</span>:
+    <span class="var">total</span> <span class="op">=</span> <span class="var">total</span> <span class="op">+</span> <span class="var">score</span>
+
+<span class="var">average</span> <span class="op">=</span> <span class="var">total</span> <span class="op">/</span> <span class="fn">len</span>(<span class="var">scores</span>)
+<span class="fn">print</span>(<span class="str">"Total:"</span>,   <span class="var">total</span>)
+<span class="fn">print</span>(<span class="str">"Average:"</span>, <span class="var">average</span>)
+
+<span class="cmt"># Find the highest score</span>
+<span class="var">highest</span> <span class="op">=</span> <span class="var">scores</span>[<span class="num">0</span>]
+<span class="kw">for</span> <span class="var">score</span> <span class="kw">in</span> <span class="var">scores</span>:
+    <span class="kw">if</span> <span class="var">score</span> <span class="op">></span> <span class="var">highest</span>:
+        <span class="var">highest</span> <span class="op">=</span> <span class="var">score</span>
+<span class="fn">print</span>(<span class="str">"Highest score:"</span>, <span class="var">highest</span>)</pre>
+      </div>
+    </div>
+
+    <div class="interactive-code">
+      <div class="interactive-topbar"><span class="ic-label">✏️ TRY IT — Student Report Card</span></div>
+      <textarea class="ic-textarea" id="tryCombo" spellcheck="false" style="min-height:160px">scores = [88, 74, 92, 65, 95, 81]
+names  = ["Riya", "Ali", "Priya", "Rahul", "Sneha", "Dev"]
+
+total = 0
+print("--- Report Card ---")
+for i in range(len(names)):
+    total = total + scores[i]
+    if scores[i] >= 80:
+        grade = "Pass"
+    else:
+        grade = "Needs work"
+    print(names[i], ":", scores[i], "-", grade)
+
+average = total / len(scores)
+print("Class average:", average)</textarea>
+      <button class="ic-run-btn" onclick="runCode('tryCombo','outCombo')">▶ Run Code</button>
+      <div class="ic-output" id="outCombo"></div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Class 3 Test</div>
+        <div class="section-sub">12 questions on loops and lists</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What does <code>range(5)</code> produce?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>1, 2, 3, 4, 5</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>0, 1, 2, 3, 4</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>0, 1, 2, 3, 4, 5</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>1, 2, 3, 4</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">How many times does this loop print?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>, <span class="num">8</span>):
+    <span class="fn">print</span>(i)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>8 times</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">B</span>7 times</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">C</span>6 times</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>2 times</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">What is the difference between <code>break</code> and <code>continue</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>They do the same thing</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>break exits the loop entirely; continue skips only the current iteration</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>continue exits the loop; break skips one iteration</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>break is for while loops; continue is for for loops</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">Given <code>fruits = ["apple", "banana", "mango"]</code>, what is <code>fruits[1]</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>"apple"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>"banana"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>"mango"</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>An error</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What does <code>fruits[-1]</code> return for the list <code>["apple", "banana", "mango"]</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>"apple"</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">B</span>"banana"</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">C</span>"mango"</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>An error</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">Which method adds an item to the END of a list?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>.insert()</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>.append()</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>.add()</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>.push()</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">What will this while loop print?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip">x = 3
+<span class="kw">while</span> x > 0:
+    <span class="fn">print</span>(x)
+    x = x - 1</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>3, 2, 1, 0</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>3, 2, 1</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>1, 2, 3</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>It runs forever</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">What does <code>len(["a", "b", "c", "d"])</code> return?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>3</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">B</span>4</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">C</span>5</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>0</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 fill in blank -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank — to remove the last item from a list:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span style="color:var(--text)">my_list.</span><input class="fib-input" id="fib9" placeholder="???()" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb',['pop()','pop'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">What does <code>.sort()</code> do to a list?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">A</span>Returns a sorted copy, original unchanged</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,true)"><span class="opt-indicator">B</span>Sorts the list in place (changes the original)</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">C</span>Reverses the list</div>
+          <div class="quiz-option" onclick="answerMCQ('q10',this,false)"><span class="opt-indicator">D</span>Removes duplicates</div>
+        </div>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="quiz-card" id="q11">
+      <div class="quiz-header"><div class="quiz-num">11</div><div class="quiz-q">What is the output of this code?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-code-snip">nums = [10, 20, 30]
+<span class="kw">for</span> n <span class="kw">in</span> nums:
+    <span class="fn">print</span>(n + 5)</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">A</span>10, 20, 30</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">B</span>5, 5, 5</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,true)"><span class="opt-indicator">C</span>15, 25, 35</div>
+          <div class="quiz-option" onclick="answerMCQ('q11',this,false)"><span class="opt-indicator">D</span>Error</div>
+        </div>
+        <div class="quiz-feedback" id="q11-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q12 fill in blank -->
+    <div class="quiz-card" id="q12">
+      <div class="quiz-header"><div class="quiz-num">12</div><div class="quiz-q">Fill in the blank — to add "orange" to the end of the list:</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          <span style="color:var(--text)">fruits.</span><input class="fib-input" id="fib12" placeholder="???(...)" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib12','q12-fb',['append(\"orange\")','append(orange)','append'],'q12')">Check Answer</button>
+        <div class="quiz-feedback" id="q12-fb"></div>
+      </div>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard" style="display:none;">
+      <span class="score-emoji" id="scoreEmoji">🎉</span>
+      <div class="score-main" id="scoreMain">0 / 12</div>
+      <div class="score-sub" id="scoreSub"></div>
+      <div class="score-bar-wrap"><div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div></div>
+      <div style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+  <div class="checkpoint reveal">
+    <div class="checkpoint-icon">🏁</div>
+    <div class="checkpoint-text">
+      <strong>Class 3 Complete!</strong>
+      You learned for loops, while loops, break & continue, lists, list methods, and the powerful loops + lists combo. Next class: Functions and Strings — writing reusable code!
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 12, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── LOOP VISUALIZER ──
+function runLoopViz() {
+  let start = parseInt(document.getElementById('loopStart').value) || 0;
+  let end   = parseInt(document.getElementById('loopEnd').value)   || 5;
+  if (end - start > 15) { end = start + 15; }
+  if (start >= end) return;
+
+  let track = document.getElementById('loopTrack');
+  let msg   = document.getElementById('loopMsg');
+  track.innerHTML = '';
+  msg.textContent = '';
+
+  let boxes = [];
+  for (let i = start; i < end; i++) {
+    let b = document.createElement('div');
+    b.className = 'loop-box';
+    b.textContent = i;
+    track.appendChild(b);
+    boxes.push(b);
+  }
+
+  let idx = 0;
+  function step() {
+    if (idx > 0) boxes[idx-1].classList.replace('active','done');
+    if (idx < boxes.length) {
+      boxes[idx].classList.add('active');
+      msg.textContent = 'i = ' + (start + idx) + ' → print(' + (start + idx) + ')';
+      idx++;
+      setTimeout(step, 380);
+    } else {
+      msg.textContent = 'Loop finished! Ran ' + boxes.length + ' times.';
+    }
+  }
+  step();
+}
+
+// ── LIST VISUALIZER ──
+let listData = ["apple", "banana", "mango", "grape"];
+function renderList() {
+  let el = document.getElementById('listSlots');
+  el.innerHTML = '';
+  listData.forEach((val, i) => {
+    let slot = document.createElement('div');
+    slot.className = 'list-slot';
+    slot.innerHTML = '<div class="list-slot-val">' + val + '</div>' +
+      '<div class="list-slot-idx">[' + i + ']</div>' +
+      '<div class="list-slot-neg">[-' + (listData.length - i) + ']</div>';
+    el.appendChild(slot);
+  });
+}
+renderList();
+
+function listAppend() {
+  let val = document.getElementById('listAddVal').value.trim();
+  if (!val) return;
+  listData.push(val);
+  document.getElementById('listAddVal').value = '';
+  renderList();
+  document.getElementById('listLog').textContent = 'Appended "' + val + '" → list now has ' + listData.length + ' items.';
+}
+function listPop() {
+  if (!listData.length) return;
+  let removed = listData.pop();
+  renderList();
+  document.getElementById('listLog').textContent = 'Removed "' + removed + '" → list now has ' + listData.length + ' items.';
+}
+function listReset() {
+  listData = ["apple","banana","mango","grape"];
+  renderList();
+  document.getElementById('listLog').textContent = 'List reset to original.';
+}
+
+// ── MINI PYTHON INTERPRETER ──
+function runCode(tid, oid) {
+  let code = document.getElementById(tid).value;
+  let out  = document.getElementById(oid);
+  out.classList.add('visible');
+  out.classList.remove('ic-error');
+  out.textContent = '';
+  let result = execPython(code);
+  if (result.error) { out.classList.add('ic-error'); out.textContent = 'Error: ' + result.error; }
+  else { out.textContent = result.output || '(no output)'; }
+}
+
+function execPython(code) {
+  let lines  = code.split('\n');
+  let vars   = {};
+  let output = [];
+  let error  = null;
+  let i = 0;
+
+  try {
+    while (i < lines.length && !error) {
+      let raw = lines[i], trimmed = raw.trim();
+      if (!trimmed || trimmed.startsWith('#')) { i++; continue; }
+
+      // for loop
+      if (/^for\s+.+\s+in\s+.+:$/.test(trimmed)) {
+        let body = [], j = i + 1;
+        while (j < lines.length) {
+          let bl = lines[j]; let bt = bl.trim();
+          if (!bt || bt.startsWith('#')) { j++; continue; }
+          let ind = bl.length - bl.trimStart().length;
+          if (ind === 0) break;
+          body.push(bt); j++;
+        }
+        let header = trimmed.slice(0, -1);
+        let m = header.match(/^for\s+(.+?)\s+in\s+(.+)$/);
+        if (m) {
+          let varName = m[1].trim();
+          let iterExpr = m[2].trim();
+          let items = resolveIterable(iterExpr, vars);
+          for (let item of items) {
+            if (typeof varName === 'string' && varName.includes(',')) {
+              let parts = varName.split(',').map(x => x.trim());
+              if (Array.isArray(item)) parts.forEach((p,pi) => vars[p] = item[pi]);
+            } else { vars[varName] = item; }
+            let r = execBlock(body, vars, output);
+            if (r && r.break) break;
+            if (r && r.error) { error = r.error; break; }
+          }
+        }
+        i = j; continue;
+      }
+
+      // while loop
+      if (/^while\s+.+:$/.test(trimmed)) {
+        let cond = trimmed.slice(6, -1).trim();
+        let body = [], j = i + 1;
+        while (j < lines.length) {
+          let bl = lines[j], bt = bl.trim();
+          if (!bt || bt.startsWith('#')) { j++; continue; }
+          if (bl.length - bl.trimStart().length === 0) break;
+          body.push(bt); j++;
+        }
+        let safety = 0;
+        while (evalCond(cond, vars) && safety < 200) {
+          let r = execBlock(body, vars, output);
+          if (r && r.break) break;
+          if (r && r.error) { error = r.error; break; }
+          safety++;
+        }
+        i = j; continue;
+      }
+
+      // if/elif/else
+      if (/^if\s+.+:$/.test(trimmed) || /^elif\s+.+:$/.test(trimmed) || /^else\s*:$/.test(trimmed)) {
+        let result = parseIfBlock(lines, i, vars, output);
+        if (result.error) { error = result.error; break; }
+        i = result.nextLine; continue;
+      }
+
+      let r = execSingleLine(trimmed, vars, output);
+      if (r && r.error) { error = r.error; break; }
+      i++;
+    }
+  } catch(e) { error = e.message; }
+
+  return { output: output.join('\n'), error };
+}
+
+function execBlock(body, vars, output) {
+  for (let line of body) {
+    let t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    if (t === 'break')    return { break: true };
+    if (t === 'continue') return { continue: true };
+    // nested if inside block
+    if (/^if\s+.+:$/.test(t)) {
+      // simple single-line nested if (no body parsing here — flatten)
+      continue;
+    }
+    let r = execSingleLine(t, vars, output);
+    if (r && r.error) return r;
+    if (r && r.break) return r;
+    if (r && r.continue) return r;
+  }
+  return null;
+}
+
+function parseIfBlock(lines, startIdx, vars, output) {
+  let blocks = [], i = startIdx;
+  while (i < lines.length) {
+    let raw = lines[i], t = raw.trim();
+    if (!t || t.startsWith('#')) { i++; continue; }
+    let isIf   = /^if\s+.+:$/.test(t);
+    let isElif = /^elif\s+.+:$/.test(t);
+    let isElse = /^else\s*:$/.test(t);
+    if (!isIf && !isElif && !isElse) break;
+    let cond = isElse ? null : t.replace(/^(?:if|elif)\s+/, '').replace(/:$/, '');
+    let body = [], j = i + 1;
+    while (j < lines.length) {
+      let bl = lines[j], bt = bl.trim();
+      if (!bt || bt.startsWith('#')) { j++; continue; }
+      if (bl.length - bl.trimStart().length === 0) break;
+      body.push(bt); j++;
+    }
+    blocks.push({ cond, body });
+    i = j;
+  }
+  let ran = false;
+  for (let b of blocks) {
+    if (ran) break;
+    let condVal = b.cond === null ? !ran : evalCond(b.cond, vars);
+    if (condVal) {
+      ran = true;
+      for (let line of b.body) {
+        if (!line.trim()) continue;
+        let r = execSingleLine(line.trim(), vars, output);
+        if (r && r.error) return { error: r.error, nextLine: i };
+      }
+    }
+  }
+  return { nextLine: i };
+}
+
+function resolveIterable(expr, vars) {
+  expr = expr.trim();
+  // range()
+  let rm = expr.match(/^range\((.+)\)$/);
+  if (rm) {
+    let args = rm[1].split(',').map(a => parseInt(evalValue(a.trim(), vars)));
+    if (args.length === 1) return Array.from({length: args[0]}, (_,i) => i);
+    if (args.length === 2) { let r = []; for (let i = args[0]; i < args[1]; i++) r.push(i); return r; }
+    if (args.length === 3) { let r = []; for (let i = args[0]; i < args[1]; i += args[2]) r.push(i); return r; }
+  }
+  // enumerate()
+  let em = expr.match(/^enumerate\((.+)\)$/);
+  if (em) {
+    let inner = resolveIterable(em[1].trim(), vars);
+    return inner.map((v, i) => [i, v]);
+  }
+  // string literal
+  if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) {
+    return expr.slice(1,-1).split('');
+  }
+  // list literal
+  if (expr.startsWith('[') && expr.endsWith(']')) {
+    return parseListLiteral(expr, vars);
+  }
+  // variable
+  if (vars.hasOwnProperty(expr)) {
+    let v = vars[expr];
+    if (Array.isArray(v)) return v;
+    if (typeof v === 'string') return v.split('');
+    return [];
+  }
+  return [];
+}
+
+function parseListLiteral(expr, vars) {
+  let inner = expr.slice(1, -1);
+  let items = splitArgs(inner);
+  return items.map(a => evalValue(a.trim(), vars));
+}
+
+function execSingleLine(line, vars, output) {
+  if (!line || line.startsWith('#')) return null;
+  if (line === 'break')    return { break: true };
+  if (line === 'continue') return { continue: true };
+
+  // print()
+  if (line.startsWith('print(')) {
+    let inner = extractParens(line, 'print');
+    if (inner === null) return { error: 'Syntax error in print()' };
+    let args = splitArgs(inner).map(a => fmtVal(evalValue(a.trim(), vars)));
+    output.push(args.join(' '));
+    return null;
+  }
+
+  // augmented assignment
+  let augM = line.match(/^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|\/=|\/\/=|%=|\*\*=)\s*(.+)$/);
+  if (augM) {
+    let vn = augM[1], op = augM[2], val = evalValue(augM[3].trim(), vars);
+    if (vars[vn] === undefined) return { error: "Variable '" + vn + "' not defined" };
+    if      (op==='+=')  vars[vn] += val;
+    else if (op==='-=')  vars[vn] -= val;
+    else if (op==='*=')  vars[vn] *= val;
+    else if (op==='/=')  vars[vn] /= val;
+    else if (op==='//=') vars[vn] = Math.floor(vars[vn]/val);
+    else if (op==='%=')  vars[vn] %= val;
+    else if (op==='**=') vars[vn] = Math.pow(vars[vn],val);
+    return null;
+  }
+
+  // list[i] = val
+  let listAssign = line.match(/^([a-zA-Z_]\w*)\[(.+)\]\s*=\s*(.+)$/);
+  if (listAssign) {
+    let lv = listAssign[1], idx = parseInt(evalValue(listAssign[2].trim(), vars)), val = evalValue(listAssign[3].trim(), vars);
+    if (Array.isArray(vars[lv])) { vars[lv][idx < 0 ? vars[lv].length + idx : idx] = val; }
+    return null;
+  }
+
+  // method calls: list.append(), .remove(), .sort(), .reverse(), .pop()
+  let methodM = line.match(/^([a-zA-Z_]\w*)\.([a-zA-Z_]+)\((.*)\)$/);
+  if (methodM) {
+    let vn = methodM[1], method = methodM[2], argStr = methodM[3].trim();
+    let lst = vars[vn];
+    if (Array.isArray(lst)) {
+      let arg = argStr ? evalValue(argStr, vars) : undefined;
+      if      (method==='append')  { lst.push(arg); }
+      else if (method==='remove')  { let i = lst.indexOf(arg); if (i>-1) lst.splice(i,1); }
+      else if (method==='pop')     { lst.pop(); }
+      else if (method==='sort')    { lst.sort((a,b)=>typeof a==='number'?a-b:String(a).localeCompare(String(b))); }
+      else if (method==='reverse') { lst.reverse(); }
+      else if (method==='insert')  { let args=splitArgs(argStr); lst.splice(parseInt(evalValue(args[0],vars)),0,evalValue(args[1],vars)); }
+    }
+    return null;
+  }
+
+  // regular assignment
+  let asgn = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+  if (asgn) { vars[asgn[1]] = evalValue(asgn[2].trim(), vars); return null; }
+
+  return null;
+}
+
+function evalCond(cond, vars) {
+  cond = cond.trim();
+  if (cond.startsWith('not ')) return !evalCond(cond.slice(4).trim(), vars);
+  if (cond.includes(' and ')) return cond.split(' and ').every(p => evalCond(p.trim(), vars));
+  if (cond.includes(' or '))  return cond.split(' or ').some(p  => evalCond(p.trim(), vars));
+  let ops = ['>=','<=','==','!=','>','<'];
+  for (let op of ops) {
+    let idx = cond.indexOf(op);
+    if (idx > -1) {
+      let L = evalValue(cond.slice(0,idx).trim(),vars);
+      let R = evalValue(cond.slice(idx+op.length).trim(),vars);
+      if (op==='==') return L==R; if (op==='!=') return L!=R;
+      if (op==='>=') return L>=R; if (op==='<=') return L<=R;
+      if (op==='>')  return L>R;  if (op==='<')  return L<R;
+    }
+  }
+  // "x in list" check
+  let inM = cond.match(/^(.+?)\s+in\s+(.+)$/);
+  if (inM) {
+    let needle = evalValue(inM[1].trim(), vars);
+    let haystack = resolveIterable(inM[2].trim(), vars);
+    return haystack.includes(needle);
+  }
+  return Boolean(evalValue(cond, vars));
+}
+
+function evalValue(expr, vars) {
+  expr = expr.trim();
+  if (!expr) return '';
+  if ((expr.startsWith('"')&&expr.endsWith('"'))||(expr.startsWith("'")&&expr.endsWith("'"))) return expr.slice(1,-1);
+  if (expr==='True') return true; if (expr==='False') return false; if (expr==='None') return null;
+  if (!isNaN(expr) && expr!=='') return expr.includes('.')?parseFloat(expr):parseInt(expr);
+
+  // list literal
+  if (expr.startsWith('[') && expr.endsWith(']')) return parseListLiteral(expr, vars);
+
+  // type(), int(), float(), str(), len()
+  let typeM = expr.match(/^type\((.+)\)$/);
+  if (typeM) { let v=evalValue(typeM[1].trim(),vars); return typeof v==='boolean'?"<class 'bool'>":typeof v==='number'?(Number.isInteger(v)?"<class 'int'>":"<class 'float'>"):Array.isArray(v)?"<class 'list'>":"<class 'str'>"; }
+  let intM = expr.match(/^int\((.+)\)$/);   if (intM) return parseInt(String(evalValue(intM[1].trim(),vars)));
+  let fltM = expr.match(/^float\((.+)\)$/); if (fltM) return parseFloat(String(evalValue(fltM[1].trim(),vars)));
+  let strM = expr.match(/^str\((.+)\)$/);   if (strM) return fmtVal(evalValue(strM[1].trim(),vars));
+  let lenM = expr.match(/^len\((.+)\)$/);   if (lenM) { let v=evalValue(lenM[1].trim(),vars); return Array.isArray(v)?v.length:typeof v==='string'?v.length:0; }
+
+  // list index
+  let idxM = expr.match(/^([a-zA-Z_]\w*)\[(.+)\]$/);
+  if (idxM) {
+    let lst = vars[idxM[1]];
+    let idx = parseInt(evalValue(idxM[2].trim(),vars));
+    if (Array.isArray(lst)) return lst[idx < 0 ? lst.length+idx : idx];
+    if (typeof lst === 'string') return lst[idx < 0 ? lst.length+idx : idx];
+  }
+
+  // string methods
+  let upM = expr.match(/^(.+)\.upper\(\)$/); if (upM) { let v=evalValue(upM[1].trim(),vars); return typeof v==='string'?v.toUpperCase():v; }
+  let loM = expr.match(/^(.+)\.lower\(\)$/); if (loM) { let v=evalValue(loM[1].trim(),vars); return typeof v==='string'?v.toLowerCase():v; }
+
+  // variable
+  if (vars.hasOwnProperty(expr)) return vars[expr];
+
+  // string concat with +
+  if (expr.includes('+')) {
+    try {
+      let parts = splitOnPlus(expr);
+      if (parts.length > 1) {
+        let ev = parts.map(p => evalValue(p.trim(),vars));
+        if (ev.some(p=>typeof p==='string')) return ev.map(fmtVal).join('');
+        return ev.reduce((a,b)=>a+b,0);
+      }
+    } catch(e){}
+  }
+
+  // math
+  try {
+    let resolved = expr.replace(/[a-zA-Z_]\w*/g, m => vars.hasOwnProperty(m)?(typeof vars[m]==='boolean'?(vars[m]?'1':'0'):String(vars[m])):'NaN');
+    resolved = resolved.replace(/(\d+(?:\.\d+)?)\s*\/\/\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(Math.floor(parseFloat(a)/parseFloat(b))));
+    resolved = resolved.replace(/(\d+(?:\.\d+)?)\s*%\s*(\d+(?:\.\d+)?)/g,(_,a,b)=>String(parseFloat(a)%parseFloat(b)));
+    if (/^[\d\s\+\-\*\/\.\(\)]+$/.test(resolved.replace(/\*\*/g,''))) return safeMath(resolved);
+  } catch(e){}
+  return expr;
+}
+
+function splitOnPlus(expr) {
+  let parts=[],depth=0,inStr=false,strChar='',cur='';
+  for(let i=0;i<expr.length;i++){let c=expr[i];if(!inStr&&(c==='"'||c==="'")){inStr=true;strChar=c;cur+=c;continue;}if(inStr&&c===strChar){inStr=false;cur+=c;continue;}if(inStr){cur+=c;continue;}if(c==='('||c==='['){depth++;cur+=c;}else if(c===')'||c===']'){depth--;cur+=c;}else if(c==='+'&&depth===0){parts.push(cur);cur='';}else cur+=c;}if(cur)parts.push(cur);return parts;
+}
+
+function extractParens(line,fn){let s=line.indexOf(fn+'(')+fn.length,depth=0,res='';for(let i=s;i<line.length;i++){if(line[i]==='('){if(depth>0)res+='(';depth++;}else if(line[i]===')'){depth--;if(depth===0)return res;else res+=')';}else res+=line[i];}return null;}
+
+function splitArgs(expr){let args=[],depth=0,inStr=false,strChar='',cur='';for(let i=0;i<expr.length;i++){let c=expr[i];if(!inStr&&(c==='"'||c==="'")){inStr=true;strChar=c;cur+=c;continue;}if(inStr&&c===strChar){inStr=false;cur+=c;continue;}if(inStr){cur+=c;continue;}if(c==='('||c==='['){depth++;cur+=c;}else if(c===')'||c===']'){depth--;cur+=c;}else if(c===','&&depth===0){args.push(cur);cur='';}else cur+=c;}if(cur.trim())args.push(cur);return args;}
+
+function fmtVal(v){if(v===null)return 'None';if(v===true)return 'True';if(v===false)return 'False';if(Array.isArray(v))return '['+v.map(x=>(typeof x==='string'?'"'+x+'"':fmtVal(x))).join(', ')+']';if(typeof v==='number'&&Number.isFinite(v))return String(Math.round(v*1e10)/1e10);return String(v);}
+
+function safeMath(expr){expr=expr.replace(/\*\*/g,'^').replace(/\s/g,'');return parseMath(expr);}
+function parseMath(s){let pos=0;function pk(){return s[pos];}function cs(){return s[pos++];}function atom(){let neg=false;if(pk()==='-'){neg=true;cs();}if(pk()==='('){cs();let v=add();cs();return neg?-v:v;}let n='';while(pos<s.length&&/[\d\.]/.test(pk()))n+=cs();let v=parseFloat(n);return neg?-v:v;}function pow(){let b=atom();while(pk()==='^'){cs();b=Math.pow(b,atom());}return b;}function mul(){let v=pow();while(pk()==='*'||pk()==='/'){let op=cs();let r=pow();v=op==='*'?v*r:v/r;}return v;}function add(){let v=mul();while(pk()==='+'||pk()==='-'){let op=cs();v=op==='+'?v+mul():v-mul();}return v;}try{return add();}catch(e){return NaN;}}
+
+// ── QUIZ ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "range(5) starts at 0 and stops BEFORE 5, giving: 0,1,2,3,4.",
+    q2: "range(2,8) gives 2,3,4,5,6,7 — that is 6 numbers (8-2=6).",
+    q3: "break exits the entire loop. continue only skips the current step and keeps going.",
+    q4: "List indexes start at 0. So index 1 is the SECOND item — banana.",
+    q5: "Negative index -1 always gives the LAST item in the list.",
+    q6: ".append() adds to the END. .insert() adds at a specific position.",
+    q7: "x starts at 3, prints 3, then 2, then 1. When x=0, condition 0>0 is False so loop stops.",
+    q8: "len() counts the number of items. There are 4 items: a, b, c, d.",
+    q10: ".sort() changes the original list in place. It does not return a new list.",
+    q11: "The loop gives n the value of each item. Each item + 5 gives 15, 25, 35.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! Loops master!';           tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';       tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';    tip='Re-read the loops and list sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';   tip='Go through each section again and try the interactive examples.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+</script>
+</body>
+</html>

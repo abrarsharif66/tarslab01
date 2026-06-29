@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 9 — LangChain Core</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre-wrap; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 180px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <span class="nav-btn" onclick="location.href='day8_genai_langchain.html'">← Day 8</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+    <span class="nav-btn" style="opacity:.5;cursor:default">Day 10 →</span>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 9 — LangChain Core</span>
+  <span class="hero-emoji">🔗</span>
+  <h1>Build with <em>LangChain</em> — From Your Data to a Live Chain</h1>
+  <p>Today we learn the five building blocks of every LangChain app: loaders, splitters, prompts, chains and parsers — then wire them into one pipeline.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 8 Recap:</div>
+  <div class="recap-chip"><span class="dot"></span>AI vs ML vs DL vs GenAI</div>
+  <div class="recap-chip"><span class="dot"></span>How LLMs train</div>
+  <div class="recap-chip"><span class="dot"></span>LangChain ecosystem</div>
+  <div class="recap-chip"><span class="dot"></span>First app</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. Loaders</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. Splitters</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Prompt Templates</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. LCEL Chains</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. Output Parsers</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Put It Together</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: Document Loaders ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">📥</div>
+      <div>
+        <div class="section-title">Document Loaders &amp; Ingestion</div>
+        <div class="section-sub">Bringing your own data into LangChain</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why do we need loaders?</h3>
+      <p>An LLM only knows what it learned during training. It has never seen <em>your</em> company handbook, <em>your</em> PDFs, or <em>your</em> website. To make the model useful on your data, we first need to <strong>load that data into LangChain</strong> — this is the very first step of RAG (Retrieval-Augmented Generation).</p>
+      <p>LangChain provides <strong>loaders</strong> for almost any source: text files, PDFs, web pages, CSVs, Notion, YouTube transcripts and more. Every loader turns your raw source into a list of standard <code>Document</code> objects.</p>
+      <div class="analogy-box">
+        <strong>🍳 Analogy:</strong> A loader is like carrying raw ingredients into the kitchen. The PDF, the website, the CSV — they are vegetables, spices and meat from outside. The loader brings them in and puts them on the counter in a tidy, standard format so the chef (the LLM) can actually cook with them.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The Document object — page_content + metadata</h3>
+      <p>No matter the source, a loader returns <code>Document</code> objects. Each one has two parts: <code>page_content</code> (the actual text) and <code>metadata</code> (extra info like the source file, page number, or URL).</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">loaders.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># 1) Load a plain text file</span>
+<span class="kw">from</span> langchain_community.document_loaders <span class="kw">import</span> TextLoader
+
+<span class="var">loader</span> <span class="op">=</span> <span class="fn">TextLoader</span>(<span class="str">"notes.txt"</span>)
+<span class="var">docs</span> <span class="op">=</span> <span class="var">loader</span>.<span class="fn">load</span>()       <span class="cmt"># -> list of Document objects</span>
+
+<span class="cmt"># 2) Load a PDF (one Document per page)</span>
+<span class="kw">from</span> langchain_community.document_loaders <span class="kw">import</span> PyPDFLoader
+<span class="var">pdf_docs</span> <span class="op">=</span> <span class="fn">PyPDFLoader</span>(<span class="str">"report.pdf"</span>).<span class="fn">load</span>()
+
+<span class="cmt"># 3) Load a web page</span>
+<span class="kw">from</span> langchain_community.document_loaders <span class="kw">import</span> WebBaseLoader
+<span class="var">web_docs</span> <span class="op">=</span> <span class="fn">WebBaseLoader</span>(<span class="str">"https://example.com/blog"</span>).<span class="fn">load</span>()
+
+<span class="cmt"># Peek inside the first Document</span>
+<span class="fn">print</span>(<span class="var">docs</span>[<span class="num">0</span>].<span class="var">page_content</span>[:<span class="num">60</span>])
+<span class="fn">print</span>(<span class="var">docs</span>[<span class="num">0</span>].<span class="var">metadata</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Welcome to the GenAI Bootcamp. Day 9 covers LangChain
+{'source': 'notes.txt'}</div>
+      <div class="info-box">
+        <strong>ℹ️ Note:</strong> Loaders live in <code>langchain_community.document_loaders</code>. Some need an extra package (e.g. <code>pypdf</code> for <code>PyPDFLoader</code>). The pattern is always the same: create the loader, call <code>.load()</code>, get back <code>Document</code> objects.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A few common loaders</h3>
+      <table class="methods-table">
+        <tr><th>Loader</th><th>Source</th><th>Returns</th></tr>
+        <tr><td><span class="method-name">TextLoader</span></td><td>.txt files</td><td>1 Document for the whole file</td></tr>
+        <tr><td><span class="method-name">PyPDFLoader</span></td><td>.pdf files</td><td>1 Document per page</td></tr>
+        <tr><td><span class="method-name">WebBaseLoader</span></td><td>Web URLs</td><td>1 Document per page</td></tr>
+        <tr><td><span class="method-name">CSVLoader</span></td><td>.csv files</td><td>1 Document per row</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: Text Splitters ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">✂️</div>
+      <div>
+        <div class="section-title">Text Splitters — Chunking Big Documents</div>
+        <div class="section-sub">Cutting documents to fit the LLM's context window</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why split at all?</h3>
+      <p>Every LLM has a <strong>context limit</strong> — a maximum amount of text it can read at once. A 300-page PDF will never fit. So before we feed documents to a model (or store them for RAG), we cut them into smaller <strong>chunks</strong>.</p>
+      <div class="analogy-box">
+        <strong>📏 Analogy:</strong> Imagine reading a giant scroll through a small window. You can only see one section at a time. Splitting is like cutting that scroll into neat pages that each fit through the window — and <strong>chunk_overlap</strong> is like repeating the last sentence of each page at the top of the next one, so you never lose the thread mid-sentence.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>chunk_size and chunk_overlap</h3>
+      <p><code>chunk_size</code> = how big each piece is (in characters or tokens). <code>chunk_overlap</code> = how much each chunk repeats from the previous one, so context isn't lost exactly at the cut point.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">splitter.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> langchain_text_splitters <span class="kw">import</span> RecursiveCharacterTextSplitter
+
+<span class="var">text</span> <span class="op">=</span> <span class="str">"LangChain makes it easy to build LLM apps. "</span> <span class="op">*</span> <span class="num">20</span>
+
+<span class="cmt"># The DEFAULT, smartest splitter</span>
+<span class="var">splitter</span> <span class="op">=</span> <span class="fn">RecursiveCharacterTextSplitter</span>(
+    <span class="var">chunk_size</span><span class="op">=</span><span class="num">100</span>,        <span class="cmt"># max ~100 chars per chunk</span>
+    <span class="var">chunk_overlap</span><span class="op">=</span><span class="num">20</span>,      <span class="cmt"># repeat 20 chars between chunks</span>
+)
+
+<span class="var">chunks</span> <span class="op">=</span> <span class="var">splitter</span>.<span class="fn">split_text</span>(<span class="var">text</span>)
+<span class="fn">print</span>(<span class="str">"Number of chunks:"</span>, <span class="fn">len</span>(<span class="var">chunks</span>))
+<span class="fn">print</span>(<span class="str">"First chunk:"</span>, <span class="var">chunks</span>[<span class="num">0</span>])
+
+<span class="cmt"># Or split Document objects directly</span>
+<span class="var">split_docs</span> <span class="op">=</span> <span class="var">splitter</span>.<span class="fn">split_documents</span>(<span class="var">docs</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Number of chunks: 11
+First chunk: LangChain makes it easy to build LLM apps. LangChain makes it easy to build LLM apps.</div>
+    </div>
+
+    <div class="card">
+      <h3>Which splitter should I use?</h3>
+      <p><code>RecursiveCharacterTextSplitter</code> is the default and best for most text. It tries to split on the largest natural boundary first — <strong>paragraphs → lines → sentences → words</strong> — so chunks stay readable.</p>
+      <div class="two-col">
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">RecursiveCharacterTextSplitter</h4>
+          <p style="color:var(--muted);font-size:0.85rem;">Smart default. Respects paragraph and line boundaries. Use for plain text, articles, docs.</p>
+        </div>
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent)">CharacterTextSplitter</h4>
+          <p style="color:var(--muted);font-size:0.85rem;">Simple. Splits on a single separator (default <code>"\n\n"</code>). Less context-aware.</p>
+        </div>
+      </div>
+      <p>For structured content there are specialized splitters too: <code>HTMLHeaderTextSplitter</code> splits by HTML headings, and <code>RecursiveJsonSplitter</code> splits JSON while keeping the structure intact.</p>
+      <div class="tip-box">
+        <strong>📌 Choosing chunk size:</strong> Smaller chunks (300–500 chars) = more precise retrieval but more pieces. Larger chunks (1000–2000) = more context per piece but less precise. A common starting point is <code>chunk_size=1000, chunk_overlap=200</code> — tune from there.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Prompt Templates ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📝</div>
+      <div>
+        <div class="section-title">Prompt Templates — Reusable, Parameterized Prompts</div>
+        <div class="section-sub">Separate the wording from the data</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why templates instead of plain strings?</h3>
+      <p>You will rarely send the exact same prompt twice — only the data changes. A prompt template is a prompt with <strong><code>{variables}</code></strong> in it. You write the wording once, then fill in the blanks each time. This keeps your prompts clean, reusable and easy to edit.</p>
+      <div class="analogy-box">
+        <strong>✉️ Analogy:</strong> A prompt template is a fill-in-the-blank form letter. "Dear ___, thank you for ordering ___." The letter (the wording) is written once; you just slot in a new name and product for each customer. Same prompt structure, different data every time.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>PromptTemplate vs ChatPromptTemplate</h3>
+      <p><code>PromptTemplate</code> builds a single string. <code>ChatPromptTemplate</code> builds a list of chat messages (<strong>system</strong> + <strong>human</strong>), which is what modern chat models actually expect.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">prompts.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> PromptTemplate, ChatPromptTemplate
+
+<span class="cmt"># Simple string template</span>
+<span class="var">prompt</span> <span class="op">=</span> <span class="fn">PromptTemplate</span>.<span class="fn">from_template</span>(
+    <span class="str">"Write a one-line tagline for a {product}."</span>
+)
+<span class="fn">print</span>(<span class="var">prompt</span>.<span class="fn">format</span>(<span class="var">product</span><span class="op">=</span><span class="str">"coffee shop"</span>))
+
+<span class="cmt"># Chat template with system + human messages</span>
+<span class="var">chat_prompt</span> <span class="op">=</span> <span class="fn">ChatPromptTemplate</span>.<span class="fn">from_messages</span>([
+    (<span class="str">"system"</span>, <span class="str">"You are a witty marketing assistant."</span>),
+    (<span class="str">"human"</span>,  <span class="str">"Write a tagline for a {product}."</span>),
+])
+
+<span class="var">messages</span> <span class="op">=</span> <span class="var">chat_prompt</span>.<span class="fn">format_messages</span>(<span class="var">product</span><span class="op">=</span><span class="str">"coffee shop"</span>)
+<span class="kw">for</span> <span class="var">m</span> <span class="kw">in</span> <span class="var">messages</span>:
+    <span class="fn">print</span>(<span class="var">m</span>.<span class="var">type</span>, <span class="str">"->"</span>, <span class="var">m</span>.<span class="var">content</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Write a one-line tagline for a coffee shop.
+system -> You are a witty marketing assistant.
+human -> Write a tagline for a coffee shop.</div>
+      <div class="tip-box">
+        <strong>📌 Remember:</strong> The <strong>system</strong> message sets the role/behaviour ("you are a helpful tutor"); the <strong>human</strong> message carries the actual request and the <code>{variables}</code>. Keep your changing data in variables, never hard-coded in the template.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: LCEL Chains ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-green">⛓️</div>
+      <div>
+        <div class="section-title">LCEL Chains — Piping Components with |</div>
+        <div class="section-sub">LangChain Expression Language: the modern way to build</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The pipeline mental model</h3>
+      <p>LCEL (LangChain Expression Language) lets you connect components with the pipe operator <code>|</code>, just like Unix pipes. Data flows <strong>left → right</strong>: the output of one piece becomes the input of the next.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">the_pattern.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">chain</span> <span class="op">=</span> <span class="var">prompt</span> <span class="op">|</span> <span class="var">model</span> <span class="op">|</span> <span class="var">parser</span></pre>
+      </div>
+      <div class="analogy-box">
+        <strong>🏭 Analogy:</strong> Think of an assembly line. The raw input enters at the left; the prompt station shapes it into a request, the model station turns it into a response, and the parser station polishes it into clean output. Each station passes its result to the next — that is exactly what <code>|</code> does.
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>prompt</strong>Takes your variables (e.g. <code>{product}</code>) and produces a formatted prompt/messages.</div></div>
+        <div class="step"><div class="step-body"><strong>model</strong>Sends those messages to the LLM and returns an AI message.</div></div>
+        <div class="step"><div class="step-body"><strong>parser</strong>Turns the AI message into the final clean data (a string, a dict, etc.).</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>A runnable chain with .invoke()</h3>
+      <p>You call the chain with <code>.invoke()</code>, passing a dict of the template variables. Any chat model works — use <code>ChatOpenAI</code> or <code>ChatAnthropic</code> (the rest of the chain is identical).</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">lcel_chain.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> ChatPromptTemplate
+<span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> StrOutputParser
+<span class="kw">from</span> langchain_anthropic <span class="kw">import</span> ChatAnthropic
+<span class="cmt"># (or: from langchain_openai import ChatOpenAI)</span>
+
+<span class="var">prompt</span> <span class="op">=</span> <span class="fn">ChatPromptTemplate</span>.<span class="fn">from_messages</span>([
+    (<span class="str">"system"</span>, <span class="str">"You are a witty marketing assistant."</span>),
+    (<span class="str">"human"</span>,  <span class="str">"Write a tagline for a {product}."</span>),
+])
+
+<span class="var">model</span>  <span class="op">=</span> <span class="fn">ChatAnthropic</span>(<span class="var">model</span><span class="op">=</span><span class="str">"claude-sonnet-4-5"</span>)
+<span class="var">parser</span> <span class="op">=</span> <span class="fn">StrOutputParser</span>()
+
+<span class="cmt"># Build the chain by piping the pieces together</span>
+<span class="var">chain</span> <span class="op">=</span> <span class="var">prompt</span> <span class="op">|</span> <span class="var">model</span> <span class="op">|</span> <span class="var">parser</span>
+
+<span class="cmt"># Run it!</span>
+<span class="var">result</span> <span class="op">=</span> <span class="var">chain</span>.<span class="fn">invoke</span>({<span class="str">"product"</span>: <span class="str">"coffee shop"</span>})
+<span class="fn">print</span>(<span class="var">result</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Life's too short for bad coffee. ☕</div>
+      <div class="info-box">
+        <strong>ℹ️ Why LCEL?</strong> Because it pipes components, every chain automatically gets streaming, batching and async for free — and you can read the data flow at a glance, left to right.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: Output Parsers ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">🔧</div>
+      <div>
+        <div class="section-title">Output Parsers — Turning Text into Clean Data</div>
+        <div class="section-sub">From free-form text to reliable objects</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why parse the output?</h3>
+      <p>An LLM always returns <strong>text</strong>. But your program usually wants <strong>data</strong> — a clean string, a number, or a structured object you can use directly. Output parsers do that conversion at the end of the chain.</p>
+      <div class="analogy-box">
+        <strong>🥡 Analogy:</strong> The model hands you a messy takeaway bag with everything mixed together. A parser is the person who unpacks it and lays each item neatly on a plate — so your code gets a tidy dict or object instead of having to dig through raw text.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">str_parser.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> StrOutputParser
+
+<span class="cmt"># The simplest parser: pulls the plain text out of the AI message</span>
+<span class="var">parser</span> <span class="op">=</span> <span class="fn">StrOutputParser</span>()
+<span class="var">chain</span> <span class="op">=</span> <span class="var">prompt</span> <span class="op">|</span> <span class="var">model</span> <span class="op">|</span> <span class="var">parser</span>
+
+<span class="var">text</span> <span class="op">=</span> <span class="var">chain</span>.<span class="fn">invoke</span>({<span class="str">"product"</span>: <span class="str">"bakery"</span>})
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">text</span>), <span class="op">"->"</span>, <span class="var">text</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">&lt;class 'str'&gt; -> Freshly baked happiness, every morning.</div>
+    </div>
+
+    <div class="card">
+      <h3>Structured output with Pydantic</h3>
+      <p>When you need reliable JSON/objects (not free text), define the shape with a <strong>Pydantic</strong> model and let the LLM fill it in. The modern, easiest way is <code>model.with_structured_output(YourModel)</code>.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">structured.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+
+<span class="cmt"># Define the exact shape you want back</span>
+<span class="kw">class</span> <span class="fn">Tagline</span>(<span class="var">BaseModel</span>):
+    <span class="var">slogan</span><span class="op">:</span> <span class="var">str</span> <span class="op">=</span> <span class="fn">Field</span>(<span class="var">description</span><span class="op">=</span><span class="str">"the catchy line"</span>)
+    <span class="var">tone</span><span class="op">:</span> <span class="var">str</span> <span class="op">=</span> <span class="fn">Field</span>(<span class="var">description</span><span class="op">=</span><span class="str">"e.g. fun, serious"</span>)
+
+<span class="cmt"># Ask the model to return that structure</span>
+<span class="var">structured_model</span> <span class="op">=</span> <span class="var">model</span>.<span class="fn">with_structured_output</span>(<span class="var">Tagline</span>)
+<span class="var">chain</span> <span class="op">=</span> <span class="var">prompt</span> <span class="op">|</span> <span class="var">structured_model</span>
+
+<span class="var">result</span> <span class="op">=</span> <span class="var">chain</span>.<span class="fn">invoke</span>({<span class="str">"product"</span>: <span class="str">"coffee shop"</span>})
+<span class="fn">print</span>(<span class="var">result</span>.<span class="var">slogan</span>)
+<span class="fn">print</span>(<span class="var">result</span>.<span class="var">tone</span>)
+<span class="fn">print</span>(<span class="var">result</span>.<span class="fn">model_dump</span>())   <span class="cmt"># as a dict</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Life's too short for bad coffee.
+fun
+{'slogan': "Life's too short for bad coffee.", 'tone': 'fun'}</div>
+      <div class="info-box">
+        <strong>ℹ️ Back to Day 3:</strong> Remember Pydantic from our Python data-validation lesson? Same tool here. It defines and validates the exact fields and types you want — which is why the LLM's output comes back as a clean, type-checked object instead of guesswork. (The older <code>PydanticOutputParser</code> does the same job; <code>with_structured_output</code> is the newer, simpler way.)
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Putting It Together ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🧩</div>
+      <div>
+        <div class="section-title">Putting It Together — A Multi-Step Chain</div>
+        <div class="section-sub">Loader → Splitter → Prompt → Model → Parser</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The full pipeline</h3>
+      <p>Now we combine every block from today into one end-to-end flow: load a document, split it, summarize the first chunk with a prompt + model, and get clean text out with a parser.</p>
+      <div class="steps">
+        <div class="step"><div class="step-body"><strong>Load</strong>Read the file into <code>Document</code> objects with a loader.</div></div>
+        <div class="step"><div class="step-body"><strong>Split</strong>Cut the documents into manageable chunks.</div></div>
+        <div class="step"><div class="step-body"><strong>Prompt</strong>Insert the chunk text into a prompt template.</div></div>
+        <div class="step"><div class="step-body"><strong>Model</strong>Send it to the LLM via the LCEL chain.</div></div>
+        <div class="step"><div class="step-body"><strong>Parse</strong>Use <code>StrOutputParser</code> to get a clean summary string.</div></div>
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">end_to_end.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">from</span> langchain_community.document_loaders <span class="kw">import</span> TextLoader
+<span class="kw">from</span> langchain_text_splitters <span class="kw">import</span> RecursiveCharacterTextSplitter
+<span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> ChatPromptTemplate
+<span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> StrOutputParser
+<span class="kw">from</span> langchain_anthropic <span class="kw">import</span> ChatAnthropic
+
+<span class="cmt"># 1) LOAD</span>
+<span class="var">docs</span> <span class="op">=</span> <span class="fn">TextLoader</span>(<span class="str">"article.txt"</span>).<span class="fn">load</span>()
+
+<span class="cmt"># 2) SPLIT</span>
+<span class="var">splitter</span> <span class="op">=</span> <span class="fn">RecursiveCharacterTextSplitter</span>(<span class="var">chunk_size</span><span class="op">=</span><span class="num">1000</span>, <span class="var">chunk_overlap</span><span class="op">=</span><span class="num">200</span>)
+<span class="var">chunks</span> <span class="op">=</span> <span class="var">splitter</span>.<span class="fn">split_documents</span>(<span class="var">docs</span>)
+
+<span class="cmt"># 3) PROMPT + 4) MODEL + 5) PARSER  (one LCEL chain)</span>
+<span class="var">prompt</span> <span class="op">=</span> <span class="fn">ChatPromptTemplate</span>.<span class="fn">from_messages</span>([
+    (<span class="str">"system"</span>, <span class="str">"You summarize text in one clear sentence."</span>),
+    (<span class="str">"human"</span>,  <span class="str">"Summarize this:\n\n{content}"</span>),
+])
+<span class="var">model</span>  <span class="op">=</span> <span class="fn">ChatAnthropic</span>(<span class="var">model</span><span class="op">=</span><span class="str">"claude-sonnet-4-5"</span>)
+<span class="var">chain</span>  <span class="op">=</span> <span class="var">prompt</span> <span class="op">|</span> <span class="var">model</span> <span class="op">|</span> <span class="fn">StrOutputParser</span>()
+
+<span class="cmt"># Run on the first chunk</span>
+<span class="var">summary</span> <span class="op">=</span> <span class="var">chain</span>.<span class="fn">invoke</span>({<span class="str">"content"</span>: <span class="var">chunks</span>[<span class="num">0</span>].<span class="var">page_content</span>})
+<span class="fn">print</span>(<span class="var">summary</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">LangChain provides loaders, splitters, prompts, chains and parsers that let
+developers feed their own data to an LLM and get clean, structured results.</div>
+      <div class="tip-box">
+        <strong>🚀 This is the basis of RAG!</strong> Load → split → (embed &amp; store) → retrieve → prompt → model. You just built everything except the embed/store/retrieve step. Add a vector store and you have full Retrieval-Augmented Generation — that's Day 12. You're ready.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧠</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 9 Test</div>
+        <div class="section-sub">10 questions on LangChain core building blocks</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What is the job of a document loader in LangChain?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>It trains a new LLM on your data</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>It brings external data (TXT, PDF, web, CSV) in as Document objects</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>It sends prompts to the model</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>It parses the model's output into JSON</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">A <code>Document</code> object has two main parts. Which are they?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>prompt and response</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">B</span>page_content and metadata</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">C</span>text and tokens</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>chunk and overlap</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">Why do we split big documents into chunks?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>To make the text more colorful</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>Because LLMs have a context limit and can't read huge documents at once</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>Because loaders only return one chunk</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>To delete duplicate sentences</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">What does <code>chunk_overlap</code> do?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>Sets the maximum size of each chunk</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">B</span>Repeats some text between chunks so context isn't lost at the cut</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">C</span>Removes the overlap between pages</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>Counts the number of chunks</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">Which splitter is the recommended default, splitting on paragraphs → lines → words?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>CharacterTextSplitter</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>RecursiveCharacterTextSplitter</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>TokenSplitter</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>PyPDFLoader</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">In a prompt template, what do the <code>{curly_braces}</code> represent?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>Comments that the model ignores</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>Variables (blanks) that get filled in with data at runtime</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>The model's output</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>Errors in the prompt</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">In <code>prompt | model | parser</code>, how does data flow?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>Right to left: parser first, then model, then prompt</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>Left to right: each component's output becomes the next one's input</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>All three run independently at the same time</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>Only the model runs; the others are ignored</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">You want the LLM to return a clean, type-checked object instead of free text. What helps?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>A document loader</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>A bigger chunk_size</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">C</span>A Pydantic model with <code>with_structured_output()</code></div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>A WebBaseLoader</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (FIB) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the method you call to RUN an LCEL chain.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">result = chain.<input class="fib-input" id="q9-input" placeholder="method()" spellcheck="false">({"product": "coffee shop"})</div>
+        <button class="fib-btn" onclick="checkFIB('q9-input','q9-fb',['invoke','.invoke','invoke()','.invoke()'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (FIB) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: the simplest parser that pulls plain text out of the model's reply.</div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">parser = <input class="fib-input" id="q10-input" placeholder="ClassName" spellcheck="false">()</div>
+        <button class="fib-btn" onclick="checkFIB('q10-input','q10-fb',['StrOutputParser','StrOutputParser()'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub"></div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill" style="width:0%"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip" style="font-size:0.9rem"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <!-- CHECKPOINT -->
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 9 Complete!</strong>
+        You now know loaders, splitters, prompt templates, LCEL chains and output parsers — you're ready for RAG (Day 12).
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "A loader brings external data (TXT, PDF, web, CSV) into LangChain as Document objects.",
+    q2: "Every Document has page_content (the text) and metadata (source, page, etc.).",
+    q3: "LLMs have a context limit, so huge documents must be cut into smaller chunks.",
+    q4: "chunk_overlap repeats some text between chunks so context isn't lost at the cut point.",
+    q5: "RecursiveCharacterTextSplitter is the default; it splits on paragraphs, then lines, then words.",
+    q6: "The {curly_braces} are variables — blanks filled in with your data at runtime.",
+    q7: "In LCEL, data flows left to right: each component's output feeds the next.",
+    q8: "A Pydantic model with with_structured_output() returns a clean, type-checked object.",
+    q9: "You run an LCEL chain by calling .invoke() with a dict of variables.",
+    q10: "StrOutputParser pulls the plain text out of the model's reply.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! LangChain master!';        tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';        tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';     tip='Re-read the splitters and LCEL sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';    tip='Go through each section again and study the code examples.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 8 — Data Tools & Streamlit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #22263a;
+    --card2: #1e2235;
+    --accent: #f7971e;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #6c63ff;
+    --accent5: #38bdf8;
+    --text: #e8eaf6;
+    --muted: #8892b0;
+    --border: #2e3350;
+    --success: #43e97b;
+    --fail: #ff6b6b;
+    --code-bg: #12151f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 16px; line-height: 1.7; min-height: 100vh; }
+
+  /* HEADER */
+  .site-header { background: linear-gradient(135deg,#1a1d27,#0f1117); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
+  .logo { font-size: 1.3rem; font-weight: 900; white-space: nowrap; }
+  .logo span { color: var(--accent); }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .nav-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); color: var(--muted); font-family: 'Nunito',sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .progress-bar-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--muted); }
+  .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); width: 0%; }
+  #progress-label { font-weight: 700; color: var(--accent); min-width: 36px; }
+
+  /* HERO */
+  .hero { text-align: center; padding: 72px 24px 48px; background: radial-gradient(ellipse 80% 50% at 50% 0%,#f7971e1a,transparent); }
+  .hero-emoji { font-size: 4rem; display: block; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+  .hero h1 { font-size: clamp(1.8rem,5vw,3rem); font-weight: 900; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 32px; font-size: 1.05rem; }
+  .class-badge { display: inline-block; background: var(--accent); color: #0f1117; font-size: 0.8rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 20px; }
+
+  /* RECAP */
+  .recap-strip { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 0 24px 40px; }
+  .recap-chip { display: flex; align-items: center; gap: 6px; background: var(--card2); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 0.82rem; color: var(--muted); }
+  .recap-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); }
+
+  /* LESSON NAV */
+  .lesson-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; padding: 0 24px 48px; }
+  .nav-pill { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-family: 'Nunito',sans-serif; font-size: 0.88rem; font-weight: 700; transition: all 0.2s; }
+  .nav-pill:hover { border-color: var(--accent); color: var(--text); }
+  .nav-pill.active { background: var(--accent); border-color: var(--accent); color: #0f1117; }
+  .nav-pill.done { border-color: var(--success); color: var(--success); }
+  .nav-pill.done::after { content: ' ✓'; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* SECTION */
+  .lesson-section { margin-bottom: 56px; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .icon-orange { background: #f7971e22; }
+  .icon-blue   { background: #38bdf822; }
+  .icon-green  { background: #43e97b22; }
+  .icon-purple { background: #6c63ff22; }
+  .icon-red    { background: #ff6b6b22; }
+  .icon-yellow { background: #ffd70022; }
+  .section-title { font-size: 1.5rem; font-weight: 900; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
+
+  /* CARD */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 10px; }
+  .card p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+  .card p + p { margin-top: 10px; }
+  code { font-family: 'Fira Code',monospace; background: var(--card2); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--accent); }
+
+  .analogy-box { background: #f7971e12; border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .analogy-box strong { color: var(--accent); }
+  .tip-box { background: #43e97b12; border-left: 3px solid var(--accent3); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .tip-box strong { color: var(--accent3); }
+  .warn-box { background: #ff6b6b12; border-left: 3px solid var(--fail); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .warn-box strong { color: var(--fail); }
+  .info-box { background: #38bdf812; border-left: 3px solid var(--accent5); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 14px 0; font-size: 0.95rem; }
+  .info-box strong { color: var(--accent5); }
+
+  /* CODE */
+  .code-wrap { background: var(--code-bg); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .code-topbar { background: #1a1d27; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+  .code-label { font-size: 0.78rem; color: var(--muted); font-family: 'Fira Code',monospace; }
+  .code-copy-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'Nunito',sans-serif; transition: all 0.2s; }
+  .code-copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  pre { padding: 20px; overflow-x: auto; font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 1.8; }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .var { color: #ffcb6b; }
+  .op  { color: #89ddff; }
+
+  /* OUTPUT */
+  .output-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-family: 'Nunito',sans-serif; font-weight: 700; }
+  .output-box { background: #0a0d14; border: 1px dashed #2e3350; border-radius: 10px; padding: 14px 20px; font-family: 'Fira Code',monospace; font-size: 0.88rem; color: var(--accent3); white-space: pre; overflow-x: auto; }
+  .output-box.fail-out { color: #ff9a9a; border-color: #ff6b6b55; }
+
+  /* STEPS */
+  .steps { counter-reset: step; display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 14px; counter-increment: step; padding: 14px 18px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); }
+  .step::before { content: counter(step); background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; margin-top: 2px; }
+  .step-body { font-size: 0.92rem; color: var(--muted); }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 3px; }
+
+  /* METHODS TABLE */
+  .methods-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+  .methods-table th { background: var(--card2); padding: 10px 14px; text-align: left; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .methods-table td { padding: 10px 14px; border-bottom: 1px solid #1e2235; vertical-align: top; }
+  .methods-table tr:last-child td { border-bottom: none; }
+  .methods-table tr:hover td { background: #1e223580; }
+  .method-name { font-family: 'Fira Code',monospace; color: var(--accent3); font-weight: 700; }
+  .method-ex   { font-family: 'Fira Code',monospace; color: var(--muted); font-size: 0.8rem; }
+
+  /* QUIZ */
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+  .quiz-header { background: var(--card2); padding: 16px 24px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .quiz-num { background: var(--accent); color: #0f1117; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; flex-shrink: 0; }
+  .quiz-q { font-weight: 700; font-size: 0.98rem; }
+  .quiz-body { padding: 20px 24px; }
+  .quiz-code-snip { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'Fira Code',monospace; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.8; white-space: pre; overflow-x: auto; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.92rem; font-weight: 600; user-select: none; }
+  .quiz-option:hover { border-color: var(--accent); background: #f7971e10; }
+  .quiz-option.correct { border-color: var(--success); background: #43e97b12; color: var(--success); }
+  .quiz-option.wrong   { border-color: var(--fail);    background: #ff6b6b12; color: var(--fail); }
+  .quiz-option.disabled { pointer-events: none; }
+  .opt-indicator { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s; }
+  .quiz-option.correct .opt-indicator { background: var(--success); border-color: var(--success); color: #0f1117; }
+  .quiz-option.wrong   .opt-indicator { background: var(--fail);    border-color: var(--fail);    color: #fff; }
+  .quiz-feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.fb-correct { background: #43e97b12; color: var(--success); border: 1px solid #43e97b33; }
+  .quiz-feedback.fb-wrong   { background: #ff6b6b12; color: #ff9a9a;        border: 1px solid #ff6b6b33; }
+
+  /* FILL IN BLANK */
+  .fib-wrap { font-family: 'Fira Code',monospace; font-size: 0.9rem; line-height: 2.6; }
+  .fib-input { background: var(--code-bg); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 10px; color: var(--accent3); font-family: 'Fira Code',monospace; font-size: 0.9rem; width: 130px; outline: none; transition: border-color 0.2s; }
+  .fib-input:focus { border-color: var(--accent3); }
+  .fib-input.correct { border-color: var(--success); color: var(--success); }
+  .fib-input.wrong   { border-color: var(--fail);    color: var(--fail); }
+  .fib-btn { background: var(--accent); color: #0f1117; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity 0.2s; display: block; }
+  .fib-btn:hover { opacity: 0.85; }
+
+  /* SCORE */
+  .score-card { background: linear-gradient(135deg,#f7971e22,#43e97b11); border: 1px solid var(--accent); border-radius: 20px; padding: 32px; text-align: center; margin-top: 40px; }
+  .score-emoji { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+  .score-main  { font-size: 3rem; font-weight: 900; color: var(--accent3); margin-bottom: 8px; }
+  .score-sub   { color: var(--muted); margin-bottom: 20px; }
+  .score-bar-wrap { max-width: 300px; margin: 0 auto 20px; }
+  .score-bar-bg { background: var(--border); border-radius: 99px; height: 12px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: linear-gradient(90deg,var(--accent),var(--accent3)); border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1) 0.3s; }
+  .restart-btn { background: var(--accent); color: #0f1117; border: none; padding: 12px 32px; border-radius: 99px; font-family: 'Nunito',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; }
+  .restart-btn:hover { opacity: 0.85; }
+
+  /* CONFETTI */
+  .confetti-piece { position: fixed; width: 10px; height: 10px; pointer-events: none; animation: confetti-fall 2s ease-out forwards; z-index: 9999; border-radius: 2px; }
+  @keyframes confetti-fall { 0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+  /* MISC */
+  .section-divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 48px 0; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.5s,transform 0.5s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .checkpoint { display: flex; align-items: center; gap: 14px; background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin: 16px 0; }
+  .checkpoint-icon { font-size: 1.8rem; }
+  .checkpoint-text { font-size: 0.9rem; color: var(--muted); }
+  .checkpoint-text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* two-col grid for comparisons */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media(max-width:600px){ .two-col{grid-template-columns:1fr;} .progress-track{width:90px;} pre{font-size:0.78rem;} }
+
+  .compare-box { background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .compare-box h4 { font-size: 0.88rem; font-weight: 800; margin-bottom: 8px; }
+  .compare-box.green-box { border-top: 3px solid var(--accent3); }
+  .compare-box.orange-box { border-top: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">🚀 <span>GenAI</span> Bootcamp</div>
+  <div class="header-right">
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progress-label">0%</span>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="class-badge">Day 8 — Data Tools & Streamlit</span>
+  <span class="hero-emoji">📊</span>
+  <h1>Feed the <em>Data</em>, Build the <em>App</em></h1>
+  <p>Today we learn the everyday data toolkit — CSV, NumPy, Pandas, Matplotlib — keep projects clean with virtual environments, and turn a Python script into a real web app with Streamlit.</p>
+</section>
+
+<div class="recap-strip">
+  <div class="recap-chip"><span class="dot"></span>Day 8 Pillars:</div>
+  <div class="recap-chip"><span class="dot"></span>CSV data</div>
+  <div class="recap-chip"><span class="dot"></span>NumPy</div>
+  <div class="recap-chip"><span class="dot"></span>Pandas</div>
+  <div class="recap-chip"><span class="dot"></span>Matplotlib</div>
+  <div class="recap-chip"><span class="dot"></span>Virtual envs</div>
+  <div class="recap-chip"><span class="dot"></span>Streamlit</div>
+</div>
+
+<nav class="lesson-nav">
+  <button class="nav-pill active" onclick="scrollToSec('sec1')">1. CSV Files</button>
+  <button class="nav-pill" onclick="scrollToSec('sec2')">2. NumPy</button>
+  <button class="nav-pill" onclick="scrollToSec('sec3')">3. Pandas</button>
+  <button class="nav-pill" onclick="scrollToSec('sec4')">4. Matplotlib</button>
+  <button class="nav-pill" onclick="scrollToSec('sec5')">5. Venv &amp; pip</button>
+  <button class="nav-pill" onclick="scrollToSec('sec6')">6. Streamlit</button>
+  <button class="nav-pill" onclick="scrollToSec('sec7')">7. Quiz Time!</button>
+</nav>
+
+<main class="main">
+
+  <!-- ── SECTION 1: CSV ── -->
+  <section class="lesson-section reveal" id="sec1">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🗒️</div>
+      <div>
+        <div class="section-title">CSV — The Fuel of ML/DL</div>
+        <div class="section-sub">A plain-text table that every tool on earth can read</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a CSV file?</h3>
+      <p>CSV stands for <strong>Comma-Separated Values</strong>. It is just a plain-text file that holds a table. Each <em>line</em> is one record (a row), and inside each line the <em>columns</em> are separated by commas. There is no fancy formatting, no colors, no formulas — just text and commas.</p>
+      <p>The very first line is usually the <strong>header row</strong>: it names each column so you (and your code) know what each value means.</p>
+      <div class="analogy-box">
+        <strong>📄 Analogy — A spreadsheet any program can open:</strong> Think of a CSV as an Excel sheet that has been stripped down to its bare bones and saved as simple text. Because it is so plain, <em>every</em> program on earth can open it — Excel, Google Sheets, Python, a database, even Notepad.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">students.csv</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmt"># the first line is the HEADER row — it names the columns</span>
+name,age,score
+Aisha,21,88
+Omar,23,74
+Sara,20,95
+Diego,22,67</pre>
+      </div>
+      <p>Read that out loud: "name, age, score" tells us the columns; then "Aisha, 21, 88" means Aisha is 21 years old with a score of 88. Four data rows, three columns. That is the whole format.</p>
+    </div>
+
+    <div class="card">
+      <h3>Why ML/DL uses CSV everywhere</h3>
+      <p>Most machine-learning and deep-learning datasets are <strong>tabular</strong> — rows of examples, columns of features. CSV fits that shape perfectly. It is universal, lightweight, and human-readable, so it became the default way to ship a dataset and to <em>feed data into a model</em>.</p>
+      <table class="methods-table">
+        <tr><th>Why it wins</th><th>What it means for you</th></tr>
+        <tr><td>Universal</td><td>Every tool and library can read it — no special software</td></tr>
+        <tr><td>Lightweight</td><td>Plain text, tiny files, easy to share and download</td></tr>
+        <tr><td>Tabular</td><td>Matches how datasets and model inputs are naturally shaped</td></tr>
+        <tr><td>Human-readable</td><td>You can open it and eyeball the data instantly</td></tr>
+      </table>
+      <div class="tip-box">
+        <strong>💡 Why it matters:</strong> Almost every dataset you download from Kaggle, the web, or a company export will arrive as a CSV. Today you learn the tools that turn that raw CSV into something you can clean, explore, and feed to a model. This is your gentle starting point — everything else builds on it.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 2: NumPy ── -->
+  <section class="lesson-section reveal" id="sec2">
+    <div class="section-header">
+      <div class="section-icon icon-blue">🔢</div>
+      <div>
+        <div class="section-title">NumPy — Fast Numbers</div>
+        <div class="section-sub">Do math on a whole array at once, no slow loops</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why not just use Python lists?</h3>
+      <p>Python lists are flexible but <strong>slow for math</strong>. If you want to double every number in a list, you have to loop over it one item at a time — fine for 10 numbers, painfully slow for 10 million. NumPy gives you a new container called an <code>ndarray</code> (N-dimensional array) plus <strong>vectorized operations</strong>: you do the math on the <em>entire array at once</em>, and NumPy runs it in fast, low-level code under the hood.</p>
+      <p>It is also the foundation everything else stands on: Pandas, scikit-learn, TensorFlow, and PyTorch all build on NumPy arrays.</p>
+      <div class="analogy-box">
+        <strong>🧮 Analogy — A calculator for a whole column:</strong> A Python list is like punching numbers into a calculator one at a time. NumPy is like a spreadsheet formula that hits an entire column in a single keystroke — same result, a fraction of the effort and time.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">numpy_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># create an array from a list</span>
+<span class="var">arr</span> <span class="op">=</span> <span class="var">np</span>.<span class="fn">array</span>([<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>])
+
+<span class="fn">print</span>(<span class="var">arr</span> <span class="op">*</span> <span class="num">2</span>)        <span class="cmt"># element-wise: double EVERY number at once</span>
+<span class="fn">print</span>(<span class="var">arr</span>.<span class="fn">mean</span>())      <span class="cmt"># the average of the whole array</span>
+<span class="fn">print</span>(<span class="var">arr</span>.<span class="fn">sum</span>())       <span class="cmt"># add them all up</span>
+
+<span class="cmt"># a 2D array (rows and columns) — note its shape</span>
+<span class="var">grid</span> <span class="op">=</span> <span class="var">np</span>.<span class="fn">array</span>([[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>],
+                 [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]])
+<span class="fn">print</span>(<span class="var">grid</span>.<span class="var">shape</span>)    <span class="cmt"># (rows, columns)</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">[20 40 60 80]
+25.0
+100
+(2, 3)</div>
+      <div class="tip-box">
+        <strong>💡 One data type per array:</strong> Unlike a Python list, a NumPy array holds <em>one</em> kind of value — all numbers, for example. That single-type rule is exactly what lets NumPy be so fast. Mixing text and numbers in one array defeats the purpose.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 3: Pandas ── -->
+  <section class="lesson-section reveal" id="sec3">
+    <div class="section-header">
+      <div class="section-icon icon-green">🐼</div>
+      <div>
+        <div class="section-title">Pandas — Your Data Table in Python</div>
+        <div class="section-sub">Load, clean, explore, and filter tabular data with code</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The DataFrame: a spreadsheet you control with code</h3>
+      <p>Pandas gives you the <strong>DataFrame</strong> — a table with named columns and rows, just like a spreadsheet, but you drive it with Python instead of a mouse. You can load a file, peek at it, summarize it, and filter it in one or two lines. Under the hood it is built on top of NumPy, so it is fast too.</p>
+      <div class="analogy-box">
+        <strong>📈 Analogy — Excel, but programmable and unlimited:</strong> A DataFrame is Excel that never gets tired. Instead of clicking and dragging, you write a line of code — and it works the same on 10 rows or 10 million, with no manual clicking.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">pandas_intro.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="cmt"># read the CSV from Section 1 straight into a DataFrame</span>
+<span class="var">df</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">read_csv</span>(<span class="str">"students.csv"</span>)
+
+<span class="fn">print</span>(<span class="var">df</span>.<span class="fn">head</span>())               <span class="cmt"># first few rows</span>
+<span class="fn">print</span>(<span class="var">df</span>[<span class="str">"score"</span>].<span class="fn">mean</span>())       <span class="cmt"># average of one column</span>
+
+<span class="cmt"># filter: keep only students who scored above 80</span>
+<span class="var">top</span> <span class="op">=</span> <span class="var">df</span>[<span class="var">df</span>[<span class="str">"score"</span>] <span class="op">&gt;</span> <span class="num">80</span>]
+<span class="fn">print</span>(<span class="var">top</span>)</pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">    name  age  score
+0  Aisha   21     88
+1   Omar   23     74
+2   Sara   20     95
+3  Diego   22     67
+81.0
+    name  age  score
+0  Aisha   21     88
+2   Sara   20     95</div>
+      <div class="info-box">
+        <strong>ℹ️ read_csv is the bridge:</strong> Remember the CSV from Section 1? <code>pd.read_csv("students.csv")</code> is exactly how that raw text table walks into Python and becomes a DataFrame you can work with. CSV in, DataFrame out — that one line connects the two ideas.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Explore quickly with describe()</h3>
+      <p>Before doing anything clever, you want a feel for the data. <code>df.describe()</code> instantly gives you counts, averages, min/max, and more for every numeric column — a one-line health check on your dataset.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">describe.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="fn">print</span>(<span class="var">df</span>.<span class="fn">describe</span>())   <span class="cmt"># quick stats for every numeric column</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">            age      score
+count   4.00000   4.000000
+mean   21.50000  81.000000
+min    20.00000  67.000000
+max    23.00000  95.000000</div>
+      <div class="tip-box">
+        <strong>💡 Why it matters:</strong> Cleaning and exploring data is most of a data scientist's day. Pandas is the workhorse that makes it quick — and it is the first thing you reach for after loading any CSV.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 4: Matplotlib ── -->
+  <section class="lesson-section reveal" id="sec4">
+    <div class="section-header">
+      <div class="section-icon icon-purple">📉</div>
+      <div>
+        <div class="section-title">Matplotlib — See Your Data</div>
+        <div class="section-sub">A chart reveals patterns that a table hides</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Numbers hide patterns; charts reveal them</h3>
+      <p>Staring at a column of numbers, it is hard to tell whether scores are rising, clustered, or all over the place. Draw it as a chart and the pattern jumps out instantly. Matplotlib is the classic Python library for turning data into pictures.</p>
+      <div class="analogy-box">
+        <strong>🖼️ Analogy — A picture is worth a thousand rows:</strong> You could read 1,000 rows of sales figures and still miss the trend. One line chart and you see it climbing (or crashing) in half a second.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">plotting.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">matplotlib</span>.<span class="var">pyplot</span> <span class="kw">as</span> <span class="var">plt</span>
+
+<span class="var">names</span>  <span class="op">=</span> [<span class="str">"Aisha"</span>, <span class="str">"Omar"</span>, <span class="str">"Sara"</span>, <span class="str">"Diego"</span>]
+<span class="var">scores</span> <span class="op">=</span> [<span class="num">88</span>, <span class="num">74</span>, <span class="num">95</span>, <span class="num">67</span>]
+
+<span class="cmt"># a bar chart: one bar per student</span>
+<span class="var">plt</span>.<span class="fn">bar</span>(<span class="var">names</span>, <span class="var">scores</span>)
+<span class="var">plt</span>.<span class="fn">xlabel</span>(<span class="str">"Student"</span>)
+<span class="var">plt</span>.<span class="fn">ylabel</span>(<span class="str">"Score"</span>)
+<span class="var">plt</span>.<span class="fn">title</span>(<span class="str">"Exam Scores"</span>)
+<span class="var">plt</span>.<span class="fn">show</span>()                 <span class="cmt"># pop open the chart window</span></pre>
+      </div>
+      <div class="output-label">▶ What you see</div>
+      <div class="output-box">A window opens with four vertical bars.
+Sara's bar is tallest (95), Diego's is
+shortest (67). The x-axis is labelled
+"Student", the y-axis "Score", titled
+"Exam Scores".</div>
+    </div>
+
+    <div class="card">
+      <h3>Other everyday chart types</h3>
+      <p>Same idea, different shapes. Use <code>plt.plot</code> for a line (trends over time), <code>plt.bar</code> for comparing categories, and <code>plt.hist</code> for the <em>distribution</em> of a single column.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">chart_types.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">months</span> <span class="op">=</span> [<span class="str">"Jan"</span>, <span class="str">"Feb"</span>, <span class="str">"Mar"</span>, <span class="str">"Apr"</span>]
+<span class="var">sales</span>  <span class="op">=</span> [<span class="num">120</span>, <span class="num">150</span>, <span class="num">90</span>, <span class="num">200</span>]
+
+<span class="var">plt</span>.<span class="fn">plot</span>(<span class="var">months</span>, <span class="var">sales</span>)   <span class="cmt"># LINE chart: a trend over time</span>
+<span class="var">plt</span>.<span class="fn">hist</span>(<span class="var">scores</span>)           <span class="cmt"># HISTOGRAM: how values are spread out</span>
+<span class="var">plt</span>.<span class="fn">title</span>(<span class="str">"Monthly Sales"</span>)
+<span class="var">plt</span>.<span class="fn">show</span>()</pre>
+      </div>
+      <div class="tip-box">
+        <strong>💡 Notebooks &amp; Streamlit:</strong> Outside a plain script you usually don't call <code>plt.show()</code>. In a Jupyter notebook the chart appears automatically; in Streamlit you hand the figure to the app (e.g. <code>st.pyplot(fig)</code> or the built-in <code>st.line_chart</code>). The drawing code is the same — only the way you <em>display</em> it changes.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 5: Virtual environments & pip ── -->
+  <section class="lesson-section reveal" id="sec5">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">📦</div>
+      <div>
+        <div class="section-title">Virtual Environments &amp; pip</div>
+        <div class="section-sub">An isolated, private Python for each project</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>What is a virtual environment?</h3>
+      <p>A <strong>virtual environment</strong> (or "venv") is an isolated, project-specific copy of Python with its <em>own</em> set of installed packages, kept completely separate from the global/system Python on your machine. Each project gets its own clean space.</p>
+      <div class="analogy-box">
+        <strong>🧰 Analogy — A separate toolbox per project:</strong> Imagine every project gets its own toolbox. Project A keeps its old hammer; Project B keeps a brand-new one. Neither reaches into the other's box, so one project's tools never clash with another's.
+      </div>
+      <h3 style="margin-top:18px">Why it matters</h3>
+      <p>Different projects often need <em>different versions</em> of the same package. Project A might depend on an old NumPy; Project B needs the latest. Installing everything globally leads to version conflicts and the dreaded "but it works on my machine!" Virtual environments avoid all of that and keep your global Python clean.</p>
+    </div>
+
+    <div class="card">
+      <h3>Step 1 — Check the global Python &amp; NumPy first</h3>
+      <p>Before creating anything, let's see what the <em>global</em> Python already has. Notice the NumPy here is old — version <code>1.17.0</code>.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">cmd.exe — global Python</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">python</span> --version
+<span class="var">python</span> -c <span class="str">"import numpy; print(numpy.__version__)"</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Python 3.11.4
+1.17.0</div>
+    </div>
+
+    <div class="card">
+      <h3>Step 2 — Create the venv (Windows)</h3>
+      <p>From your project folder, ask Python to build a fresh environment in a sub-folder called <code>venv</code>.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">cmd.exe</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">python</span> -m venv venv</pre>
+      </div>
+      <p>This creates a <code>venv\</code> folder holding a private copy of Python. Nothing is activated yet — that's the next step.</p>
+    </div>
+
+    <div class="card">
+      <h3>Step 3 — Activate it</h3>
+      <p>Activating points your terminal at the venv's private Python. On Windows the command depends on your terminal:</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">Command Prompt (cmd.exe)</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">venv</span>\Scripts\activate</pre>
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">PowerShell</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="var">venv</span>\Scripts\Activate.ps1</pre>
+      </div>
+      <div class="output-label">▶ Your prompt changes to show (venv)</div>
+      <div class="output-box">(venv) C:\my_project&gt;</div>
+      <p>That <code>(venv)</code> tag is your signal that you are now inside the environment. To leave it, just type <code>deactivate</code>.</p>
+      <div class="info-box">
+        <strong>ℹ️ On Mac/Linux:</strong> The create step is the same (<code>python3 -m venv venv</code>), but you activate with <code>source venv/bin/activate</code> instead. The idea is identical — we'll keep our main walkthrough on Windows.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Step 4 — Install the LATEST NumPy inside the venv</h3>
+      <p>Now that we're inside <code>(venv)</code>, anything we <code>pip install</code> lands <em>only here</em>, never touching the global Python. Let's grab the newest NumPy.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">cmd.exe — inside (venv)</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>(venv) <span class="var">pip</span> install --upgrade numpy
+(venv) <span class="var">python</span> -c <span class="str">"import numpy; print(numpy.__version__)"</span></pre>
+      </div>
+      <div class="output-label">▶ Output</div>
+      <div class="output-box">Successfully installed numpy-2.1.0
+2.1.0</div>
+      <p>The venv now has NumPy <code>2.1.0</code>, while the global Python still has the old <code>1.17.0</code>. Two versions, peacefully side by side.</p>
+    </div>
+
+    <div class="card">
+      <h3>The demo — why the isolation actually matters</h3>
+      <p>NumPy 2.x added a function called <code>np.isdtype(...)</code> that simply <em>does not exist</em> in the old 1.17. Watch the exact same code behave differently depending on which Python runs it.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">check.py — runs in BOTH environments</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># np.isdtype was ADDED in NumPy 2.x — it's new!</span>
+<span class="fn">print</span>(<span class="var">np</span>.<span class="fn">isdtype</span>(<span class="var">np</span>.<span class="var">float64</span>, <span class="str">"real floating"</span>))</pre>
+      </div>
+
+      <div class="two-col">
+        <div class="compare-box orange-box">
+          <h4 style="color:var(--accent2)">❌ Global Python (NumPy 1.17.0)</h4>
+          <p style="font-size:0.85rem;color:var(--muted)">Run with the system interpreter — the new function isn't there.</p>
+          <div class="output-label">▶ Output</div>
+          <div class="output-box fail-out">Traceback (most recent call last):
+AttributeError: module 'numpy'
+has no attribute 'isdtype'</div>
+        </div>
+        <div class="compare-box green-box">
+          <h4 style="color:var(--accent3)">✅ Inside (venv) (NumPy 2.1.0)</h4>
+          <p style="font-size:0.85rem;color:var(--muted)">Run inside the activated venv — the new function works.</p>
+          <div class="output-label">▶ Output</div>
+          <div class="output-box">True</div>
+        </div>
+      </div>
+
+      <div class="warn-box">
+        <strong>⚠️ The lesson in red:</strong> The crash on the left isn't a typo — the global Python is simply too old to know what <code>isdtype</code> is. Without a venv you'd be stuck, or you'd risk upgrading the global NumPy and breaking other projects.
+      </div>
+      <div class="tip-box">
+        <strong>💡 Conclusion:</strong> The virtual environment let us use the brand-new NumPy version — and its new features — <em>without touching the global Python at all</em>. Every project gets exactly the versions it needs, and nothing clashes. That is the whole point of venvs.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 6: Streamlit ── -->
+  <section class="lesson-section reveal" id="sec6">
+    <div class="section-header">
+      <div class="section-icon icon-red">🎈</div>
+      <div>
+        <div class="section-title">Streamlit — Turn Scripts into Apps</div>
+        <div class="section-sub">A web app from a pure Python script — no HTML, CSS, or JS</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why ML/AI engineers love it</h3>
+      <p>Streamlit turns an ordinary Python file into an interactive web app — with <strong>no HTML, CSS, or JavaScript needed</strong>. You write Python, and Streamlit draws the buttons, inputs, tables, and charts for you. It even auto-reloads the moment you save the file, so building feels instant. It's the fastest way to make demos, dashboards, and model UIs.</p>
+      <div class="analogy-box">
+        <strong>🙂 Analogy — Your script grows a face:</strong> A plain Python script runs silently in a terminal. Streamlit gives that same script a friendly face — a real web UI — for free, so anyone (not just programmers) can click and use it.
+      </div>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">cmd.exe — inside (venv)</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>(venv) <span class="var">pip</span> install streamlit    <span class="cmt"># install it INSIDE the venv!</span>
+(venv) <span class="var">streamlit</span> run app.py     <span class="cmt"># launch the app in your browser</span></pre>
+      </div>
+      <div class="info-box">
+        <strong>ℹ️ Inside the venv:</strong> Notice we install Streamlit <em>inside</em> the activated environment from Section 5 — keeping every package this project needs neatly in its own toolbox.
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Build #1 — a simple calculator app</h3>
+      <p>A handful of Streamlit functions builds a full calculator: <code>st.title</code> for a heading, <code>st.number_input</code> for numbers, <code>st.selectbox</code> to pick the operation, <code>st.button</code> to trigger it, and <code>st.success</code> / <code>st.write</code> to show the answer.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">app.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">streamlit</span> <span class="kw">as</span> <span class="var">st</span>
+
+<span class="var">st</span>.<span class="fn">title</span>(<span class="str">"Calculator 🧮"</span>)
+
+<span class="var">a</span> <span class="op">=</span> <span class="var">st</span>.<span class="fn">number_input</span>(<span class="str">"First number"</span>)
+<span class="var">b</span> <span class="op">=</span> <span class="var">st</span>.<span class="fn">number_input</span>(<span class="str">"Second number"</span>)
+<span class="var">op</span> <span class="op">=</span> <span class="var">st</span>.<span class="fn">selectbox</span>(<span class="str">"Operation"</span>, [<span class="str">"+"</span>, <span class="str">"-"</span>, <span class="str">"×"</span>, <span class="str">"÷"</span>])
+
+<span class="kw">if</span> <span class="var">st</span>.<span class="fn">button</span>(<span class="str">"Calculate"</span>):
+    <span class="kw">if</span> <span class="var">op</span> <span class="op">==</span> <span class="str">"+"</span>:
+        <span class="var">st</span>.<span class="fn">success</span>(<span class="var">a</span> <span class="op">+</span> <span class="var">b</span>)
+    <span class="kw">elif</span> <span class="var">op</span> <span class="op">==</span> <span class="str">"-"</span>:
+        <span class="var">st</span>.<span class="fn">success</span>(<span class="var">a</span> <span class="op">-</span> <span class="var">b</span>)
+    <span class="kw">elif</span> <span class="var">op</span> <span class="op">==</span> <span class="str">"×"</span>:
+        <span class="var">st</span>.<span class="fn">success</span>(<span class="var">a</span> <span class="op">*</span> <span class="var">b</span>)
+    <span class="kw">else</span>:                          <span class="cmt"># division — guard against ÷ by 0</span>
+        <span class="kw">if</span> <span class="var">b</span> <span class="op">==</span> <span class="num">0</span>:
+            <span class="var">st</span>.<span class="fn">write</span>(<span class="str">"⚠️ Cannot divide by zero!"</span>)
+        <span class="kw">else</span>:
+            <span class="var">st</span>.<span class="fn">success</span>(<span class="var">a</span> <span class="op">/</span> <span class="var">b</span>)</pre>
+      </div>
+      <div class="output-label">▶ What the user sees</div>
+      <div class="output-box">A web page titled "Calculator 🧮" with
+two number boxes, a dropdown (+ - × ÷),
+and a "Calculate" button. Click it and a
+green success box shows the result — or a
+warning if you tried to divide by zero.</div>
+    </div>
+
+    <div class="card">
+      <h3>Build #2 — upload a CSV and display it</h3>
+      <p>This ties everything together. <code>st.file_uploader</code> lets the user drop in a CSV; we read it with Pandas (Section 3!) and show it as an interactive table with <code>st.dataframe</code> — plus instant stats and a chart.</p>
+      <div class="code-wrap">
+        <div class="code-topbar"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-label">app.py</span><button class="code-copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="kw">import</span> <span class="var">streamlit</span> <span class="kw">as</span> <span class="var">st</span>
+<span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="var">st</span>.<span class="fn">title</span>(<span class="str">"CSV Explorer 📊"</span>)
+
+<span class="var">uploaded</span> <span class="op">=</span> <span class="var">st</span>.<span class="fn">file_uploader</span>(<span class="str">"Upload a CSV"</span>, <span class="var">type</span><span class="op">=</span><span class="str">"csv"</span>)
+
+<span class="kw">if</span> <span class="var">uploaded</span>:
+    <span class="var">df</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">read_csv</span>(<span class="var">uploaded</span>)   <span class="cmt"># same read_csv as before</span>
+    <span class="var">st</span>.<span class="fn">dataframe</span>(<span class="var">df</span>)               <span class="cmt"># show it as a table</span>
+    <span class="var">st</span>.<span class="fn">write</span>(<span class="var">df</span>.<span class="fn">describe</span>())          <span class="cmt"># quick stats</span>
+    <span class="var">st</span>.<span class="fn">line_chart</span>(<span class="var">df</span>[<span class="str">"score"</span>])     <span class="cmt"># instant chart</span></pre>
+      </div>
+      <div class="output-label">▶ What the user sees</div>
+      <div class="output-box">A page with an "Upload a CSV" drop zone.
+Drop students.csv in and the page fills
+with: an interactive table of the rows, a
+summary-stats table, and a line chart of
+the scores — all without refreshing.</div>
+      <div class="tip-box">
+        <strong>💡 Why it matters:</strong> This is exactly how quick data dashboards get built. CSV → Pandas → Streamlit, in about ten lines. Swap the chart for an LLM call and you have a GenAI demo anyone can use in their browser.
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ── SECTION 7: QUIZ ── -->
+  <section class="lesson-section reveal" id="sec7">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🧩</div>
+      <div>
+        <div class="section-title">Quiz Time! — Day 8 Test</div>
+        <div class="section-sub">10 questions on data tools, venvs, and Streamlit</div>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div class="quiz-header"><div class="quiz-num">1</div><div class="quiz-q">What is a CSV file?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">A</span>A compiled program that runs data</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,true)"><span class="opt-indicator">B</span>A plain-text table where columns are separated by commas</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">C</span>A special Excel-only binary format</div>
+          <div class="quiz-option" onclick="answerMCQ('q1',this,false)"><span class="opt-indicator">D</span>A type of image file</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div class="quiz-header"><div class="quiz-num">2</div><div class="quiz-q">Why do we use NumPy instead of plain Python lists for math?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">A</span>It can store text and numbers mixed together</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">B</span>It draws charts automatically</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,true)"><span class="opt-indicator">C</span>Vectorized operations let it do math on a whole array at once, very fast</div>
+          <div class="quiz-option" onclick="answerMCQ('q2',this,false)"><span class="opt-indicator">D</span>It is slower but easier to read</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div class="quiz-header"><div class="quiz-num">3</div><div class="quiz-q">What is the main data structure Pandas gives you?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">A</span>The ndarray</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,true)"><span class="opt-indicator">B</span>The DataFrame — a programmable spreadsheet-like table</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">C</span>The Figure</div>
+          <div class="quiz-option" onclick="answerMCQ('q3',this,false)"><span class="opt-indicator">D</span>The venv</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div class="quiz-header"><div class="quiz-num">4</div><div class="quiz-q">Which Pandas function loads a CSV file into a DataFrame?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">A</span>pd.open_csv()</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">B</span>pd.load()</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,true)"><span class="opt-indicator">C</span>pd.read_csv()</div>
+          <div class="quiz-option" onclick="answerMCQ('q4',this,false)"><span class="opt-indicator">D</span>pd.csv()</div>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div class="quiz-header"><div class="quiz-num">5</div><div class="quiz-q">What is Matplotlib mainly used for?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">A</span>Validating data types</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,true)"><span class="opt-indicator">B</span>Drawing charts so patterns in data become visible</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">C</span>Installing packages</div>
+          <div class="quiz-option" onclick="answerMCQ('q5',this,false)"><span class="opt-indicator">D</span>Running web servers</div>
+        </div>
+        <div class="quiz-feedback" id="q5-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-card" id="q6">
+      <div class="quiz-header"><div class="quiz-num">6</div><div class="quiz-q">Why use a virtual environment for each project?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">A</span>It makes your code run twice as fast</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,true)"><span class="opt-indicator">B</span>It isolates each project's packages so versions don't clash</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">C</span>It encrypts your source code</div>
+          <div class="quiz-option" onclick="answerMCQ('q6',this,false)"><span class="opt-indicator">D</span>It is required to import any module</div>
+        </div>
+        <div class="quiz-feedback" id="q6-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="quiz-card" id="q7">
+      <div class="quiz-header"><div class="quiz-num">7</div><div class="quiz-q">On Windows (Command Prompt), how do you activate a venv named <code>venv</code>?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">A</span>source venv/bin/activate</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,true)"><span class="opt-indicator">B</span>venv\Scripts\activate</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">C</span>python activate venv</div>
+          <div class="quiz-option" onclick="answerMCQ('q7',this,false)"><span class="opt-indicator">D</span>pip activate venv</div>
+        </div>
+        <div class="quiz-feedback" id="q7-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="quiz-card" id="q8">
+      <div class="quiz-header"><div class="quiz-num">8</div><div class="quiz-q">In Streamlit, which function lets a user upload a CSV file?</div></div>
+      <div class="quiz-body">
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">A</span>st.upload()</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">B</span>st.read_csv()</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,true)"><span class="opt-indicator">C</span>st.file_uploader()</div>
+          <div class="quiz-option" onclick="answerMCQ('q8',this,false)"><span class="opt-indicator">D</span>st.input_file()</div>
+        </div>
+        <div class="quiz-feedback" id="q8-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q9 (FIB) -->
+    <div class="quiz-card" id="q9">
+      <div class="quiz-header"><div class="quiz-num">9</div><div class="quiz-q">Fill in the blank: the command to create a virtual environment in a folder named <code>venv</code> is <code>python -m ______ venv</code></div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          python -m <input class="fib-input" id="fib9" placeholder="?" /> venv
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib9','q9-fb',['venv'],'q9')">Check Answer</button>
+        <div class="quiz-feedback" id="q9-fb"></div>
+      </div>
+    </div>
+
+    <!-- Q10 (FIB) -->
+    <div class="quiz-card" id="q10">
+      <div class="quiz-header"><div class="quiz-num">10</div><div class="quiz-q">Fill in the blank: the Pandas call that loads <code>students.csv</code> is <code>pd.______("students.csv")</code></div></div>
+      <div class="quiz-body">
+        <div class="fib-wrap">
+          df = pd.<input class="fib-input" id="fib10" placeholder="?" />("students.csv")
+        </div>
+        <button class="fib-btn" onclick="checkFIB('fib10','q10-fb',['read_csv','read_csv()'],'q10')">Check Answer</button>
+        <div class="quiz-feedback" id="q10-fb"></div>
+      </div>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <span class="score-emoji" id="scoreEmoji">🏆</span>
+      <div class="score-main" id="scoreMain">0 / 10</div>
+      <div class="score-sub" id="scoreSub">Great work!</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBarFill"></div></div>
+      </div>
+      <div class="score-sub" id="scoreTip"></div>
+      <button class="restart-btn" onclick="restartQuiz()">↻ Try Again</button>
+    </div>
+
+    <!-- CHECKPOINT -->
+    <div class="checkpoint">
+      <span class="checkpoint-icon">🎉</span>
+      <div class="checkpoint-text">
+        <strong>Day 8 Complete!</strong>
+        You can now read data from CSV files, crunch numbers fast with NumPy, wrangle tables with Pandas, visualize with Matplotlib, keep projects clean using virtual environments &amp; pip, and ship interactive apps with Streamlit. That's the full data-to-app pipeline!
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── STATE ──
+let totalSections = 7;
+let completedSections = new Set();
+let quizAnswered = {}, quizCorrect = {}, quizTotal = 10, quizScore = 0;
+
+// ── PROGRESS & NAV ──
+function scrollToSec(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+function updateProgress() {
+  let pct = Math.round((completedSections.size / totalSections) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+  let pills = document.querySelectorAll('.nav-pill');
+  completedSections.forEach(idx => { if (pills[idx]) { pills[idx].classList.add('done'); pills[idx].classList.remove('active'); } });
+}
+
+let obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      let ids = ['sec1','sec2','sec3','sec4','sec5','sec6','sec7'];
+      let idx = ids.indexOf(e.target.id);
+      if (idx >= 0) {
+        completedSections.add(idx);
+        updateProgress();
+        let pills = document.querySelectorAll('.nav-pill');
+        pills.forEach(p => p.classList.remove('active'));
+        if (pills[idx]) pills[idx].classList.add('active');
+      }
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── COPY ──
+function copyCode(btn) {
+  navigator.clipboard.writeText(btn.closest('.code-wrap').querySelector('pre').innerText).then(() => {
+    btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// ── QUIZ + CONFETTI (generic, reusable) ──
+function answerMCQ(qId, optEl, isCorrect) {
+  if (quizAnswered[qId]) return;
+  quizAnswered[qId] = true;
+  document.getElementById(qId).querySelectorAll('.quiz-option').forEach(o => o.classList.add('disabled'));
+  let fb = document.getElementById(qId+'-fb');
+  fb.classList.add('show');
+  if (isCorrect) {
+    optEl.classList.add('correct');
+    optEl.querySelector('.opt-indicator').textContent = '✓';
+    fb.classList.add('fb-correct');
+    fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++;
+    confetti(optEl);
+  } else {
+    optEl.classList.add('wrong');
+    optEl.querySelector('.opt-indicator').textContent = '✗';
+    fb.classList.add('fb-wrong');
+    fb.textContent = wrongFeedback(qId);
+  }
+  checkDone();
+}
+
+function checkFIB(inputId, fbId, answers, qId) {
+  if (quizAnswered[qId]) return;
+  let inp = document.getElementById(inputId);
+  let val = inp.value.trim().toLowerCase();
+  let fb  = document.getElementById(fbId);
+  fb.classList.add('show');
+  quizAnswered[qId] = true;
+  let correct = Array.isArray(answers) ? answers.some(a => val === a.toLowerCase() || val === a.toLowerCase().replace(/['"]/g,'')) : val === answers.toLowerCase();
+  if (correct) {
+    inp.classList.add('correct'); fb.classList.add('fb-correct'); fb.textContent = posFeedback();
+    quizCorrect[qId] = true; quizScore++; confetti(inp);
+  } else {
+    inp.classList.add('wrong'); fb.classList.add('fb-wrong');
+    fb.textContent = 'Not quite! The answer is: ' + (Array.isArray(answers) ? answers[0] : answers);
+  }
+  inp.disabled = true;
+  let btn = document.querySelector("button[onclick*='" + inputId + "']");
+  if (btn) btn.disabled = true;
+  checkDone();
+}
+
+function posFeedback() {
+  let m = ["Excellent! You got it!","Perfect! Great job!","Spot on!","Correct! Well done!","Nailed it!"];
+  return "✅ " + m[Math.floor(Math.random()*m.length)];
+}
+function wrongFeedback(qId) {
+  let hints = {
+    q1: "A CSV is a plain-text table where each row is a line and columns are separated by commas.",
+    q2: "NumPy's vectorized operations do math on a whole array at once, far faster than looping over a list.",
+    q3: "Pandas' core structure is the DataFrame — a programmable, spreadsheet-like table built on NumPy.",
+    q4: "pd.read_csv() reads a CSV file straight into a DataFrame.",
+    q5: "Matplotlib draws charts so hidden patterns in your data become visible at a glance.",
+    q6: "A virtual environment isolates each project's packages so different versions never clash.",
+    q7: "On Windows Command Prompt you activate a venv with venv\\Scripts\\activate.",
+    q8: "st.file_uploader() gives users a drop zone to upload a file like a CSV.",
+  };
+  return "Not quite. " + (hints[qId] || "Review the section and try again!");
+}
+
+function checkDone() {
+  if (Object.keys(quizAnswered).length >= quizTotal) setTimeout(showScore, 600);
+}
+
+function showScore() {
+  let card = document.getElementById('scoreCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  let pct = Math.round((quizScore/quizTotal)*100);
+  document.getElementById('scoreMain').textContent = quizScore + ' / ' + quizTotal;
+  document.getElementById('scoreBarFill').style.width = pct + '%';
+  let emoji, sub, tip;
+  if      (pct===100){ emoji='🏆'; sub='Perfect! Data tools & Streamlit master!';  tip='Outstanding! You aced every question!'; }
+  else if (pct>=80)  { emoji='🌟'; sub='Excellent! Almost perfect!';               tip='Review the ones you missed and you will get 100!'; }
+  else if (pct>=60)  { emoji='👍'; sub='Good effort! Keep practising.';            tip='Re-read the Pandas and venv sections.'; }
+  else               { emoji='💪'; sub='Keep going, you will get there!';           tip='Go through each section again and study the code examples.'; }
+  document.getElementById('scoreEmoji').textContent = emoji;
+  document.getElementById('scoreSub').textContent   = sub;
+  document.getElementById('scoreTip').textContent   = tip;
+  if (pct >= 80) bigConfetti();
+  completedSections.add(6); updateProgress();
+}
+
+function restartQuiz() {
+  quizAnswered={}; quizCorrect={}; quizScore=0;
+  for (let i=1; i<=quizTotal; i++) {
+    let card = document.getElementById('q'+i); if (!card) continue;
+    card.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('correct','wrong','disabled'));
+    card.querySelectorAll('.opt-indicator').forEach(o=>{ if(o.textContent==='✓'||o.textContent==='✗') o.textContent=''; });
+    card.querySelectorAll('.quiz-feedback').forEach(f=>{ f.classList.remove('show','fb-correct','fb-wrong'); f.textContent=''; });
+    card.querySelectorAll('.fib-input').forEach(inp=>{ inp.value=''; inp.disabled=false; inp.classList.remove('correct','wrong'); });
+    card.querySelectorAll('.fib-btn').forEach(b=>b.disabled=false);
+  }
+  document.getElementById('scoreCard').style.display='none';
+  document.getElementById('sec7').scrollIntoView({behavior:'smooth'});
+}
+
+function confetti(el) {
+  let rect=el.getBoundingClientRect();
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff'];
+  for(let i=0;i<14;i++){let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(rect.left+Math.random()*rect.width)+'px;top:'+rect.top+'px;background:'+colors[i%colors.length]+';transform:rotate('+(Math.random()*360)+'deg)';document.body.appendChild(p);setTimeout(()=>p.remove(),2200);}
+}
+function bigConfetti() {
+  let colors=['#f7971e','#43e97b','#38bdf8','#ff6b6b','#ffd700','#6c63ff','#fff'];
+  for(let i=0;i<70;i++){setTimeout(()=>{let p=document.createElement('div');p.className='confetti-piece';p.style.cssText='left:'+(Math.random()*100)+'vw;top:-20px;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(1.5+Math.random())+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),2600);},i*35);}
+}
+</script>
+</body></html>
