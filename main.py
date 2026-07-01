@@ -1,39 +1,23 @@
+import streamlit 
 
-contacts={
-    "Abrar":{"phone":"894765285", "city":"hyderabad"},
-    "Arhan":{"phone":"584654656","city":"Hyderabad"}
+import pandas
+import matplotlib.pyplot as plt
 
-}
+dataframe=pandas.read_csv("test.csv")
 
-def add_contact(name, phn, city):
-    contacts[name]={"phone":phn, "city":city}
+streamlit.title("Reading CSV")
 
-    print(f"contact {name} was added")
+streamlit.write(dataframe)
 
+streamlit.write(dataframe["score"].mean())
 
-def search(name):
-    information=contacts.get(name)
-    if information:
-        print(f"found :{name}")
-        print(f"phone number: {information['phone']}")
-        print(f"city {information['city']}")
+fig, ax = plt.subplots(figsize=(7,4))
+ax.bar(dataframe["name"], dataframe["score"])
+ax.set_xlabel("Student")
+ax.set_ylabel("Score")
+ax.set_title("Scores of Students")
 
-while True:
-    n=int(input("enter a choice:"))
-    if n==1:
-        namee=str(input("enter your name"))
-        phonee=int(input("phn no: "))
-        cityy=str(input("city: "))
-        add_contact(namee, phonee, cityy)
-    if n==2:
-        name_to_be_searched=str(input("name:"))
-        search(name_to_be_searched)
-    
+streamlit.pyplot(fig)
 
 
-
-
-
-
-
-
+        

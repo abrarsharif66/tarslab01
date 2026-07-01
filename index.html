@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator 🧮</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        width: 320px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    button {
+        margin-top: 18px;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #45a049;
+    }
+
+    #result {
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h2>Calculator 🧮</h2>
+
+    <label for="num1">First Number</label>
+    <input type="number" id="num1" placeholder="Enter first number">
+
+    <label for="num2">Second Number</label>
+    <input type="number" id="num2" placeholder="Enter second number">
+
+    <label for="operation">Operation</label>
+    <select id="operation">
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">×</option>
+        <option value="/">÷</option>
+    </select>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+function calculate() {
+    let a = parseFloat(document.getElementById("num1").value);
+    let b = parseFloat(document.getElementById("num2").value);
+    let op = document.getElementById("operation").value;
+    let resultBox = document.getElementById("result");
+
+    // Check if inputs are valid
+    if (isNaN(a) || isNaN(b)) {
+        resultBox.className = "error";
+        resultBox.innerHTML = "⚠️ Please enter both numbers.";
+        return;
+    }
+
+    let result;
+
+    switch(op) {
+        case "+":
+            result = a + b;
+            break;
+        case "-":
+            result = a - b;
+            break;
+        case "*":
+            result = a * b;
+            break;
+        case "/":
+            if (b === 0) {
+                resultBox.className = "error";
+                resultBox.innerHTML = "⚠️ Cannot divide by zero!";
+                return;
+            }
+            result = a / b;
+            break;
+    }
+
+    resultBox.className = "success";
+    resultBox.innerHTML = "Result: " + result;
+}
+</script>
+
+</body>
+</html>
