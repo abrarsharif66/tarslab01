@@ -19,5 +19,7 @@ ax.set_title("Scores of Students")
 
 streamlit.pyplot(fig)
 
+# added areeb
+
 
         
