@@ -21,5 +21,6 @@ streamlit.pyplot(fig)
 
 # added areeb
 
+#new fetures
 
         
